@@ -5,3 +5,4 @@ CMPT 276 Course Project
     - Colin Sun
     - Simon Purdon
     - Neville Leung
+    - Nakul Bansal
