@@ -1,0 +1,44 @@
+/*
+Placeholder setting for website header
+*/
+header {
+    position: fixed;
+    height: 170px;
+    width: 100%;
+    background-color: lightgrey;
+    text-align: center;
+    margin: -10px;
+}
+
+#logo {
+    font-size: 20px;
+    float: left;
+    height: 150px;
+    width: 200px;
+    margin: 10px 20px 10px 20px;
+}
+
+h1 {
+    font-size: 40px;
+    color: black;
+    float: left;
+    height: 150px;
+    width: 300px;
+    margin: 10px 20px 10px 20px;
+    text-align: left;
+}
+/*
+Setting for right sidebar
+*/
+aside {
+    z-index: -1;
+    position: fixed;
+    right: 0px;
+    padding-top: 170px;
+    height: 100%;
+    width: 250px;
+    background-color: antiquewhite;
+}
+p {
+    margin: 20px;
+}
