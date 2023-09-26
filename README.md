@@ -8,15 +8,24 @@ This is a community-based food sharing platform, where users can create, share, 
 
 ### Developement
 
-
 ```
 .
 ├── server          # contains file for Go backend server
 ├── src             # contains files for frontend
-├── docs            # documentation - UML, User Case
+├── docs            # documentation for the project
 ├── .gitignore
 └── README.md
 ```
+
+
+#### Requirements
+
+- GoLang
+- MySQL
+
+</br>
+
+Read more about the project and local developement [here](./docs/).
 
 ---
 
