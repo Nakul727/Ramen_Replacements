@@ -2,6 +2,7 @@ package Accounts
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,13 +21,15 @@ var maxUsernameLen = 25
 var maxPFPLen = 250
 
 // helper function for returning profiles as JSON
-func jsonProfile(c *gin.Context, res *sql.Rows) {
+func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
 		found = true
 		var u, p string
 		var i int
-		res.Scan(&i, &u, &p)
+		if err := res.Scan(&i, &u, &p); err != nil {
+			return err
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"name": u,
 			"pfp":  p,
@@ -35,8 +38,9 @@ func jsonProfile(c *gin.Context, res *sql.Rows) {
 	}
 	// if no profiles found
 	if !found {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no profile exists"})
+		return errors.New("no user found")
 	}
+	return nil
 }
 
 func getUserByName(c *gin.Context) {
@@ -58,7 +62,12 @@ func getUserByName(c *gin.Context) {
 		return
 	}
 	// return found user data
-	jsonProfile(c, res)
+	err = jsonProfile(c, res)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
 }
 
 func getAllUsers(c *gin.Context) {
@@ -70,7 +79,21 @@ func getAllUsers(c *gin.Context) {
 		return
 	}
 
-	jsonProfile(c, res)
+	var accounts []Account
+	for res.Next() {
+		var u, p string
+		var i int
+		if err := res.Scan(&i, &u, &p); err != nil {
+			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+			return
+		}
+		var account Account
+		account.Username = u
+		account.PFP = p
+		account.ID = i
+		accounts = append(accounts, account)
+	}
+	c.JSON(http.StatusOK, accounts)
 }
 
 func createAccount(c *gin.Context) {
