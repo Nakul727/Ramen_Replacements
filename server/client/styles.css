@@ -1,0 +1,16 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+	position: relative;
+	background-color: rgb(67, 64, 64);
+	color: white;
+}
+.form {
+	margin: 200px;
+	padding: 100px;
+	border: 1px solid #000000;
+	background-color: #ffffff;
+	color: black;
+}
