@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
-	Accounts "components"
+	Accounts "rr_backend/server/components"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
