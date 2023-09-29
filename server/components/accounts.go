@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"github.com/gin-contrib/cors"			// enable cors package for cross-origin requests (different ports)
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -138,6 +139,12 @@ func createAccount(c *gin.Context) {
 // Pass the used router into the function argument to gain access to all functions below
 func RunAccounts(r *gin.Engine, database *sql.DB) {
 	db = database
+
+	// Enable CORS - allowing all ports
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	r.Use(cors.New(config))
+
 	r.GET("/acc/user", getUserByName)
 	r.GET("/acc/users", getAllUsers)
 	r.POST("acc/create", createAccount)
