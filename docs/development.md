@@ -1,9 +1,14 @@
 ## Local Development
 
-#### Backend
+### Frontend
+Run `npm install` to install dependencies and node_modules.\
+Run `npm start` to serve the website on http://localhost:3000.
+</br>
+
+### Backend
 
 To launch the Go backend server, run the following command in the **server** directory:
-``` go run .```
+`go run .`
 This will run the server and listen to the port 8080.
 
 
@@ -28,11 +33,3 @@ CREATE TABLE Users (
     PRIMARY KEY(ID) 
 );
 ```
-
-### Frontend
-
-Run `npm start` in the project directory. The website can be viewed
-in http://localhost:3000.
-
-
-
