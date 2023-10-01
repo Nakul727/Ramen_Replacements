@@ -1,6 +1,7 @@
-/*
-Placeholder setting for website header
-*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 header {
     position: fixed;
     height: 170px;
@@ -8,14 +9,6 @@ header {
     background-color: lightgrey;
     text-align: center;
     margin: -10px;
-}
-
-#logo {
-    font-size: 20px;
-    float: left;
-    height: 150px;
-    width: 200px;
-    margin: 10px 20px 10px 20px;
 }
 
 h1 {
