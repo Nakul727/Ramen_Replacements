@@ -1,6 +1,6 @@
-import './styles/home_page.css';
+import '../styles/Home.css';
 
-function App() {
+function Home() {
   return (
     <div>
       <div>
@@ -20,4 +20,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;
