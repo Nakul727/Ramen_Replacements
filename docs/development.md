@@ -29,4 +29,10 @@ CREATE TABLE Users (
 );
 ```
 
+### Frontend
+
+Run `npm start` in the project directory. The website can be viewed
+in http://localhost:3000.
+
+
 
