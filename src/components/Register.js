@@ -60,24 +60,29 @@ function Register() {
   
   return (
     <div id="background">
-      <div class="form">
-          <h2>Register</h2>
-          <hr/><br/>
-          <label for="type">Username</label>
-          <input id="register-name" name="name" type="text"></input>
-          <br/><br/>
-          <label for="name">Email</label>
-          <input id="register-email" name="email" type="text"></input>
-          <br/><br/>
-          <label for="name">Password</label>
-          <input id="register-pass" name="pass" type="password"></input>
-          <br/><br/>
-          <label for="name">Confirm</label>
-          <input id="register-pass-confirm" name="pass-confirm" type="password"></input>
-          <br/><br/>
-          <button id="register-submit" type="submit">Submit</button>
-          <br/><br/>
-      <p id="registeration-result"></p>
+      <div className="form">
+        <h2 className="text-xl font-bold">Register</h2>
+        <hr className="border-black"/><br/>
+        <label for="type">Username</label>
+        <input id="register-name" name="name" type="text" 
+        className="mx-1 border border-black border-solid"></input>
+        <br/><br/>
+        <label for="name">Email</label>
+        <input id="register-email" name="email" type="text"
+        className="mx-1 border border-black border-solid"></input>
+        <br/><br/>
+        <label for="name">Password</label>
+        <input id="register-pass" name="pass" type="password"
+        className="mx-1 border border-black border-solid"></input>
+        <br/><br/>
+        <label for="name">Confirm</label>
+        <input id="register-pass-confirm" name="pass-confirm" type="password"
+        className="mx-1 border border-black border-solid"></input>
+        <br/><br/>
+        <button id="register-submit" type="submit"
+        className="w-20 h-8 m-1 bg-stone-300">Submit</button>
+        <br/><br/>
+        <p id="registeration-result"></p>
       </div>
     </div>
   );

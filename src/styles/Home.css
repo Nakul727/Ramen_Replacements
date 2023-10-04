@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-header {
+#homeheader {
     position: fixed;
     height: 170px;
     width: 110%;
@@ -12,9 +12,6 @@ header {
 }
 
 h1 {
-    font-size: 40px;
-    color: black;
-    float: left;
     height: 150px;
     width: 300px;
     margin: 10px 20px 10px 20px;
@@ -31,7 +28,4 @@ aside {
     height: 100%;
     width: 250px;
     background-color: antiquewhite;
-}
-p {
-    margin: 20px;
 }

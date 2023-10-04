@@ -7,12 +7,11 @@ import Register from './Register.js';
 
 function Main() {
   return (
-    /*<Routes>
+    <Routes>
       <Route path='/' element={<Home/>}></Route>
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/register' element={<Register/>}></Route>
-    </Routes>*/
-    <Register/>
+    </Routes>
   );
 }
 

@@ -1,11 +1,10 @@
-import '../styles/Login.css';
 
 function Login() {
   return (
     <div className="mt-60">
       <main className="h-24 w-3/12 m-auto">
-        <h2>Log In</h2>
-        <hr/>
+        <h2 className="text-center">Log In</h2>
+        <hr className="border-black"/>
         <section className="inline-block w-40">
           <div className="text-center">
             <label>Email or Username</label>
@@ -15,9 +14,9 @@ function Login() {
           </div>
         </section>
         <section className="inline-block">
-          <input></input>
+          <input className="border border-solid border-black"></input>
           <br/>
-          <input></input>
+          <input className="border border-solid border-black"></input>
           <br/>
         </section>
         <div className="text-center">
