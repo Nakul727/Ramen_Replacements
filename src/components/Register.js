@@ -59,8 +59,8 @@ function Register() {
   };
   
   return (
-    <div id="background">
-      <div className="form">
+    <div className="mt-60">
+      <div className="h-24 w-3/12 m-auto">
         <h2 className="text-xl font-bold">Register</h2>
         <hr className="border-black"/><br/>
         <label for="type">Username</label>
@@ -79,10 +79,22 @@ function Register() {
         <input id="register-pass-confirm" name="pass-confirm" type="password"
         className="mx-1 border border-black border-solid"></input>
         <br/><br/>
-        <button id="register-submit" type="submit"
+        <button id="register-submit" type="submit" 
         className="w-20 h-8 m-1 bg-stone-300">Submit</button>
         <br/><br/>
         <p id="registeration-result"></p>
+        <br/>
+        <Link to="/login">
+          <button className="text-center w-full">
+            <p className="m-1">Already have an account? Log In</p>
+          </button>
+        </Link>
+        <br/>
+        <Link to="/">
+          <button className="text-center w-full">
+            <p className="m-2">Cancel</p>
+          </button>
+        </Link>
       </div>
     </div>
   );

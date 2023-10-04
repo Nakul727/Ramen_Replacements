@@ -1,4 +1,6 @@
 
+import { Link } from "react-router-dom";
+
 function Login() {
   return (
     <div className="mt-60">
@@ -22,6 +24,17 @@ function Login() {
         <div className="text-center">
           <button className="w-20 h-8 m-1 bg-stone-300">Log In</button>
         </div>
+        <Link to="/register">
+          <button className="text-center w-full">
+            <p className="m-1">Don't have an account? Register</p>
+          </button>
+        </Link>
+        <br/>
+        <Link to="/">
+          <button className="text-center w-full">
+            <p className="m-2">Cancel</p>
+          </button>
+        </Link>
       </main>
     </div>
   );
