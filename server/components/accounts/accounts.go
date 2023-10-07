@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"github.com/gin-contrib/cors"			// enable cors package for cross-origin requests (different ports)
+
+	"github.com/gin-contrib/cors" // enable cors package for cross-origin requests (different ports)
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"

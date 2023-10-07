@@ -7,7 +7,8 @@ import (
 	"database/sql"
 	"net/http"
 
-	Accounts "rr_backend/server/components"
+	Accounts "rr_backend/server/components/accounts"
+	Recipes "rr_backend/server/components/recipes"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -32,6 +33,7 @@ func main() {
 
 	// Run handlers
 	Accounts.RunAccounts(r, db)
+	Recipes.RunRecipes(r, db)
 
 	// r.Run runs default router r on port 8080
 	// Example: open localhost:8080/helloworld for helloworld endpoint
