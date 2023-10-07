@@ -143,10 +143,51 @@ func getRecipesByDate(c *gin.Context) {
 	c.JSON(http.StatusOK, recipes)
 }
 
+// gets all recipes posted in specified time range, sorted by rating
+func getTopRecent(c *gin.Context) {
+	// period is the time frame to get
+	period := c.DefaultQuery("range", "day")
+	// by default period is 1 day
+	postRange := 60 * 60 * 24
+	if period == "year" {
+		postRange *= 365
+	} else if period == "month" {
+		postRange *= 30
+	} else if period == "week" {
+		postRange *= 7
+	} else if period == "hour" {
+		postRange /= 24
+	}
+
+	// set time to current time - time period i.e. - current time minus one week if applicable
+	postRange = int(time.Now().Unix()) - postRange
+
+	// get the first 1000 posts that fit in this time period
+	resp, err := db.Query("SELECT * FROM Recipes WHERE date>? ORDER BY rating DESC", postRange)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	// query recipes from db
+	i := 0
+	var recipes []Recipe
+	for resp.Next() && i < 1000 {
+		rec, err := contextToRecipe(resp)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		}
+		recipes = append(recipes, *rec)
+	}
+
+	c.JSON(http.StatusOK, recipes)
+}
+
 // handler for recipe functions
 func RunRecipes(r *gin.Engine, database *sql.DB) {
 	r.POST("recipe/post", postRecipe)
 	r.GET("recipe/get", getRecipe)
 	r.GET("recipe/latest", getRecipesByDate)
+	r.GET("recipe/top", getTopRecent)
 	db = database
 }
