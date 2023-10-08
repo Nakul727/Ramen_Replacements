@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"github.com/gin-contrib/cors"			// enable cors package for cross-origin requests (different ports)
+
+	"github.com/gin-contrib/cors" // enable cors package for cross-origin requests (different ports)
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -20,6 +21,7 @@ type Account struct {
 var db *sql.DB
 var maxUsernameLen = 25
 var maxPFPLen = 250
+var minUsernameLen = 3
 
 // helper function for returning profiles as JSON
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
@@ -57,9 +59,7 @@ func getUserByName(c *gin.Context) {
 	// query database for given name
 	res, err := db.Query("SELECT * FROM Users WHERE name=?", name)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	// return found user data
@@ -101,7 +101,7 @@ func createAccount(c *gin.Context) {
 	var acc Account
 	err := c.BindJSON(&acc)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -112,12 +112,15 @@ func createAccount(c *gin.Context) {
 	} else if len(acc.PFP) > maxPFPLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "PFP too long"})
 		return
+	} else if len(acc.Username) < minUsernameLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
+		return
 	}
 
 	// check if username already exists
 	res, err := db.Query("SELECT * FROM Users WHERE name=?", acc.Username)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
