@@ -1,6 +1,7 @@
 import '../styles/Home.css';
 import { Link } from "react-router-dom";
 import { Header } from "../components/header.js"
+import { Footer } from "../components/footer.js"
 import menu_img from "../assets/menu.png"
 
 function Home() {
@@ -16,6 +17,9 @@ function Home() {
       </Link>
         <p className="m-12 p-1 text-3xl float-right">EXPLORE</p>
       </header>
+      <div>
+        <Footer/>
+      </div>
     </div>
   );
 }
