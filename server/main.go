@@ -1,26 +1,36 @@
 package main
 
 import (
-	"database/sql"
 	"net/http"
-
-	Accounts "rr_backend/components/accounts"
-	Recipes "rr_backend/components/recipes"
-
+	"database/sql"
+	"log"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/gin-contrib/cors" 
+
+	"server/api"
+	"server/initializers"
 )
 
-func main() {
+var db *sql.DB
 
+func init () {
+	initializers.InitENV()
+
+	db, err := initializers.InitDB()
+	if err != nil {
+        log.Fatal(err)
+    }
+	defer db.Close()
+}
+
+func main() {
 	// gin.Default creates a default router
 	r := gin.Default()
 
-	// open database
-	db, err := sql.Open("mysql", "test:test_p@tcp(localhost:3306)/ramen_replacements")
-	if err != nil {
-		panic(err)
-	}
+	// Enable CORS - allowing all ports
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	r.Use(cors.New(config))
 
 	// r.GET gets data from the specified URL/endpoint
 	// testing endpoints
@@ -28,9 +38,9 @@ func main() {
 		c.String(http.StatusOK, "Hello world!")
 	})
 
-	// Run handlers
-	Accounts.RunAccounts(r, db)
-	Recipes.RunRecipes(r, db)
+	// run handlers
+	api.RunAccounts(r, db)
+	api.RunRecipes(r, db)
 
 	// r.Run runs default router r on port 8080
 	// Example: open localhost:8080/helloworld for helloworld endpoint

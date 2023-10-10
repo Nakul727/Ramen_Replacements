@@ -1,4 +1,4 @@
-package recipes
+package api
 
 import (
 	"database/sql"
@@ -32,7 +32,6 @@ var maxStepsLen = 5000
 var maxIngredientsLen = 500
 var maxPictureLen = 250
 
-var db *sql.DB
 
 // HELPER FUNCTIONS
 func contextToRecipe(row *sql.Rows) (*Recipe, error) {
@@ -181,13 +180,4 @@ func getTopRecent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, recipes)
-}
-
-// handler for recipe functions
-func RunRecipes(r *gin.Engine, database *sql.DB) {
-	r.POST("recipe/post", postRecipe)
-	r.GET("recipe/get", getRecipe)
-	r.GET("recipe/latest", getRecipesByDate)
-	r.GET("recipe/top", getTopRecent)
-	db = database
 }

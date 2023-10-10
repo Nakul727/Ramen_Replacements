@@ -1,14 +1,13 @@
-package accounts
+package api
 
 import (
 	"database/sql"
 	"errors"
 	"net/http"
 
-	"github.com/gin-contrib/cors" // enable cors package for cross-origin requests (different ports)
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+
 )
 
 // set up account struct with username, profile picture and id number
@@ -18,10 +17,51 @@ type Account struct {
 	ID       int    `json:"id"`
 }
 
-var db *sql.DB
 var maxUsernameLen = 25
 var maxPFPLen = 250
 var minUsernameLen = 3
+
+func createAccount(c *gin.Context) {
+	var acc Account
+	err := c.BindJSON(&acc)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// ensure user has not created a username that is too long
+	if len(acc.Username) > maxUsernameLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
+		return
+	} else if len(acc.PFP) > maxPFPLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "PFP too long"})
+		return
+	} else if len(acc.Username) < minUsernameLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
+		return
+	}
+
+	// check if username already exists
+	res, err := db.Query("SELECT * FROM Users WHERE name=?", acc.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// if the user already exists in the database, prompt user to pick a different name
+	for res.Next() {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User with name already exists"})
+		return
+	}
+
+	// otherwise insert it into database as a new user
+	_, err = db.Exec("INSERT INTO Users (name, pfp) VALUES (?, ?);", acc.Username, acc.PFP)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	c.String(http.StatusAccepted, "profile created")
+}
+
 
 // helper function for returning profiles as JSON
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
@@ -95,60 +135,4 @@ func getAllUsers(c *gin.Context) {
 		accounts = append(accounts, account)
 	}
 	c.JSON(http.StatusOK, accounts)
-}
-
-func createAccount(c *gin.Context) {
-	var acc Account
-	err := c.BindJSON(&acc)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// ensure user has not created a username that is too long
-	if len(acc.Username) > maxUsernameLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
-		return
-	} else if len(acc.PFP) > maxPFPLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "PFP too long"})
-		return
-	} else if len(acc.Username) < minUsernameLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
-		return
-	}
-
-	// check if username already exists
-	res, err := db.Query("SELECT * FROM Users WHERE name=?", acc.Username)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// if the user already exists in the database, prompt user to pick a different name
-	for res.Next() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User with name already exists"})
-		return
-	}
-
-	// otherwise insert it into database as a new user
-	_, err = db.Exec("INSERT INTO Users (name, pfp) VALUES (?, ?);", acc.Username, acc.PFP)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
-	c.String(http.StatusAccepted, "profile created")
-}
-
-// Accounts accepts an argument for a default router
-// Pass the used router into the function argument to gain access to all functions below
-func RunAccounts(r *gin.Engine, database *sql.DB) {
-	db = database
-
-	// Enable CORS - allowing all ports
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
-	r.Use(cors.New(config))
-
-	r.GET("/acc/user", getUserByName)
-	r.GET("/acc/users", getAllUsers)
-	r.POST("acc/create", createAccount)
 }
