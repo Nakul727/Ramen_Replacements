@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"database/sql"
 	"log"
-	"os"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors" 
 	"github.com/joho/godotenv"
 
 	"server/api"
+	"server/initializers"
 )
 
 var db *sql.DB
@@ -26,12 +26,11 @@ func main() {
 	}
 
 	// connect to the server
-	dns := os.Getenv("DB_INFO")
-	db, err := sql.Open("mysql", dns)
+	db, err := initializers.InitDB()
 	if err != nil {
-		panic("Could't connect to database")
-	}
-	log.Println("Successfully connected to MySQL server")
+        log.Fatal(err)
+    }
+	defer db.Close()
 
 	// Enable CORS - allowing all ports
 	config := cors.DefaultConfig()

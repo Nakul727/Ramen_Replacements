@@ -45,7 +45,7 @@ func contextToRecipe(row *sql.Rows) (*Recipe, error) {
 }
 
 // HANDLER FUNCTIONS
-func postRecipe(c *gin.Context) {
+func PostRecipe(c *gin.Context) {
 	var rec Recipe
 	if err := c.BindJSON(&rec); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "error binding input"})
@@ -79,7 +79,7 @@ func postRecipe(c *gin.Context) {
 }
 
 // queries database: finds post recipe with given id
-func getRecipe(c *gin.Context) {
+func GetRecipe(c *gin.Context) {
 	id_string := c.DefaultQuery("id", "??NULL??")
 	if id_string == "??NULL??" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "no id provided for search query"})
@@ -112,7 +112,7 @@ func getRecipe(c *gin.Context) {
 }
 
 // gets the most recently posted recipes - returns first n recipes or 100 by default
-func getRecipesByDate(c *gin.Context) {
+func GetRecipesByDate(c *gin.Context) {
 	// n is number of recipes to query
 	n, err := strconv.Atoi(c.DefaultQuery("num", "100"))
 	if err != nil {
@@ -140,7 +140,7 @@ func getRecipesByDate(c *gin.Context) {
 }
 
 // gets all recipes posted in specified time range, sorted by rating
-func getTopRecent(c *gin.Context) {
+func GetTopRecent(c *gin.Context) {
 	// period is the time frame to get
 	period := c.DefaultQuery("range", "day")
 	// by default period is 1 day
@@ -177,13 +177,4 @@ func getTopRecent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, recipes)
-}
-
-// handler for recipe functions
-func RunRecipes(r *gin.Engine, database *sql.DB) {
-	r.POST("recipe/post", postRecipe)
-	r.GET("recipe/get", getRecipe)
-	r.GET("recipe/latest", getRecipesByDate)
-	r.GET("recipe/top", getTopRecent)
-	db = database
 }
