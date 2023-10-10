@@ -1,6 +1,6 @@
 import '../styles/Register.css';
 import { Link } from "react-router-dom";
-import {displayMessage, hideMessage} from "./helper.js";
+import {displayMessage, hideMessage} from "../components/helper.js";
 
 
 function Register() {
