@@ -2,30 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-#homeheader {
+.homeheader {
     position: fixed;
-    height: 170px;
-    width: 110%;
+    height: 20%;
+    width: 100%;
     background-color: lightgrey;
     text-align: center;
-    margin: -10px;
+    margin: 0px;
+    top: 0px;
+    border-width: 0px 0px 3px 0px;
+    border-color: black;
 }
 
 h1 {
-    height: 150px;
+    height: 120px;
     width: 300px;
     margin: 10px 20px 10px 20px;
     text-align: left;
-}
-/*
-Setting for right sidebar
-*/
-aside {
-    z-index: -1;
-    position: fixed;
-    right: 0px;
-    padding-top: 170px;
-    height: 100%;
-    width: 250px;
-    background-color: antiquewhite;
 }
