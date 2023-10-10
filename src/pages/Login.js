@@ -21,23 +21,23 @@ function Login() {
         <Header/>
       </header>
 
-      <div className="mt-60">
-        <main className="h-24 w-3/12 m-auto">
+      <div className="mt-32 md:mt-48 xl:mt-60">
+        <main className="form">
           <h2 className="text-center text-2xl font-bold">Log In</h2>
           <hr className="border-black"/>
           <br/>
           <section className="inline-block w-40">
             <div className="text-center">
-              <label>Email or Username</label>
+              <label type="text">Email or Username</label>
               <br/>
               <label type="password">Password</label>
               <br/>
             </div>
           </section>
           <section className="inline-block">
-            <input className="border border-solid border-black" id="name"></input>
+            <input className="border border-solid border-black w-24 md:w-32 xl:w-40" id="name"></input>
             <br/>
-            <input className="border border-solid border-black" id="pass"></input>
+            <input className="border border-solid border-black w-24 md:w-32 xl:w-40" id="pass"></input>
             <br/>
           </section>
           <div className="text-center">
@@ -47,7 +47,8 @@ function Login() {
           </div>
           <Link to="/register">
             <button className="text-center w-full">
-              <p className="m-1">Don't have an account? Register</p>
+              <label className="my-1">Don't have an account? </label>
+              <label className="my-1 text-blue-700">Register</label>
             </button>
           </Link>
           <br/>
@@ -58,7 +59,7 @@ function Login() {
           </Link>
         </main>
       </div>
-      
+
       <footer>
         <Footer/>
       </footer>

@@ -62,8 +62,8 @@ function Register() {
         <Header/>
       </header>
 
-      <div className="mt-60">
-        <main className="h-24 w-3/12 m-auto">
+      <div className="mt-32 md:mt-48 xl:mt-60">
+        <main className="form">
           <h2 className="text-center text-2xl font-bold">Register</h2>
           <hr className="border-black"/>
           <br/>
@@ -81,16 +81,16 @@ function Register() {
           </section>
           <section className="inline-block">
             <input id="register-name" name="name" type="text" 
-            className="border border-solid border-black"></input>
+            className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
             <br/>
             <input id="register-email" name="email" type="text"
-            className="border border-solid border-black"></input>
+            className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
             <br/>
             <input id="register-pass" name="pass" type="password"
-            className="border border-solid border-black"></input>
+            className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
             <br/>
             <input id="register-pass-confirm" name="pass-confirm" type="password"
-            className="border border-solid border-black"></input>
+            className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
             <br/>
           </section>
           <div className="text-center">
@@ -101,7 +101,8 @@ function Register() {
 
           <Link to="/login">
             <button className="text-center w-full">
-              <p className="m-1">Already have an account? Log In</p>
+              <label className="m-1">Already have an account?</label>
+              <label className="my-1 text-blue-700">Log In</label>
             </button>
           </Link>
           <br/>

@@ -13,10 +13,18 @@
 	padding: 1px;
 }
 .form {
-	margin: 200px;
-	padding: 100px 100px 50px 100px;
-	border: 1px solid #000000;
-	background-color: #ffffff;
-	color: black;
+	position: fixed;
+	left: 10%;
+	height: 96px;
+	width: 300px;
+	text-align: center;
 }
-
+@media (min-width: 1280px) {
+	.form {
+		position: fixed;
+		left: 38%;
+		height: 96px;
+		width: 25%;
+		text-align: center;
+	}
+ }
