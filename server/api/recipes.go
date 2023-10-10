@@ -1,13 +1,10 @@
-package Recipes
+package api
 
 import (
 	"database/sql"
 	"net/http"
 	"strconv"
 	"time"
-
-	_ "github.com/gin-contrib/cors" // enable cors package for cross-origin requests (different ports)
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -32,7 +29,6 @@ var maxStepsLen = 5000
 var maxIngredientsLen = 500
 var maxPictureLen = 250
 
-var db *sql.DB
 
 // HELPER FUNCTIONS
 func contextToRecipe(row *sql.Rows) (*Recipe, error) {
