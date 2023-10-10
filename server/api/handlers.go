@@ -7,7 +7,6 @@ import (
 
 var db *sql.DB
 
-
 // handler for recipe functions
 func RunRecipes(r *gin.Engine, database *sql.DB) {
 	r.POST("recipe/post", postRecipe)
