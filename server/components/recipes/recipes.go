@@ -1,4 +1,4 @@
-package Recipes
+package recipes
 
 import (
 	"database/sql"

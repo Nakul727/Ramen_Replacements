@@ -1,14 +1,11 @@
-// server.go
-// API controller
-
 package main
 
 import (
 	"database/sql"
 	"net/http"
 
-	Accounts "rr_backend/server/components/accounts"
-	Recipes "rr_backend/server/components/recipes"
+	Accounts "rr_backend/components/accounts"
+	Recipes "rr_backend/components/recipes"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
