@@ -27,9 +27,25 @@ This will create the following table:
 
 ```sql
 CREATE TABLE Users (
-    id      INT unsigned    NOT NULL AUTO_INCREMENT,
-    name    VARCHAR(25)     NOT NULL,
-    pfp     VARCHAR(150),   
+    id          INT unsigned    NOT NULL AUTO_INCREMENT,
+    name        VARCHAR(25)     NOT NULL,
+    pfp         VARCHAR(150),   
+    PRIMARY KEY(ID) 
+);
+```
+
+```sql
+CREATE TABLE Recipes ( 
+    id          INT unsigned    NOT NULL AUTO_INCREMENT, 
+    userID      INT unsigned    NOT NULL, 
+    rating      INT, 
+    title       VARCHAR(100), 
+    description VARCHAR(1000), 
+    steps       VARCHAR(5000), 
+    ingredients VARCHAR(500), 
+    picture     VARCHAR(250), 
+    appliances  INT, 
+    date        INT, 
     PRIMARY KEY(ID) 
 );
 ```

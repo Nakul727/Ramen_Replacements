@@ -1,12 +1,9 @@
-package Accounts
+package api
 
 import (
 	"database/sql"
 	"errors"
 	"net/http"
-
-	"github.com/gin-contrib/cors" // enable cors package for cross-origin requests (different ports)
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -18,12 +15,11 @@ type Account struct {
 	ID       int    `json:"id"`
 }
 
-var db *sql.DB
 var maxUsernameLen = 25
 var maxPFPLen = 250
 var minUsernameLen = 3
 
-// helper function for returning profiles as JSON
+// HELPER FUNCTION
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
@@ -46,7 +42,8 @@ func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	return nil
 }
 
-func getUserByName(c *gin.Context) {
+// HANDLER FUNCTION
+func GetUserByName(c *gin.Context) {
 	name := c.DefaultQuery("name", "NULL")
 	// return error if no account name is provided
 	if name == "NULL" || name == "" {
@@ -71,7 +68,7 @@ func getUserByName(c *gin.Context) {
 	}
 }
 
-func getAllUsers(c *gin.Context) {
+func GetAllUsers(c *gin.Context) {
 	res, err := db.Query("SELECT * FROM Users")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -97,7 +94,7 @@ func getAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, accounts)
 }
 
-func createAccount(c *gin.Context) {
+func CreateAccount(c *gin.Context) {
 	var acc Account
 	err := c.BindJSON(&acc)
 	if err != nil {
@@ -136,19 +133,4 @@ func createAccount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	c.String(http.StatusAccepted, "profile created")
-}
-
-// Accounts accepts an argument for a default router
-// Pass the used router into the function argument to gain access to all functions below
-func RunAccounts(r *gin.Engine, database *sql.DB) {
-	db = database
-
-	// Enable CORS - allowing all ports
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
-	r.Use(cors.New(config))
-
-	r.GET("/acc/user", getUserByName)
-	r.GET("/acc/users", getAllUsers)
-	r.POST("acc/create", createAccount)
 }
