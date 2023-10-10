@@ -1,26 +1,21 @@
 import '../styles/Home.css';
 import { Link } from "react-router-dom";
+import { Header } from "../components/header.js"
+import menu_img from "../assets/menu.png"
 
 function Home() {
   return (
     <div>
-      <div>
-        <header id="homeheader">
-          <h2 className="float-left text-xl m-5">Logo goes here</h2>
-          <h1 className="text-4xl float-left m-5">Ramen Replacements</h1>
-          <h1 className="text-4xl text-center float-left m-5">Search bar</h1>
-        </header>
-      </div>
-      <aside>
-        <Link to="/login">
-          <button>
-            <p className="m-5">Log In</p>
-          </button>
-        </Link>
-        <p className="m-5">Explore</p>
-        <p className="m-5">Find</p>
-        <p className="m-5">Help</p>
-      </aside>
+      <header id="homeheader">
+        <Header/> 
+      <img src={menu_img} className="m-12 w-12 float-right"></img>
+      <Link to="/login">
+        <button className="float-right">
+          <p className="m-8 bg-slate-200 p-5 text-3xl">LOGIN</p>
+        </button>
+      </Link>
+        <p className="m-12 p-1 text-3xl float-right">EXPLORE</p>
+      </header>
     </div>
   );
 }
