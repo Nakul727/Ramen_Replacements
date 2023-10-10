@@ -7,7 +7,7 @@ import menu_img from "../assets/menu.png"
 function Home() {
   return (
     <div>
-      <header id="homeheader">
+      <header class="homeheader">
         <Header/> 
       <img src={menu_img} className="m-12 w-12 float-right"></img>
       <Link to="/login">
@@ -17,9 +17,9 @@ function Home() {
       </Link>
         <p className="m-12 p-1 text-3xl float-right">EXPLORE</p>
       </header>
-      <div>
+      <footer>
         <Footer/>
-      </div>
+      </footer>
     </div>
   );
 }

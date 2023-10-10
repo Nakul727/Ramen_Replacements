@@ -2,13 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-#homeheader {
+.homeheader {
     position: fixed;
     height: 140px;
     width: 100%;
     background-color: lightgrey;
     text-align: center;
     margin: 0px;
+    top: 0px;
     border-width: 0px 0px 3px 0px;
     border-color: black;
 }
