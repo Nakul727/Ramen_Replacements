@@ -4,7 +4,7 @@
 
 .homeheader {
     position: fixed;
-    height: 20%;
+    height: 180px; /* should be a fixed height because the header shrinks when page is smaller otherwise */
     width: 100%;
     background-color: lightgrey;
     text-align: center;
@@ -19,4 +19,51 @@ h1 {
     width: 300px;
     margin: 10px 20px 10px 20px;
     text-align: left;
+}
+
+/* recipe cards */
+
+.recipe-card {
+    display: grid;
+    grid-template-columns: 1fr; /* Adjust the column layout as needed */
+    gap: 16px;
+    border: 1px solid #ccc;
+    padding: 16px;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.recipe-pic {
+    width: 90%;
+    height: 75%;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+}
+
+.grid-container-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 200px;
+    box-sizing: border-box;
+}
+
+.grid-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    max-width: 90%;
+    padding-top: 200px; /* Adjust the padding-top instead of margin-top */
+    box-sizing: border-box;
+}
+
+.picture-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
