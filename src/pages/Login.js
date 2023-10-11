@@ -13,6 +13,9 @@ function Login() {
     if (name_or_email === "" || password === "") {
       displayMessage("registration-result", "Some field(s) are empty.");
     }
+    else{
+      window.location.href = "/"; //placeholder link to home, will go to dashboard once connecter is finished and can call for password
+    }
   }
 
   return (
