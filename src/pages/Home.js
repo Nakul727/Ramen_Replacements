@@ -1,29 +1,44 @@
 import '../styles/Home.css';
 import { Link } from "react-router-dom";
-import { Header } from "../components/header.js"
+import { HomeRecipes } from "../components/HomeRecipes.js"
 import { Footer } from "../components/footer.js"
-import Body from "../components/body.js"
 import menu_img from "../assets/menu.png"
+import logo_img from "../assets/logo.png"
+
 
 function Home() {
   return (
     <div className="homepage">
-      <header className="homeheader">
-        <Header/> 
-      <img src={menu_img} className="m-4 md:m-12 w-12 float-right"></img>
-      <Link to="/login">
-        <button className="float-right">
-          <p className="m-3 md:m-8 bg-slate-200 p-5 text-xl md:text-2xl xl:text-3xl">LOGIN</p>
-        </button>
-      </Link>
-        <p className="m-6 md:m-12 p-1 text-xl md:text-2xl xl:text-3xl float-right">EXPLORE</p>
+
+      <header className="bg-zinc-300 flex items-center justify-between p-5">
+        <div className="flex items-center mx-5">
+          <Link to="/">
+            <img src={logo_img} className="h-14 w-auto mx-4" alt="Logo" />
+          </Link>
+          <h1 className="text-black text-4xl ml-2">Ramen Replacements</h1>
+        </div>
+
+        <div className="flex items-center mx-5">
+          <Link to="/login">
+            <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 mr-10">
+              <p className="text-xl">LOGIN</p>
+            </button>
+          </Link>
+          <img src={menu_img} className="h-12 w-12" alt="Menu" />
+        </div>
       </header>
-      <div className="Body">
-        <Body />
+
+      <p class="text-center text-3xl  mt-10">Welcome to Ramen_Replacements</p>
+      <p class="text-xl mt-10 ml-5">Here are the latest recipes:</p>
+
+      <div>
+        <HomeRecipes/>
       </div>
+      
       <footer>
         <Footer/>
       </footer>
+
     </div>
   );
 }

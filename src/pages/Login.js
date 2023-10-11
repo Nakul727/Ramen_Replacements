@@ -1,9 +1,9 @@
-
 import { Link } from "react-router-dom";
-import {displayMessage, hideMessage} from "../components/helper.js";
-
-import { Header } from "../components/header.js"
+import {displayMessage} from "../components/helper.js";
 import { Footer } from "../components/footer.js"
+import logo_img from "../assets/logo.png"
+import menu_img from "../assets/menu.png"
+
 
 function Login() {
   function login_check() {
@@ -17,9 +17,20 @@ function Login() {
 
   return (
     <div>
-      <header class="homeheader">
-        <Header/>
+
+      <header className="bg-zinc-300 flex items-center justify-between p-5">
+        <div className="flex items-center mx-5">
+          <Link to="/">
+            <img src={logo_img} className="h-14 w-auto mx-4" alt="Logo" />
+          </Link>
+          <h1 className="text-black text-4xl ml-2">Ramen Replacements</h1>
+        </div>
+
+        <div className="flex items-center mx-5">
+          <img src={menu_img} className="h-12 w-12" alt="Menu" />
+        </div>
       </header>
+
 
       <div className="mt-32 md:mt-48 xl:mt-60">
         <main className="form">

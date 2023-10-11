@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { displayMessage} from "./helper.js"
 import "../styles/Home.css";
 
 function RecipeCard(rec) {
@@ -37,7 +38,7 @@ function getRecipeData() {
 }
 
 
-function Body() {
+function HomeRecipes() {
     const [recipeData, setRecipeData] = useState([]);
 
     useEffect(() => {
@@ -53,13 +54,17 @@ function Body() {
         <div className="grid-container-container">
             <div className="grid-container">
                 <div className="recipe-grid">
-                    {recipeData.map(recipe => (
-                        <RecipeCard key={recipe.id} {...recipe} />
-                    ))}
+                    {recipeData === null ? (
+                        <p>No recipies found</p>
+                    ) : (
+                        recipeData.map(recipe => (
+                            <RecipeCard key={recipe.id} {...recipe} />
+                        ))
+                    )}
                 </div>
             </div>
         </div>
     );
 }
 
-export default Body;
+export {HomeRecipes};

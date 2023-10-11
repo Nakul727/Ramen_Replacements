@@ -1,4 +1,3 @@
-
 function Footer() {
     return (
         <div className="fixed left-0 bottom-0 bg-slate-200 w-full h-10">
