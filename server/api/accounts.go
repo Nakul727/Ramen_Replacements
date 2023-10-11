@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // set up account struct with username, profile picture and id number
 type Account struct {
-	Username string `json:"Username"`
-	PFP      string `json:"pfp"`
+	Username string `json:"Username" binding:"required"`
+	PFP      string `json:"pfp" binding:"required"`
 	ID       int    `json:"id"`
 }
 
@@ -133,4 +134,15 @@ func CreateAccount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	c.String(http.StatusAccepted, "profile created")
+}
+
+func LoginAuth(c *gin.Context) {
+	var acc Account
+
+	// check for error during binding process. If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
+
+	if err := c.ShouldBindJSON(&acc); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 }
