@@ -9,31 +9,35 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// set up account struct with username, profile picture and id number
+// set up account struct with username, profile picture, id number, and password
 type Account struct {
 	Username string `json:"Username" binding:"required"`
 	PFP      string `json:"pfp" binding:"required"`
-	ID       int    `json:"id"`
+	ID       int    `json:"id" binding:"required"`
+	Password string `json:"Password" binding:"required"`
 }
 
 var maxUsernameLen = 25
 var maxPFPLen = 250
 var minUsernameLen = 3
+var maxPasswordLen = 1
+var minPasswordLen = 8
 
 // HELPER FUNCTION
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
 		found = true
-		var u, p string
+		var u, p, pw string
 		var i int
-		if err := res.Scan(&i, &u, &p); err != nil {
+		if err := res.Scan(&i, &u, &p, &pw); err != nil {
 			return err
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"name": u,
-			"pfp":  p,
-			"id":   i,
+			"name":     u,
+			"pfp":      p,
+			"id":       i,
+			"password": pw,
 		})
 	}
 	// if no profiles found
@@ -57,7 +61,7 @@ func GetUserByName(c *gin.Context) {
 	// query database for given name
 	res, err := db.Query("SELECT * FROM Users WHERE name=?", name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	// return found user data
@@ -80,9 +84,9 @@ func GetAllUsers(c *gin.Context) {
 
 	var accounts []Account
 	for res.Next() {
-		var u, p string
+		var u, p, pw string
 		var i int
-		if err := res.Scan(&i, &u, &p); err != nil {
+		if err := res.Scan(&i, &u, &p, &pw); err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 			return
 		}
@@ -90,6 +94,7 @@ func GetAllUsers(c *gin.Context) {
 		account.Username = u
 		account.PFP = p
 		account.ID = i
+		account.Password = pw
 		accounts = append(accounts, account)
 	}
 	c.JSON(http.StatusOK, accounts)
@@ -107,15 +112,21 @@ func CreateAccount(c *gin.Context) {
 		The following is a set of hard-imposed rules for restricting correct input for account creation. No authentication method is required for creation.
 	*/
 
-	// ensure user has not created a username that is too long
+	// ensure user has not created a username or password that is too long/short
 	if len(acc.Username) > maxUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
 		return
 	} else if len(acc.PFP) > maxPFPLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "PFP too long"})
 		return
+	} else if len(acc.Password) > maxPasswordLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too long"})
+		return
 	} else if len(acc.Username) < minUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
+		return
+	} else if len(acc.Password) < minPasswordLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error:": "Password too short"})
 		return
 	}
 
