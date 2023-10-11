@@ -28,6 +28,7 @@ function Home() {
         </div>
       </header>
 
+      <p class="logged"></p>
       <p class="text-center text-3xl  mt-10">Welcome to Ramen_Replacements</p>
       <p class="text-xl mt-10 ml-5">Here are the latest recipes:</p>
 

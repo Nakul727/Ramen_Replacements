@@ -14,6 +14,10 @@ function Login() {
       displayMessage("registration-result", "Some field(s) are empty.");
     }
     else{
+      // send a GET request to api
+      // LoginAuth function will authenticate user
+      // route user to the dashboard and display that user was logged in.
+      
       window.location.href = "/"; //placeholder link to home, will go to dashboard once connecter is finished and can call for password
     }
   }

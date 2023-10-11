@@ -6,7 +6,7 @@ import logo_img from "../assets/logo.png"
 import menu_img from "../assets/menu.png"
 
 function Register() {
-  async function register_user(name, email, pass) {
+  async function register_user(name, email, pass, pfp) {
       try {
           // Make a POST request to the Go API for creating a user at /acc/create endpoint
           // if the registration was successful, display the response from the API
@@ -17,7 +17,7 @@ function Register() {
               headers: {
                   "Content-Type": "application/json",
               },
-              body: JSON.stringify({ username: name, email: email, password: pass }),
+              body: JSON.stringify({ username: name, email: email, password: pass, pfp: pfp }),
           });
           if (response.ok) {
               const result = await response.text();
@@ -37,8 +37,10 @@ function Register() {
   function submit() {
     let name = document.getElementById("register-name").value;
     let email = document.getElementById("register-email").value;
+    let pfp = document.getElementById("register-pfp").value;
     let pass = document.getElementById("register-pass").value;
     let pass_confirm = document.getElementById("register-pass-confirm").value;
+
 
     // make sure that the fields are not empty (*)
     // password encryption and user authentication - JWT tokens
@@ -52,7 +54,7 @@ function Register() {
       } else {
           hideMessage("registration-result");
       }
-      register_user(name, email, pass);
+      register_user(name, email, pass, pfp);
     }
   }
 
@@ -84,6 +86,8 @@ function Register() {
               <br/>
               <label for="name">Email</label>
               <br/>
+              <label for="type">Profile Picture</label>
+              <br/>
               <label for="name">Password</label>
               <br/>
               <label for="name">Confirm Password</label>
@@ -95,6 +99,9 @@ function Register() {
             className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
             <br/>
             <input id="register-email" name="email" type="text"
+            className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
+            <br/>
+            <input id="register-pfp" name="pfp" type="text"
             className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
             <br/>
             <input id="register-pass" name="pass" type="password"

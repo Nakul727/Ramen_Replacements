@@ -29,6 +29,8 @@ This will create the following table:
 CREATE TABLE Users (
     id          INT unsigned    NOT NULL AUTO_INCREMENT,
     name        VARCHAR(25)     NOT NULL,
+    email       VARCHAR(50)     NOT NULL,
+    pass        VARCHAR(8)      NOT NULL,
     pfp         VARCHAR(150),   
     PRIMARY KEY(ID) 
 );
