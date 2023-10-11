@@ -103,6 +103,10 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
+	/*
+		The following is a set of hard-imposed rules for restricting correct input for account creation. No authentication method is required for creation.
+	*/
+
 	// ensure user has not created a username that is too long
 	if len(acc.Username) > maxUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
@@ -139,10 +143,28 @@ func CreateAccount(c *gin.Context) {
 func LoginAuth(c *gin.Context) {
 	var acc Account
 
-	// check for error during binding process. If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
+	// final error check during binding process. If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
 
 	if err := c.ShouldBindJSON(&acc); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	/*
+		INSERT JWT AUTHENTICATION HERE (TO BE COMPLETED)
+		By default, we will set the success of the authentication to be false temporarily
+	*/
+	var authSuccess = false
+	var token = (0)
+
+	// following code retrieves the successful token (profile) if correct, or displays HTTP 400 (bad request) otherwise
+
+	if authSuccess {
+		c.JSON(http.StatusOK, gin.H{
+			"token": token,
+		})
+		c.String(http.StatusOK, "profile successfully retrieved")
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"})
 	}
 }
