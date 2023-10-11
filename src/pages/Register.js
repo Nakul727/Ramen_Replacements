@@ -1,17 +1,17 @@
 import '../styles/Register.css';
 import { Link } from "react-router-dom";
 import {displayMessage, hideMessage} from "../components/helper.js";
-
-import { Header } from "../components/header.js"
 import { Footer } from "../components/footer.js"
+import logo_img from "../assets/logo.png"
+import menu_img from "../assets/menu.png"
 
 function Register() {
   async function register_user(name, email, pass) {
       try {
-      // Make a POST request to the Go API for creating a user at /acc/create endpoint
-      // if the registration was successful, display the response from the API
-      // otherwise display an error message and say that profile couldnt be registered
-          
+          // Make a POST request to the Go API for creating a user at /acc/create endpoint
+          // if the registration was successful, display the response from the API
+          // otherwise display an error message and say that profile couldnt be registered
+
           const response = await fetch("http://localhost:8080/acc/create", {
               method: "POST",
               headers: {
@@ -27,8 +27,9 @@ function Register() {
               displayMessage("registration-result", errorData.error);
           }
       } catch (error) {
-      // If the API couldn't be contacted
-      // display the error message to the User
+          // If the API couldn't be contacted
+          // display the error message to the User
+          
           displayMessage("registration-result","API could not be contacted.");
       }
   }
@@ -58,8 +59,18 @@ function Register() {
   
   return (
     <div>
-      <header class="homeheader">
-        <Header/>
+
+       <header className="bg-zinc-300 flex items-center justify-between p-5">
+        <div className="flex items-center mx-5">
+          <Link to="/">
+            <img src={logo_img} className="h-14 w-auto mx-4" alt="Logo" />
+          </Link>
+          <h1 className="text-black text-4xl ml-2">Ramen Replacements</h1>
+        </div>
+
+        <div className="flex items-center mx-5">
+          <img src={menu_img} className="h-12 w-12" alt="Menu" />
+        </div>
       </header>
 
       <div className="mt-32 md:mt-48 xl:mt-60">
@@ -115,7 +126,7 @@ function Register() {
       </div>
 
       <footer>
-      <Footer/>
+        <Footer/>
       </footer>
     </div>
   );

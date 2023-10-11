@@ -2,21 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-.homeheader {
-    position: fixed;
-    height: 20%;
-    width: 100%;
-    background-color: lightgrey;
-    text-align: center;
-    margin: 0px;
-    top: 0px;
-    border-width: 0px 0px 3px 0px;
-    border-color: black;
+/* recipe cards */
+
+.recipe-card {
+    display: grid;
+    grid-template-columns: 1fr; /* Adjust the column layout as needed */
+    gap: 16px;
+    border: 1px solid #ccc;
+    padding: 16px;
+    border-radius: 8px;
+    height: 100%;
 }
 
-h1 {
-    height: 120px;
-    width: 300px;
-    margin: 10px 20px 10px 20px;
-    text-align: left;
+.recipe-pic {
+    width: 90%;
+    height: 75%;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+}
+
+.grid-container-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 200px;
+    box-sizing: border-box;
+}
+
+.grid-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    max-width: 90%;
+    padding-top: 200px; /* Adjust the padding-top instead of margin-top */
+    box-sizing: border-box;
+}
+
+.picture-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
