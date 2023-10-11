@@ -4,35 +4,40 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// set up account struct with username, profile picture and id number
+// set up account struct with username, profile picture, id number, and password
 type Account struct {
-	Username string `json:"Username"`
-	PFP      string `json:"pfp"`
-	ID       int    `json:"id"`
+	Username string `json:"Username" binding:"required"`
+	PFP      string `json:"pfp" binding:"required"`
+	ID       int    `json:"id" binding:"required"`
+	Password string `json:"Password" binding:"required"`
 }
 
 var maxUsernameLen = 25
 var maxPFPLen = 250
 var minUsernameLen = 3
+var maxPasswordLen = 1
+var minPasswordLen = 8
 
 // HELPER FUNCTION
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
 		found = true
-		var u, p string
+		var u, p, pw string
 		var i int
-		if err := res.Scan(&i, &u, &p); err != nil {
+		if err := res.Scan(&i, &u, &p, &pw); err != nil {
 			return err
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"name": u,
-			"pfp":  p,
-			"id":   i,
+			"name":     u,
+			"pfp":      p,
+			"id":       i,
+			"password": pw,
 		})
 	}
 	// if no profiles found
@@ -56,7 +61,7 @@ func GetUserByName(c *gin.Context) {
 	// query database for given name
 	res, err := db.Query("SELECT * FROM Users WHERE name=?", name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	// return found user data
@@ -79,9 +84,9 @@ func GetAllUsers(c *gin.Context) {
 
 	var accounts []Account
 	for res.Next() {
-		var u, p string
+		var u, p, pw string
 		var i int
-		if err := res.Scan(&i, &u, &p); err != nil {
+		if err := res.Scan(&i, &u, &p, &pw); err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 			return
 		}
@@ -89,6 +94,7 @@ func GetAllUsers(c *gin.Context) {
 		account.Username = u
 		account.PFP = p
 		account.ID = i
+		account.Password = pw
 		accounts = append(accounts, account)
 	}
 	c.JSON(http.StatusOK, accounts)
@@ -102,15 +108,25 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	// ensure user has not created a username that is too long
+	/*
+		The following is a set of hard-imposed rules for restricting correct input for account creation. No authentication method is required for creation.
+	*/
+
+	// ensure user has not created a username or password that is too long/short
 	if len(acc.Username) > maxUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
 		return
 	} else if len(acc.PFP) > maxPFPLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "PFP too long"})
 		return
+	} else if len(acc.Password) > maxPasswordLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too long"})
+		return
 	} else if len(acc.Username) < minUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
+		return
+	} else if len(acc.Password) < minPasswordLen {
+		c.JSON(http.StatusBadRequest, gin.H{"error:": "Password too short"})
 		return
 	}
 
@@ -133,4 +149,32 @@ func CreateAccount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	c.String(http.StatusAccepted, "profile created")
+}
+
+func LoginAuth(c *gin.Context) {
+	var acc Account
+
+	// final error check during binding process. If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
+
+	if err := c.ShouldBindJSON(&acc); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	/*
+		INSERT JWT AUTHENTICATION HERE (TO BE COMPLETED)
+		By default, we will set the success of the authentication to be true temporarily to allow login retrieval
+	*/
+	authSuccess := true
+
+	// following code retrieves the successful token (profile) if correct, or displays HTTP 400 (bad request) otherwise
+
+	if authSuccess {
+		c.JSON(http.StatusOK, gin.H{
+			"token": acc.ID, // this is temporary, do not use acc ID as the token
+		})
+		c.String(http.StatusOK, "profile successfully retrieved")
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"})
+	}
 }

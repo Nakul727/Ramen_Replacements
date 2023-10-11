@@ -1,7 +1,8 @@
 package api
- 
+
 import (
 	"database/sql"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -13,6 +14,7 @@ func RunAccounts(r *gin.Engine, database *sql.DB) {
 	r.GET("/acc/user", GetUserByName)
 	r.GET("/acc/users", GetAllUsers)
 	r.POST("acc/create", CreateAccount)
+	r.POST("acc/login", LoginAuth) // NOT YET COMPLETED
 	db = database
 }
 
