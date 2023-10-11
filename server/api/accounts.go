@@ -152,16 +152,15 @@ func LoginAuth(c *gin.Context) {
 
 	/*
 		INSERT JWT AUTHENTICATION HERE (TO BE COMPLETED)
-		By default, we will set the success of the authentication to be false temporarily
+		By default, we will set the success of the authentication to be true temporarily to allow login retrieval
 	*/
-	var authSuccess = false
-	var token = (0)
+	authSuccess := true
 
 	// following code retrieves the successful token (profile) if correct, or displays HTTP 400 (bad request) otherwise
 
 	if authSuccess {
 		c.JSON(http.StatusOK, gin.H{
-			"token": token,
+			"token": acc.ID, // this is temporary, do not use acc ID as the token
 		})
 		c.String(http.StatusOK, "profile successfully retrieved")
 	} else {
