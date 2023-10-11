@@ -75,7 +75,7 @@ function Register() {
               <br/>
               <label for="name">Password</label>
               <br/>
-              <label for="name">Confirm</label>
+              <label for="name">Confirm Password</label>
               <br/>
             </div>
           </section>
