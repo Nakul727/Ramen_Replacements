@@ -7,7 +7,7 @@ import Register from './Register.js';
 import Dashboard from './Dashboard.js';
 
 
-function Main() {
+export default function Main() {
   return (
     <Routes>
       <Route path='/' element={<Home/>}></Route>
@@ -17,5 +17,3 @@ function Main() {
     </Routes>
   );
 }
-
-export default Main;
