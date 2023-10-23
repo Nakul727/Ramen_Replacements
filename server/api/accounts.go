@@ -10,11 +10,12 @@ import (
 )
 
 // set up account struct with username, profile picture, id number, and password
+// password is never returned to the frontend
 type Account struct {
 	ID       int    `json:"id"`
 	Username string `json:"Username"`
 	Email	 string `json:"Email"`
-	Password string `json:"Password"`
+	Password string `json:"-"`
 	PFP      string `json:"PFP"`
 }
 

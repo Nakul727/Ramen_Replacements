@@ -1,35 +1,24 @@
 package main
 
 import (
-	"net/http"
-	"database/sql"
 	"log"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/cors" 
-	"github.com/joho/godotenv"
 
 	"server/api"
-	"server/initializers"
+	"server/utils"
 )
 
-var db *sql.DB
-
 func main() {
-	
-	// gin.Default creates a default router
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	// enable .env files reading
-	err := godotenv.Load()
+	// connect to the database
+	db, err := utils.InitDB()
 	if err != nil {
-	  log.Fatal("Error loading .env file")
+		log.Fatal(err)
 	}
-
-	// connect to the server
-	db, err := initializers.InitDB()
-	if err != nil {
-        log.Fatal(err)
-    }
 	defer db.Close()
 
 	// Enable CORS - allowing all ports
@@ -37,17 +26,12 @@ func main() {
 	config.AllowOrigins = []string{"*"}
 	r.Use(cors.New(config))
 
-	// r.GET gets data from the specified URL/endpoint
-	// testing endpoints
-	r.GET("/helloworld", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello world!")
-	})
-
 	// run handlers
-	api.RunAccounts(r, db)
-	api.RunRecipes(r, db)
+	api.LoadDatabase(db)
+	api.RunAccounts(r)
+	api.RunRecipes(r)
 
-	// r.Run runs default router r on port 8080
-	// Example: open localhost:8080/helloworld for helloworld endpoint
+	// runs backend on port 8080
+	// development environemt
 	r.Run(":8080")
 }

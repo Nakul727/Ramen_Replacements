@@ -1,13 +1,21 @@
-package initializers
+package utils
 
 import (
-	"log"
-    "os"
 	"database/sql"
+	"log"
+	"os"
+
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
 func InitDB() (*sql.DB, error) {
+
+	// make sure environment variables can be loaded
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error Loading .env variables")
+	}
 
 	// connect to the server
 	dns := os.Getenv("DB_INFO")
