@@ -3,10 +3,11 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 // set up account struct with username, profile picture, id number, and password
@@ -14,8 +15,8 @@ import (
 type Account struct {
 	ID       int    `json:"id"`
 	Username string `json:"Username"`
-	Email	 string `json:"Email"`
-	Password string `json:"-"`
+	Email    string `json:"Email"`
+	Password string `json:"Password"`
 	PFP      string `json:"PFP"`
 }
 
@@ -29,14 +30,15 @@ func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
 		found = true
-		var u, p, pw string
+		var u, e, p, pw string
 		var i int
-		if err := res.Scan(&i, &u, &p, &pw); err != nil {
+		if err := res.Scan(&i, &u, &e, &p, &pw); err != nil {
 			return err
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"name":     u,
 			"pfp":      p,
+			"email":    e,
 			"id":       i,
 			"password": pw,
 		})
@@ -60,7 +62,7 @@ func GetUserByName(c *gin.Context) {
 	}
 
 	// query database for given name
-	res, err := db.Query("SELECT * FROM Users WHERE name=?", name)
+	res, err := db.Query("SELECT * FROM Users WHERE name=$1", name)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -85,15 +87,16 @@ func GetAllUsers(c *gin.Context) {
 
 	var accounts []Account
 	for res.Next() {
-		var u, p, pw string
+		var u, p, e, pw string
 		var i int
-		if err := res.Scan(&i, &u, &p, &pw); err != nil {
+		if err := res.Scan(&i, &u, &e, &pw, &p); err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 			return
 		}
 		var account Account
 		account.Username = u
 		account.PFP = p
+		account.Email = e
 		account.ID = i
 		account.Password = pw
 		accounts = append(accounts, account)
@@ -105,12 +108,15 @@ func CreateAccount(c *gin.Context) {
 	var acc Account
 	err := c.BindJSON(&acc)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error with input"})
 		return
 	}
 
+	fmt.Println(acc.Username)
+	fmt.Println(acc.Password)
+
 	/*
-		The following is a set of hard-imposed rules for restricting correct input for account creation. 
+		The following is a set of hard-imposed rules for restricting correct input for account creation.
 		No authentication method is required for creation.
 	*/
 
@@ -130,21 +136,34 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// check if username already exists
-	res, err := db.Query("SELECT * FROM Users WHERE name=?", acc.Username)
+	res, err := db.Query("SELECT * FROM Users WHERE name=$1", acc.Username)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
 		return
 	}
+
 	// if the user already exists in the database, prompt user to pick a different name
 	for res.Next() {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User with name already exists"})
 		return
 	}
 
-	// otherwise insert it into database as a new user
-	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES (?, ?, ?, ?);", acc.Username, acc.Email, acc.Password, acc.PFP)
+	// check if account with associated email already exists
+	res, err = db.Query("SELECT * FROM Users WHERE email=$1", acc.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
+		return
+	}
+
+	for res.Next() {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User with associated email already exists"})
+		return
+	}
+
+	// otherwise insert it into database as a new user
+	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting into database"})
 		return
 	}
 	c.String(http.StatusAccepted, "Profile created")
@@ -153,7 +172,7 @@ func CreateAccount(c *gin.Context) {
 func LoginAuth(c *gin.Context) {
 	var acc Account
 
-	// final error check during binding process. 
+	// final error check during binding process.
 	// If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
 
 	if err := c.ShouldBindJSON(&acc); err != nil {

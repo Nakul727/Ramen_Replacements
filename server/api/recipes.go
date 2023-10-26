@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 // Recipe struct - contains all data for recipe cards
@@ -29,7 +30,6 @@ var maxStepsLen = 5000
 var maxIngredientsLen = 500
 var maxPictureLen = 250
 
-
 // HELPER FUNCTIONS
 func contextToRecipe(row *sql.Rows) (*Recipe, error) {
 	var rec Recipe
@@ -48,7 +48,7 @@ func contextToRecipe(row *sql.Rows) (*Recipe, error) {
 func PostRecipe(c *gin.Context) {
 	var rec Recipe
 	if err := c.BindJSON(&rec); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "error binding input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
@@ -68,8 +68,8 @@ func PostRecipe(c *gin.Context) {
 	// get time of posting
 	currentTime := int32(time.Now().Unix())
 
-	// insert recipe to database (what an ugly line -simon)
-	_, err := db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);",
+	// insert recipe to database
+	_, err := db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);",
 		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -87,7 +87,7 @@ func GetRecipe(c *gin.Context) {
 	}
 	id, _ := strconv.Atoi(id_string)
 
-	resp, err := db.Query("SELECT * FROM Recipes WHERE id = ?;", id)
+	resp, err := db.Query("SELECT * FROM Recipes WHERE id = $1;", id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
@@ -159,7 +159,7 @@ func GetTopRecent(c *gin.Context) {
 	postRange = int(time.Now().Unix()) - postRange
 
 	// get the first 1000 posts that fit in this time period
-	resp, err := db.Query("SELECT * FROM Recipes WHERE date>? ORDER BY rating DESC", postRange)
+	resp, err := db.Query("SELECT * FROM Recipes WHERE date>$1 ORDER BY rating DESC", postRange)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
