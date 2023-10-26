@@ -5,33 +5,32 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func InitDB() (*sql.DB, error) {
-
-	// make sure environment variables can be loaded
+	// Make sure environment variables can be loaded
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error Loading .env variables")
 	}
 
-	// connect to the server
+	// Connect to the server
 	dns := os.Getenv("DB_INFO")
-	db, err := sql.Open("mysql", dns)
+	db, err := sql.Open("postgres", dns)
 	if err != nil {
 		return nil, err
 	}
 
-	// ping the server to check status
+	// Ping the server to check status
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
-	// if passed, connection has been establised
-	log.Println("Successfully connected to MySQL server")
+	// If the connection has been established successfully
+	log.Println("Successfully connected to PostgreSQL server")
 
-	// return pointer to the database
+	// Return a pointer to the database
 	return db, nil
 }
