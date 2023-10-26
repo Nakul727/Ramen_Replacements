@@ -6,7 +6,7 @@
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 [![License: MIT](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 **Ramen Replacements** is a dedicated platform built for individuals on tight budgets, particularly university students, who seek affordable, nutritious, and delicious meal options that can be easily prepared at home. Instead of going for something like instant **ramen**, they can **replace** it with home cooked meals that are affordable, simple and delicious. 
@@ -45,7 +45,7 @@ This is a community-based food sharing platform, where users can create, share, 
 #### Requirements
 
 - GoLang
-- MySQL
+- PostgreSQL
 
 </br>
 
