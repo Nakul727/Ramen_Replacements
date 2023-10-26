@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 
 	"server/api"
 	"server/utils"
@@ -14,12 +13,6 @@ import (
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-
-	// Make sure environment variables can be loaded
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error Loading .env variables")
-	}
 
 	// connect to the database
 	db, err := utils.InitDB()
