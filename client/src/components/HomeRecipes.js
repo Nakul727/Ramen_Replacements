@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { displayMessage} from "./helper.js"
+import { Link } from "react-router-dom";
 import "../styles/Home.css";
 
+
 function RecipeCard(rec) {
-    const link = "localhost:3000/recipe/" + String(rec.UserID);
+    const link = "recipe/" + String(rec.UserID);
     return (
-        <div className="recipe-card">
-            <a href={link}>{rec.Title}</a>
+        <Link to={link} className="recipe-card">
+            <p> {rec.Title} </p>
             <div className="picture-container">
                 <img className="recipe-pic" src={rec.Picture} alt={`alt${rec.Title}`} />
             </div>
             <div className="text-container">
                 <p>{rec.Description}</p>
             </div>
-        </div>
+        </Link>
     );
 }
 
