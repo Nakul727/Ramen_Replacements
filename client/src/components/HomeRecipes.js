@@ -57,7 +57,7 @@ function HomeRecipes() {
             <div className="grid-container">
                 <div className="recipe-grid">
                     {recipeData === null ? (
-                        <p>No recipies found</p>
+                        <p>No recipes found</p>
                     ) : (
                         recipeData.map(recipe => (
                             <RecipeCard key={recipe.id} {...recipe} />
