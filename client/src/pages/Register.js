@@ -30,7 +30,7 @@ function Register() {
           // If the API couldn't be contacted
           // display the error message to the User
           
-          displayMessage("registration-result","API could not be contacted.");
+          displayMessage("registration-result",error.error);
       }
   }
   

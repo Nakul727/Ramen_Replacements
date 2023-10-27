@@ -5,6 +5,7 @@ import Home from './Home.js';
 import Login from './Login.js';
 import Register from './Register.js';
 import Dashboard from './Dashboard.js';
+import RecipeMaker from './RecipeMaker.js'
 
 
 export default function Main() {
@@ -14,6 +15,7 @@ export default function Main() {
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/register' element={<Register/>}></Route>
       <Route path='/dashboard' element={<Dashboard/>}></Route>
+      <Route path='/recipemaker' element={<RecipeMaker/>}></Route>
     </Routes>
   );
 }
