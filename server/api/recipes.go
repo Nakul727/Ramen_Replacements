@@ -159,9 +159,14 @@ func PostRecipe(c *gin.Context) {
 		return
 	}
 
-	_, err := parseIngredients(rec.Ingredients)
+	ingredients, err := parseIngredients(rec.Ingredients)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unrecognized ingredient in recipe"})
+	}
+
+	err = post_nutrition_facts(ingredients)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error})
 	}
 
 	// get time of posting
