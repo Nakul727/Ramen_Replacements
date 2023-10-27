@@ -1,12 +1,11 @@
 import React from 'react';
 import {Routes, Route} from 'react-router-dom';
 
-import Home from './Home.js';
-import Login from './Login.js';
-import Register from './Register.js';
-import Dashboard from './Dashboard.js';
-import Recipe from './Recipe.js';
-
+import Home from './pages/Home.js';
+import Login from './pages/Login.js';
+import Register from './pages/Register.js';
+import Dashboard from './pages/Dashboard.js';
+import Explore from './pages/Explore.js';
 
 export default function Main() {
   return (
@@ -16,6 +15,7 @@ export default function Main() {
       <Route path='/register' element={<Register/>}></Route>
       <Route path='/dashboard' element={<Dashboard/>}></Route>
       <Route path='/recipe/:recipeID' element={<Recipe/>}></Route>
+      <Route path='/explore' element={<Explore/>}></Route>
     </Routes>
   );
 }
