@@ -1,8 +1,6 @@
 import '../styles/Home.css';
 import { Header, Logo_Name, Links} from '../components/header.js';
 import { Footer } from "../components/footer.js"
-import { HomeRecipes } from "../components/HomeRecipes.js"
-
 
 function Home() {
 
@@ -18,14 +16,15 @@ function Home() {
         <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
       </header>
       
-      <div className="mt-32">
-        <p class="text-center text-3xl  mt-10">Welcome to Ramen_Replacements</p>
-        <p class="text-xl mt-10 ml-5">Here are the latest recipes:</p>
-        <div>
-          <HomeRecipes/>
+      <div className='body_sections'>
+        <div className="section1" style={{ backgroundColor: 'lightblue', height: '300px' }}>
+        </div>
+        <div className="section2" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
+        </div>
+        <div className="section3" style={{ backgroundColor: 'lightpink', height: '300px' }}>
         </div>
       </div>
-      
+
       <footer>
         <Footer/>
       </footer>

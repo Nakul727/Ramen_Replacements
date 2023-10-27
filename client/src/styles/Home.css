@@ -4,6 +4,10 @@
 
 /* recipe cards */
 
+.body_sections {
+    margin-top: 88px;
+}
+
 .recipe-card {
     display: grid;
     grid-template-columns: 1fr; /* Adjust the column layout as needed */
