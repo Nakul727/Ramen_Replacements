@@ -58,7 +58,14 @@ function Recipe() {
                         <h3 className="text-xl px-10 pt-10"> {recipe.Description} </h3>
                     </div>
                     {/*userid is a placeholder for username*/}
-                    <p className="text-xl mx-20">Added by: {recipe.UserID}</p>
+                    <p className="text-2xl mx-20 mt-3 float-left">Added by: {recipe.UserID}</p>
+                    <div className="pr-20">
+                        <span class={recipe.Rating >= 5 ? "coloured_star" : "uncoloured_star"}>★</span>
+                        <span class={recipe.Rating >= 4 ? "coloured_star" : "uncoloured_star"}>★</span>
+                        <span class={recipe.Rating >= 3 ? "coloured_star" : "uncoloured_star"}>★</span>
+                        <span class={recipe.Rating >= 2 ? "coloured_star" : "uncoloured_star"}>★</span>
+                        <span class={recipe.Rating >= 1 ? "coloured_star" : "uncoloured_star"}>★</span>
+                    </div>
                 </section>
 
                 <aside className="float-right w-4/12 mt-10 m-auto">
