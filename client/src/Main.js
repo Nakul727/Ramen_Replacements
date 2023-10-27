@@ -1,11 +1,11 @@
 import React from 'react';
 import {Routes, Route} from 'react-router-dom';
 
-import Home from './Home.js';
-import Login from './Login.js';
-import Register from './Register.js';
-import Dashboard from './Dashboard.js';
-import RecipeMaker from './RecipeMaker.js'
+import Home from './pages/Home.js';
+import Login from './pages/Login.js';
+import Register from './pages/Register.js';
+import Dashboard from './pages/Dashboard.js';
+import RecipeMaker from './pages/RecipeMaker.js'
 import Explore from './pages/Explore.js';
 
 

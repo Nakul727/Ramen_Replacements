@@ -44,7 +44,7 @@ class RecipeMaker extends Component {
     var stepsString = "";
     for(var i = 0; i < steps.length; i++) {
         // add symbols to number so we know what are steps and what numbers are added by users
-        stepsString += "$$" + i+1 + "$$" + ": " + steps[i];
+        stepsString += "$$" + String(i+1) + "$$" + ": " + steps[i];
     }
     
     try {
