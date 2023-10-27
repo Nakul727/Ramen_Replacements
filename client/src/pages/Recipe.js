@@ -28,19 +28,7 @@ function Recipe() {
         }
     }
 
-    // const recipe = getRecipeDetail(recipeID);
-    // for testing:
-    const recipe = {
-        "UserID": 123,
-        "Rating":	5,
-        "Title":	"Protein mac and cheese",
-        "Description":	"Delicious high protein mac and cheese!",
-        "Steps":	"(steps to prepare)",
-        "Ingredients":	"1. Elbow pasta 2. Cheddar cheese 3. ...",
-        "Picture":	"https://yarwoodleather.com/wp-content/uploads/2016/12/Yarwood-Leather-Style-Bright-Orange-01-scaled.jpg",
-        "Appliances": 1,
-        "Date":	1696640408
-    }
+    const recipe = getRecipeDetail(recipeID);
       
     return (
         <div>
