@@ -63,7 +63,7 @@ function Login() {
 
       <div className="body_sections">
 
-        <div className="form" style={{ backgroundColor: 'lightblue', height: '300px' }}>
+        <div className="section1" style={{ backgroundColor: 'lightblue', height: '300px' }}>
 
           {/* Form Contents */}
           <h2 className="text-center text-2xl font-bold">Log In</h2>
