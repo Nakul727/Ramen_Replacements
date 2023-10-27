@@ -7,7 +7,6 @@ import Register from './pages/Register.js';
 import Dashboard from './pages/Dashboard.js';
 import Explore from './pages/Explore.js';
 
-
 export default function Main() {
   return (
     <Routes>
@@ -15,6 +14,7 @@ export default function Main() {
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/register' element={<Register/>}></Route>
       <Route path='/dashboard' element={<Dashboard/>}></Route>
+      <Route path='/recipe/:recipeID' element={<Recipe/>}></Route>
       <Route path='/explore' element={<Explore/>}></Route>
     </Routes>
   );
