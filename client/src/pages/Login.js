@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
 import {displayMessage} from "../components/helper.js";
 import { Footer } from "../components/footer.js"
-import logo_img from "../assets/logo.png"
-import menu_img from "../assets/menu.png"
+import { Header, Logo_Name, Links} from '../components/header.js';
 
 
-function Login() {
+
+function Login() 
+{
+
+  const header_linkData = [];
+
+
   function login_check() {
     let name_or_email = document.getElementById("name").value;
     let password = document.getElementById("pass").value;
@@ -13,33 +18,22 @@ function Login() {
     if (name_or_email === "" || password === "") {
       displayMessage("registration-result", "Some field(s) are empty.");
     }
-    else{
-      // send a GET request to api
-      // LoginAuth function will authenticate user
-      // route user to the dashboard and display that user was logged in.
-      
-      window.location.href = "/"; //placeholder link to home, will go to dashboard once connecter is finished and can call for password
+    else {
+      window.location.href = "/";
     }
   }
+
 
   return (
     <div>
 
-      <header className="bg-zinc-300 flex items-center justify-between p-5">
-        <div className="flex items-center mx-5">
-          <Link to="/">
-            <img src={logo_img} className="h-14 w-auto mx-4" alt="Logo" />
-          </Link>
-          <h1 className="text-black text-4xl ml-2">Ramen Replacements</h1>
-        </div>
-
-        <div className="flex items-center mx-5">
-          <img src={menu_img} className="h-12 w-12" alt="Menu" />
-        </div>
+      <header>
+        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
       </header>
 
 
-      <div className="mt-32 md:mt-48 xl:mt-60">
+
+      <div className="mt-20 md:mt-48 xl:mt-60">
         <main className="form">
           <h2 className="text-center text-2xl font-bold">Log In</h2>
           <hr className="border-black"/>
@@ -77,6 +71,8 @@ function Login() {
           </Link>
         </main>
       </div>
+
+
 
       <footer>
         <Footer/>
