@@ -28,7 +28,19 @@ function Recipe() {
         }
     }
 
-    const recipe = getRecipeDetail(recipeID);
+    // const recipe = getRecipeDetail(recipeID);
+    // for testing:
+    const recipe = {
+        "UserID": 123,
+        "Rating":	5,
+        "Title":	"Protein mac and cheese",
+        "Description":	"Delicious high protein mac and cheese!",
+        "Steps":	"(steps to prepare)",
+        "Ingredients":	"1. Elbow pasta 2. Cheddar cheese 3. ...",
+        "Picture":	"https://yarwoodleather.com/wp-content/uploads/2016/12/Yarwood-Leather-Style-Bright-Orange-01-scaled.jpg",
+        "Appliances": 1,
+        "Date":	1696640408
+    }
       
     return (
         <div>
@@ -50,20 +62,43 @@ function Recipe() {
                 </div>
             </header>
 
-            <section className="float-left w-7/12 h-96 mt-10">
-                <h1 className="text-center text-4xl py-10">{recipe.Title}</h1>
-                <hr className="border-slate-600 w-4/6 m-auto"></hr>
-                <div className="bg-slate-200 mx-20 my-5 h-64 rounded-xl">
-                    <h3 className="text-xl px-10 pt-10"> {recipe.Description} </h3>
-                </div>
-                {/*userid is a placeholder for username*/}
-                <p className="text-xl mx-20">Added by: {recipe.UserID}</p>
-            </section>
+            <div className="h-[35vw]">
+                <section className="float-left w-7/12 h-[30vw] mt-10">
+                    <h1 className="text-center text-4xl py-10">{recipe.Title}</h1>
+                    <hr className="border-slate-600 w-4/6 m-auto"></hr>
+                    <div className="bg-slate-200 mx-20 my-5 h-64 rounded-xl">
+                        <h3 className="text-xl px-10 pt-10"> {recipe.Description} </h3>
+                    </div>
+                    {/*userid is a placeholder for username*/}
+                    <p className="text-xl mx-20">Added by: {recipe.UserID}</p>
+                </section>
 
-            <aside className="float-right w-4/12 mt-10">
-                <img src={recipe.Picture} alt={`${recipe.Title}`} 
-                class="recipe_image"></img>
-            </aside>
+                <aside className="float-right w-4/12 mt-10 m-auto">
+                    <img src={recipe.Picture} alt={`${recipe.Title}`} 
+                    class="recipe_image"></img>
+                </aside>
+            </div>
+
+            <article>
+                <div class="info_box">
+                    <h3 className="text-4xl px-20 pt-10">Ingredients</h3>
+                    <hr className="border-black w-11/12 m-auto"></hr>
+                    <p class="info_text">{recipe.Ingredients}</p>
+                </div>
+                
+                <div class="info_box">
+                    <h3 className="text-4xl px-20 pt-10">Instructions</h3>
+                    <hr className="border-black w-11/12 m-auto"></hr>
+                    <p class="info_text">{recipe.Steps}</p>
+                </div>
+
+                <section className="m-auto w-3/4">
+                    <p class="info_text">Rate it: </p>
+                    <hr className="border-black w-11/12 m-auto"></hr>
+                    <p class="info_text">Comments </p>
+                </section>
+                <div className="m-20"> </div>
+            </article>
 
             <footer>
                 <Footer/>
