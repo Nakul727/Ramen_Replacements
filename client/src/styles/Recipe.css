@@ -1,0 +1,7 @@
+.recipe_image {
+    display: block;
+    width: 30vw;
+    height: 30vw;
+    border-width: 2px;
+    border-color: black;
+}

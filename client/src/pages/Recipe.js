@@ -1,7 +1,9 @@
 import '../styles/Home.css';
+import '../styles/Recipe.css';
 import { Link } from "react-router-dom";
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
+import { displayMessage} from "../components/helper.js";
 import menu_img from "../assets/menu.png";
 import logo_img from "../assets/logo.png";
 
@@ -26,7 +28,7 @@ function Recipe() {
         }
     }
 
-    const recipeDetail = getRecipeDetail(recipeID);
+    const recipe = getRecipeDetail(recipeID);
       
     return (
         <div>
@@ -48,8 +50,20 @@ function Recipe() {
                 </div>
             </header>
 
-            <p>{recipeID}</p>
-            <p class="text-center text-3xl mt-10">Recipe</p>
+            <section className="float-left w-7/12 h-96 mt-10">
+                <h1 className="text-center text-4xl py-10">{recipe.Title}</h1>
+                <hr className="border-slate-600 w-4/6 m-auto"></hr>
+                <div className="bg-slate-200 mx-20 my-5 h-64 rounded-xl">
+                    <h3 className="text-xl px-10 pt-10"> {recipe.Description} </h3>
+                </div>
+                {/*userid is a placeholder for username*/}
+                <p className="text-xl mx-20">Added by: {recipe.UserID}</p>
+            </section>
+
+            <aside className="float-right w-4/12 mt-10">
+                <img src={recipe.Picture} alt={`${recipe.Title}`} 
+                class="recipe_image"></img>
+            </aside>
 
             <footer>
                 <Footer/>
