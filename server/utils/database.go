@@ -5,16 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func InitDB() (*sql.DB, error) {
-	// Make sure environment variables can be loaded
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error Loading .env variables")
-	}
 
 	// Connect to the server
 	dns := os.Getenv("DB_INFO")
