@@ -14,9 +14,9 @@ func InitDB() (*sql.DB, error) {
 	// Make sure environment variables can be loaded
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error Loading .env variables")
+		log.Fatal("Error loading .env variables:", err)
 	}
-
+	
 	// Connect to the server
 	dns := os.Getenv("DB_INFO")
 	db, err := sql.Open("postgres", dns)
