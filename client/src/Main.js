@@ -8,7 +8,6 @@ import Register from './pages/Register.js';
 import Dashboard from './pages/Dashboard.js';
 import Explore from './pages/Explore.js';
 
-
 export default function Main() {
   return (
     <AuthProvider>
