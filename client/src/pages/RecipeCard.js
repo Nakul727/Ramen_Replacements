@@ -1,5 +1,5 @@
 import '../styles/Home.css';
-import '../styles/Recipe.css';
+import '../styles/RecipeCard.css';
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
 import { Header, Logo_Name, Links} from '../components/header.js';

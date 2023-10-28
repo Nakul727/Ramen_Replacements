@@ -8,7 +8,7 @@ import Register from './pages/Register.js';
 import Dashboard from './pages/Dashboard.js';
 import RecipeMaker from './pages/RecipeMaker.js'
 import Explore from './pages/Explore.js';
-import Recipe from './pages/Recipe.js';
+import Recipe from './pages/RecipeCard.js';
 
 
 
