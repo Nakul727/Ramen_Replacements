@@ -1,7 +1,7 @@
 function Footer() {
     return (
-        <div className="fixed left-0 bottom-0 bg-slate-200 w-full h-10">
-            <h1 className="text-base md:text-xl text-right m-1 float-right">Ramen Replacements Inc., 2023</h1>
+        <div className="flex items-center justify-center bg-slate-200 w-full h-20">
+            <h1 className="md:text-xl">Ramen Replacements Inc. 2023</h1>
         </div>
     );
 }
