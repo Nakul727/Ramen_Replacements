@@ -7,7 +7,7 @@ import Login from './pages/Login.js';
 import Register from './pages/Register.js';
 import Dashboard from './pages/Dashboard.js';
 import Explore from './pages/Explore.js';
-import Recipe from './pages/Recipe.js';
+import Recipe from './pages/RecipeCard.js';
 
 export default function Main() {
   return (
