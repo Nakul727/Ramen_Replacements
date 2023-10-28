@@ -1,12 +1,9 @@
 import '../styles/Home.css';
 import '../styles/Recipe.css';
-import { Link } from "react-router-dom";
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
 import { Header, Logo_Name, Links} from '../components/header.js';
 import { displayMessage} from "../components/helper.js";
-import menu_img from "../assets/menu.png";
-import logo_img from "../assets/logo.png";
 
 function Recipe() {
     const { recipeID } = useParams();
@@ -44,7 +41,7 @@ function Recipe() {
             </header>
 
             <div className="h-[35vw]">
-                <section className="float-left w-7/12 h-[30vw] mt-10">
+                <section className="float-left w-7/12 h-[30vw] mt-28">
                     <h1 className="text-center text-4xl py-10">{recipe.Title}</h1>
                     <hr className="border-slate-600 w-4/6 m-auto"></hr>
                     <div className="bg-slate-200 mx-20 my-5 h-64 rounded-xl">
@@ -61,11 +58,12 @@ function Recipe() {
                     </div>
                 </section>
 
-                <aside className="float-right w-4/12 mt-10 m-auto">
+                <aside className="float-right w-4/12 mt-32 m-auto">
                     <img src={recipe.Picture} alt={`${recipe.Title}`} 
                     class="recipe_image"></img>
                 </aside>
             </div>
+            <div className="mt-28"></div>
 
             <article>
                 <div class="info_box">
