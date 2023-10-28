@@ -30,8 +30,9 @@ type Recipe struct {
 
 // struct for storing a recipe and its id for searching in second hand API
 type Ingredient struct {
-	Name string
-	ID   int
+	Name  string
+	ID    int
+	count int
 }
 
 // for keeping track of max length when putting new data in db
@@ -164,7 +165,8 @@ func PostRecipe(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unrecognized ingredient in recipe"})
 	}
 
-	err = post_nutrition_facts(ingredients)
+	// TODO
+	_, err = calculate_nutrition_facts(ingredients)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error})
 	}
