@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* recipe cards */
 
 .recipe-card {
@@ -23,7 +24,14 @@
     grid-template-columns: 320px;
     gap: 10px;
     align-items: center;
+
+
+/* Starting magin for body section of all pages */
+  
+.body_sections {
+    margin-top: 88px;
 }
+  
 @media (min-width: 640px) {
     .recipe-grid {
         display: grid;
@@ -41,6 +49,7 @@
     }
 }
 
+/* recipe cards - temporary css */
 .grid-container-container {
     display: flex;
     justify-content: center;
@@ -50,17 +59,22 @@
 }
 
 .grid-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    max-width: 90%;
-    padding-top: 200px; /* Adjust the padding-top instead of margin-top */
-    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(33.33%, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    padding: 20px;
 }
 
-.picture-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    @media screen and (max-width: 800px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media screen and (max-width: 600px) {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    gap: 20px;
 }

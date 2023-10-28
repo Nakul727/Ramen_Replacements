@@ -2,6 +2,9 @@ import '../styles/Home.css';
 import { Header, Logo_Name, Links} from '../components/header.js';
 import { Footer } from "../components/footer.js"
 
+// only accessible when the user is logged in
+// otherwise redirected to the login page
+
 function Dashboard() {
 
   const header_linkData = [

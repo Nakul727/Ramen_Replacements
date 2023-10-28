@@ -1,5 +1,6 @@
 import React from 'react';
-import {Routes, Route} from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from "./AuthContext";
 
 import Home from './pages/Home.js';
 import Login from './pages/Login.js';
@@ -10,13 +11,14 @@ import Recipe from './pages/Recipe.js';
 
 export default function Main() {
   return (
-    <Routes>
-      <Route path='/' element={<Home/>}></Route>
-      <Route path='/login' element={<Login/>}></Route>
-      <Route path='/register' element={<Register/>}></Route>
-      <Route path='/dashboard' element={<Dashboard/>}></Route>
-      <Route path='/recipe/:recipeID' element={<Recipe/>}></Route>
-      <Route path='/explore' element={<Explore/>}></Route>
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path='/' element={<Home />}></Route>
+        <Route path='/login' element={<Login />}></Route>
+        <Route path='/register' element={<Register />}></Route>
+        <Route path='/dashboard' element={<Dashboard />}></Route>
+        <Route path='/explore' element={<Explore />}></Route>
+      </Routes>
+    </AuthProvider>
   );
 }
