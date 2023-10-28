@@ -2,16 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* recipe cards */
+
+.recipe-card {
+    display: grid;
+    border: 1px solid #ccc;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.recipe-pic {
+    width: 90%;
+    height: 75%;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: 320px;
+    gap: 10px;
+    align-items: center;
+
+
 /* Starting magin for body section of all pages */
+  
 .body_sections {
     margin-top: 88px;
+}
+  
+@media (min-width: 640px) {
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-items: center;
+    }
+}
+@media (min-width: 1280px) {
+    .recipe-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        align-items: center;
+    }
 }
 
 /* recipe cards - temporary css */
 .grid-container-container {
     display: flex;
     justify-content: center;
-    
+    margin-top: 200px;
+    margin-bottom: 100px;
+    box-sizing: border-box;
 }
 
 .grid-container {

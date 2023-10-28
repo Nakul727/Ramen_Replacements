@@ -8,12 +8,12 @@ function RecipeCard(rec) {
     const link = "recipe/" + String(rec.UserID);
     return (
         <Link to={link} className="recipe-card">
-            <p> {rec.Title} </p>
+            <h3 className="text-lg md:text-2xl pt-4"> {rec.Title} </h3>
             <div className="picture-container">
                 <img className="recipe-pic" src={rec.Picture} alt={`alt${rec.Title}`} />
             </div>
-            <div className="text-container">
-                <p>{rec.Description}</p>
+            <div className="pb-4">
+                <p className="text-md md:text-lg">{rec.Description}</p>
             </div>
         </Link>
     );
