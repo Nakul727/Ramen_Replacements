@@ -1,4 +1,3 @@
-import '../styles/Register.css';
 import { Link } from "react-router-dom";
 import { Header, Logo_Name, Links } from '../components/header.js';
 import { displayMessage, hideMessage } from "../components/helper.js";
@@ -6,15 +5,10 @@ import { Footer } from "../components/footer.js"
 
 function Register() {
 
-
   const header_linkData = [
     { to: '/explore', text: 'Explore' },
     { to: '/login', text: 'Login' },
   ];
-
-
-
-
 
   async function register_user(name, email, pass, pfp) {
     try {

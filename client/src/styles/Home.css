@@ -2,49 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* recipe cards */
-
-.recipe-card {
-    display: grid;
-    grid-template-columns: 1fr; /* Adjust the column layout as needed */
-    gap: 16px;
-    border: 1px solid #ccc;
-    padding: 16px;
-    border-radius: 8px;
-    height: 100%;
+/* Starting magin for body section of all pages */
+.body_sections {
+    margin-top: 88px;
 }
 
-.recipe-pic {
-    width: 90%;
-    height: 75%;
+/* recipe cards - temporary css */
+.grid-container-container {
+    display: flex;
+    justify-content: center;
+    
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(33.33%, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    padding: 20px;
 }
 
 .recipe-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    align-items: center;
-}
+    grid-template-columns: repeat(3, 1fr);
 
-.grid-container-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 200px;
-    box-sizing: border-box;
-}
-
-.grid-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    max-width: 90%;
-    padding-top: 200px; /* Adjust the padding-top instead of margin-top */
-    box-sizing: border-box;
-}
-
-.picture-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @media screen and (max-width: 800px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media screen and (max-width: 600px) {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    gap: 20px;
 }
