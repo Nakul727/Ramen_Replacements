@@ -6,8 +6,8 @@ import { HomeRecipes } from '../components/HomeRecipes';
 function Home() {
 
   const header_linkData = [
-    { to: '/explore', text: 'Explore' },
     { to: '/login', text: 'Login' },
+    { to: '/explore', text: 'Explore' },
   ];
   
   return (

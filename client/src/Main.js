@@ -17,6 +17,7 @@ export default function Main() {
         <Route path='/login' element={<Login />}></Route>
         <Route path='/register' element={<Register />}></Route>
         <Route path='/dashboard' element={<Dashboard />}></Route>
+        <Route path='/recipe/:recipeID' element={<Recipe/>}></Route>
         <Route path='/explore' element={<Explore />}></Route>
       </Routes>
     </AuthProvider>

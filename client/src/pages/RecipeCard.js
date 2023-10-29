@@ -11,8 +11,8 @@ function Recipe() {
     // get recipe details with API call
     async function getRecipeDetail(recipeID) {
         try{
-            const fetchlink = "http://localhost:8080/recipe/" + String(recipeID);
-            const response = await fetch(fetchlink);
+            const backendApi = process.env.REACT_APP_BACKEND;
+            const response = await fetch(backendApi + String(recipeID));
             if (response.ok) {
                 return response.json();
             } else {
