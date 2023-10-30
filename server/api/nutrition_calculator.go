@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 // Nutrition facts stores basic nutrition facts about its associated recipe
@@ -70,63 +71,87 @@ type RecipeNutrition struct {
 	Cholesterol   float64 `json:"cholesterol"`
 }
 
-func calculate_nutrition_facts(ingredients []Ingredient) ([]float64, []int, error) {
+// returns array of int from formatted string
+func parseArray(str string) []int {
+	if len(str) == 0 {
+		return nil
+	}
+
+	var arr []int
+	startSlice, endSlice := 1, 1
+	for i := startSlice; i < len(str); i++ {
+		if str[i] == ',' || str[i] == '}' {
+			curInt, _ := strconv.Atoi(str[startSlice:endSlice])
+			arr = append(arr, curInt)
+			startSlice = i + 1
+			endSlice = i + 1
+		} else {
+			endSlice++
+		}
+	}
+	return arr
+}
+
+// returns an array of nutrition facts
+func calculate_nutrition_facts(ingredients []Ingredient, amountString string) ([]float64, error) {
+	amounts := parseArray(amountString)
 	var apikey string = os.Getenv("API_KEY")
 	if len(ingredients) == 0 {
-		return nil, nil, errors.New("no ingredients found")
+		return nil, errors.New("no ingredients found")
 	}
-	var recNutrition RecipeNutrition
-	amounts := make([]int, len(ingredients))
+	var ingredientNutrition RecipeNutrition
+	var recipeNutrition = make([]float64, 7)
 	for i := 0; i < len(ingredients); i++ {
 		idToQuery := ingredients[i].ID
-		amount := ingredients[i].Amount
-		amounts[i] = ingredients[i].Amount
 		urlToQuery := "https://api.spoonacular.com/food/ingredients/" + fmt.Sprint(idToQuery) + "/information?apiKey=" + apikey +
-			"&amount=" + fmt.Sprint(amount) + "&unit=grams"
+			"&amount=" + fmt.Sprint(amounts[i]) + "&unit=grams"
 
 		resp, err := http.Get(urlToQuery)
 		if err != nil {
-			return nil, nil, errors.New("could not contact API")
+			return nil, errors.New("could not contact API")
 		}
 
 		if resp.StatusCode != 200 {
-			return nil, nil, errors.New("API authentication failed")
+			return nil, errors.New("API authentication failed")
 		}
 
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, nil, errors.New("error reading data")
+			return nil, errors.New("error reading data")
 		}
 
+		// since nutrition info is not always returned in the same order, we first put it into a struct
+		// then into an array to return
 		var nutrition NutritionFacts
 		if err := json.Unmarshal(body, &nutrition); err != nil {
-			return nil, nil, errors.New("error unmarshaling json data")
+			return nil, errors.New("error unmarshaling json data")
 		} else {
 			for i := 0; i < len(nutrition.Nutrition.Nutrients); i++ {
 				switch nutrition.Nutrition.Nutrients[i].Name {
 				case "Calories":
-					recNutrition.Calories += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Calories += nutrition.Nutrition.Nutrients[i].Amount
 				case "Fat":
-					recNutrition.Fat += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Fat += nutrition.Nutrition.Nutrients[i].Amount
 				case "Carbohydrates":
-					recNutrition.Carbohydrates += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Carbohydrates += nutrition.Nutrition.Nutrients[i].Amount
 				case "Protein":
-					recNutrition.Protein += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Protein += nutrition.Nutrition.Nutrients[i].Amount
 				case "Cholesterol":
-					recNutrition.Cholesterol += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Cholesterol += nutrition.Nutrition.Nutrients[i].Amount
 				case "Sodium":
-					recNutrition.Sodium += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Sodium += nutrition.Nutrition.Nutrients[i].Amount
 				case "Sugar":
-					recNutrition.Sugar += nutrition.Nutrition.Nutrients[i].Amount
+					ingredientNutrition.Sugar += nutrition.Nutrition.Nutrients[i].Amount
 				}
 			}
-
-			fmt.Printf("testing: %f %f %f %f %f %f %f", recNutrition.Calories, recNutrition.Carbohydrates, recNutrition.Fat,
-				recNutrition.Protein, recNutrition.Sodium, recNutrition.Sugar, recNutrition.Cholesterol)
+			var arr []float64 = []float64{ingredientNutrition.Calories, ingredientNutrition.Carbohydrates, ingredientNutrition.Fat, ingredientNutrition.Protein,
+				ingredientNutrition.Sodium, ingredientNutrition.Sugar, ingredientNutrition.Cholesterol}
+			for i := 0; i < len(arr); i++ {
+				recipeNutrition[i] += arr[i]
+			}
 		}
 	}
-	var arr []float64 = []float64{recNutrition.Calories, recNutrition.Carbohydrates, recNutrition.Fat, recNutrition.Protein,
-		recNutrition.Sodium, recNutrition.Sugar, recNutrition.Cholesterol}
-	return arr, amounts, nil
+
+	return recipeNutrition, nil
 }

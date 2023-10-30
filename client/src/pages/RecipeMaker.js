@@ -4,6 +4,19 @@ import { Footer } from "../components/footer.js";
 import logo_img from "../assets/logo.png";
 import menu_img from "../assets/menu.png";
 
+// returns integer value for appliance bit field
+function calculateAppliancesValue(arr) {
+  var curIndex = 1;
+  var curValue = 0;
+  for(var i = 0; i < arr.length; i++) {
+    if(arr[i]) {
+      curValue += curIndex;
+      curIndex *= 2;
+    }
+  }
+  return curValue
+}
+
 class RecipeMaker extends Component {
   constructor(props) {
     super(props);
@@ -13,9 +26,10 @@ class RecipeMaker extends Component {
       description: '',
       steps: [''],
       ingredients: [''],
-      amounts: [''],
+      amounts: [0],
       picture: '',
-      appliances: '',
+      appliances: [false, false, false, false, false, false, false, false, false, false, false, false],
+      applianceList: ["Oven", "Stove", "Microwave", "Toaster", "Blender", "Air Fryer", "Grill/Barbecue", "Toaster Oven", "Waffle Iron", "Stand Mixer", "Electric Mixer", "Slow Cooker"]
     };
   }
 
@@ -23,6 +37,15 @@ class RecipeMaker extends Component {
     const { name, value } = event.target;
     this.setState({ [name]: value });
   }
+
+  handleCheckboxChange = (index) => {
+    this.setState((prevState) => {
+      const appliances = [...prevState.appliances];
+      appliances[index] = !appliances[index];
+      return { appliances };
+    });
+  }
+
 
   addStep = () => {
     this.setState((prevState) => ({
@@ -53,27 +76,36 @@ class RecipeMaker extends Component {
   }
 
   handleSubmit = async () => {
-    const { title, description, steps, ingredients, amounts, picture } = this.state;
-    const appliances = 1;
+    const { title, description, steps, ingredients, amounts, picture, appliances } = this.state;
     const userid = 1;
     var stepsString = "";
     for (var i = 0; i < steps.length; i++) {
       // add symbols to number so we know what are steps and what numbers are added by users
       stepsString += "$$" + String(i + 1) + "$$: " + steps[i];
     }
-    var ingredientsString = "";
+    var ingredientsString = "{'";
     var count = 1;
-    for (var i = 0; i < ingredients.length; i++) {
-      if (ingredients[i] !== "") {
-        ingredientsString += "$$" + String(count) + "$$: " + ingredients[i];
-        count++;
-      }
+    if (ingredients.length > 0) {
+      ingredientsString += ingredients[0] + "'"
     }
+    for (var i = 1; i < ingredients.length; i++) {
+      ingredientsString += ",'" + ingredients[i] + "'"
+    }
+    ingredientsString += "}"
+    // convert to SQL friendy array string
+    var amountsString = "{"
+    if(amounts.length > 0) {
+      amountsString += amounts[0]
+    }
+    for (var i = 1; i < amounts.length; i++) {
+      amountsString += "," + amounts[i]
+    }
+    amountsString += "}"
   
     try {
       // Convert amounts to an array of integers
       const amountsArray = amounts.map(amount => parseInt(amount, 10));
-    
+      
       const response = await fetch("http://localhost:8080/recipe/post", {
         method: "POST",
         headers: {
@@ -85,8 +117,8 @@ class RecipeMaker extends Component {
           description: description,
           steps: stepsString,
           ingredients: ingredientsString,
-          amounts: amountsArray, // Send it as an array of integers
-          appliances: appliances,
+          amounts: amountsString,
+          appliances: calculateAppliancesValue(appliances),
           picture: picture,
         }),
       });
@@ -100,10 +132,19 @@ class RecipeMaker extends Component {
       console.log(error);
     }
   }
+
+  Checkbox = ({ label, value, onChange }) => {
+    return (
+      <label>
+        <input type="checkbox" checked={value} onChange={onChange} />
+        {label}
+      </label>
+    );
+  };
   
 
   render() {
-    const { title, description, steps, ingredients, picture, amounts, appliances } = this.state;
+    const { title, description, steps, ingredients, picture, amounts, appliances, applianceList } = this.state;
     return (
       <div>
         <div className="text-center">
@@ -181,13 +222,16 @@ class RecipeMaker extends Component {
             className="border border-solid border-black w-24 md:w-32 xl:w-40"
           /><br />
           <label htmlFor="appliances">Appliances</label><br />
-          <input
-            type="text"
-            name="appliances"
-            value={appliances}
-            onChange={this.handleChange}
-            className="border border-solid border-black w-24 md:w-32 xl:w-40"
-          /><br />
+          {appliances.map((isChecked, index) => (
+            <div key={index}>
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={() => this.handleCheckboxChange(index)}
+              />
+              {applianceList[index]}
+            </div>
+          ), appliances)}
           <button onClick={this.handleSubmit}>Post</button>
           <p id="post-result"></p>
         </div>

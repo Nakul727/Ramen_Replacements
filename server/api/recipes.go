@@ -13,7 +13,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 // Recipe struct - contains all data for recipe cards
@@ -24,7 +23,7 @@ type Recipe struct {
 	Description string    `json:"Description"` // Description of recipe
 	Steps       string    `json:"Steps"`       // Steps required to replicate recipe
 	Ingredients string    `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     []int     `json:"Amount"`      // Amount of each ingredient in grams
+	Amounts     string    `json:"Amounts"`     // Amount of each ingredient in grams
 	Picture     string    `json:"Picture"`     // Picture of finished product
 	Appliances  int16     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
 	Date        int       `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
@@ -83,11 +82,10 @@ func searchInCsv(ingredient string) *Ingredient {
 			listElem += string(curLine[index])
 			index++
 		}
-		if listElem == ingredient {
+		if len(listElem) >= len(ingredient) && listElem[:len(ingredient)] == ingredient {
 			res.ID, _ = strconv.Atoi(curLine[index+1:])
 			res.Name = ingredient
-			fmt.Println(res.ID)
-			fmt.Println(res.Name)
+			fmt.Println("found ingredient: ", curLine)
 			return &res
 		}
 	}
@@ -97,37 +95,21 @@ func searchInCsv(ingredient string) *Ingredient {
 // parses the ingredients string and separates its ingredients into
 func parseIngredients(ingredients string) ([]Ingredient, error) {
 	var results []string
-	index := 0
-	dollarCount := 0
+	index := 2
 	resultCount := 0
-	var curIngredient string
+	startSlice, endSlice := 2, 2
 	for index < len(ingredients) {
-		if dollarCount < 4 {
-			if ingredients[index] == '$' {
-				dollarCount++
-			}
-			if dollarCount == 4 {
-				for ingredients[index] == '$' || ingredients[index] == ':' {
-					index++
-				}
-			}
+		// if next letter is apostrophe, then comma after that, it's the end of the ingredient name
+		if ingredients[index] == '\'' && (ingredients[index+1] == ',' || ingredients[index+1] == '}') {
+			endSlice = index
+			results = append(results, ingredients[startSlice:endSlice])
+			resultCount++
+			// move index and start to beginning of next ingredient
+			index += 3
+			startSlice = index
 		} else {
-			if ingredients[index] == '$' {
-				dollarCount = 1
-				if curIngredient != "" {
-					results = append(results, curIngredient)
-					resultCount++
-					curIngredient = ""
-				}
-				continue
-			}
-			curIngredient += string(ingredients[index])
+			index++
 		}
-		index++
-	}
-	if curIngredient != "" {
-		results = append(results, curIngredient)
-		resultCount++
 	}
 	if resultCount == 0 {
 		return nil, errors.New("no ingredient found")
@@ -137,7 +119,6 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 	var ingredientList []Ingredient
 	for index < resultCount {
 		var curIngredient = searchInCsv(results[index])
-		fmt.Println(results[index])
 		if curIngredient == nil {
 			return nil, errors.New("Ingredient not found in list")
 		}
@@ -151,6 +132,8 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 func PostRecipe(c *gin.Context) {
 	var rec Recipe
 	if err := c.BindJSON(&rec); err != nil {
+		fmt.Println("error binding json")
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
@@ -175,8 +158,8 @@ func PostRecipe(c *gin.Context) {
 		return
 	}
 
-	// TODO
-	nutritionFacts, amounts, err := calculate_nutrition_facts(ingredients)
+	// calculate nutrition facts for each ingredient
+	nutritionFacts, err := calculate_nutrition_facts(ingredients, rec.Amounts)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadGateway, gin.H{"error": err})
@@ -187,12 +170,11 @@ func PostRecipe(c *gin.Context) {
 	currentTime := int32(time.Now().Unix())
 
 	// convert arrays to comma separated strings
-	amountsStr := pq.Array(amounts)
 	nutritionStr := pq.Array(nutritionFacts)
 
 	// insert recipe to database
 	_, err = db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);",
-		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, amountsStr)
+		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, rec.Amounts)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
