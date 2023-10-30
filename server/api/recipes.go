@@ -15,17 +15,19 @@ import (
 	_ "github.com/lib/pq"
 )
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // Recipe struct - contains all data for recipe cards
 type Recipe struct {
 	UserID      int    `json:"UserID"`      // ID of poster - recipe id is incremented automatically
 	Rating      int    `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
+	Title       string `json:"Title"`       // Title of recipe, i.e. "butter chicken"
 	Description string `json:"Description"` // Description of recipe
 	Steps       string `json:"Steps"`       // Steps required to replicate recipe
 	Ingredients string `json:"Ingredients"` // Ingredients used in recipe
 	Picture     string `json:"Picture"`     // Picture of finished product
 	Appliances  int16  `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int    `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
+	Date        int    `json:"Date"`        // Represented as # of seconds since 01/01/1970 (unix time)
 }
 
 // struct for storing a recipe and its id for searching in second hand API
@@ -35,12 +37,16 @@ type Ingredient struct {
 	count int
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // for keeping track of max length when putting new data in db
 var maxTitleLen = 100
 var maxDescLen = 1000
 var maxStepsLen = 5000
 var maxIngredientsLen = 500
 var maxPictureLen = 250
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HELPER FUNCTIONS
 func contextToRecipe(row *sql.Rows) (*Recipe, error) {
@@ -138,6 +144,8 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 	}
 	return ingredientList, nil
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HANDLER FUNCTIONS
 func PostRecipe(c *gin.Context) {
@@ -284,3 +292,5 @@ func GetTopRecent(c *gin.Context) {
 
 	c.JSON(http.StatusOK, recipes)
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

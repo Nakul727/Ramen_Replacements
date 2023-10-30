@@ -3,12 +3,14 @@ package api
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 )
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // set up account struct with username, profile picture, id number, and password
 // password is never returned to the frontend
@@ -20,10 +22,14 @@ type Account struct {
 	PFP      string `json:"PFP"`
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 var maxUsernameLen = 25
 var minUsernameLen = 3
 var maxPasswordLen = 8
 var minPasswordLen = 1
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HELPER FUNCTION
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
@@ -49,6 +55,8 @@ func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	}
 	return nil
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HANDLER FUNCTION
 func GetUserByName(c *gin.Context) {
@@ -104,6 +112,10 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, accounts)
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Registeration
+
 func CreateAccount(c *gin.Context) {
 	var acc Account
 	err := c.BindJSON(&acc)
@@ -112,15 +124,6 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(acc.Username)
-	fmt.Println(acc.Password)
-
-	/*
-		The following is a set of hard-imposed rules for restricting correct input for account creation.
-		No authentication method is required for creation.
-	*/
-
-	// ensure user has not created a username or password that is too long/short
 	if len(acc.Username) > maxUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
 		return
@@ -128,27 +131,27 @@ func CreateAccount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too long"})
 		return
 	} else if len(acc.Username) < minUsernameLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too short"})
 		return
 	} else if len(acc.Password) < minPasswordLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error:": "Password too short"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too short"})
 		return
 	}
 
-	// check if username already exists
+	// Check if username already exists
 	res, err := db.Query("SELECT * FROM Users WHERE name=$1", acc.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
 		return
 	}
 
-	// if the user already exists in the database, prompt user to pick a different name
+	// If the user already exists in the database, prompt the user to pick a different name
 	for res.Next() {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User with name already exists"})
 		return
 	}
 
-	// check if account with associated email already exists
+	// Check if an account with the associated email already exists
 	res, err = db.Query("SELECT * FROM Users WHERE email=$1", acc.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
@@ -160,40 +163,28 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	// otherwise insert it into database as a new user
-	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
+	// Hash the password using bcrypt
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(acc.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting into database"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing the password"})
+		return
+	}
+
+	// Insert the user into the database with the hashed password
+	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, hashedPassword, acc.PFP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting into the database"})
 		return
 	}
 	c.String(http.StatusAccepted, "Profile created")
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Login and Authentication
+
 func LoginAuth(c *gin.Context) {
-	var acc Account
 
-	// final error check during binding process.
-	// If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
-
-	if err := c.ShouldBindJSON(&acc); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	/*
-		INSERT JWT AUTHENTICATION HERE (TO BE COMPLETED)
-		By default, we will set the success of the authentication to be true temporarily to allow login retrieval
-	*/
-	authSuccess := true
-
-	// following code retrieves the successful token (profile) if correct, or displays HTTP 400 (bad request) otherwise
-
-	if authSuccess {
-		c.JSON(http.StatusOK, gin.H{
-			"token": acc.ID, // this is temporary, do not use acc ID as the token
-		})
-		c.String(http.StatusOK, "profile successfully retrieved")
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"})
-	}
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
