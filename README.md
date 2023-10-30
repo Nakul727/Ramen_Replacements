@@ -20,26 +20,25 @@ This is a community-based food sharing platform, where users can create, share, 
 ### Developement
 
 ```
-.
-├── README.md           # documentation
-├── docs                # further documentation
-├── public              # main html page for frontend
-├── server              # contains backend code
-│   ├── api             # package api - controllers and models
-│   ├── initializers    # package for initalizing db
-│   ├── go.mod          # dependencies and backend package
-│   ├── go.sum          # more dependencies
-│   └── main.go         # entry point of backend
-├── src                 # contains the frontend code
-│   ├── assets          # static images
-│   ├── components      # react components
-│   ├── index.js        # main file for routing react
-│   ├── pages           # pages render using different components
-│   └── styles          # CSS code
-├── package-lock.json   # dependencies
-├── package.json        # detailed dependencies
-├── postcss.config.js   # config file
-└── tailwind.config.js  # config file
+├── LICENSE
+├── README.md
+├── client
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   ├── src
+│   └── tailwind.config.js
+├── docs
+│   ├── api.md
+│   └── development.md
+└── server
+    ├── api
+    ├── go.mod
+    ├── go.sum
+    ├── main.go
+    ├── top-1k-ingredients.csv
+    └── utils
 ```
 
 #### Requirements

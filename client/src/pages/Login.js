@@ -34,38 +34,39 @@ function Login() {
     if (email === "" || password === "") {
       displayMessage("registration-result", "Some field(s) are empty.");
       return;
-    } else {
-      try {
-        const backendApi = process.env.REACT_APP_BACKEND;
-        const response = await fetch(`${backendApi}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-        if (response.ok) {
-          // Store the JWT in local storage
-          // Set the logged-in state in the authentication context
-          const jwt = await response.text();
-          localStorage.setItem('jwt', jwt);
-          login();
+    } 
+    try {
+      const backendApi = process.env.REACT_APP_BACKEND;
+      const response = await fetch(`${backendApi}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (response.ok) {
 
+        console.log(response)
 
-          setSuccessMessage('Successfully logged in!');
-          setTimeout(() => {
-            setSuccessMessage('');
-            navigate('/dashboard');
-          }, 2000); // Redirect after 2 seconds
+        const jwt = await response.text();
+        localStorage.setItem('jwt', jwt);
+        login();
 
+        setSuccessMessage('Successfully logged in!');
+        setTimeout(() => {
+          setSuccessMessage('');
+          navigate('/dashboard');
+        }, 2000);
 
-
-        } else {
-          displayMessage("registration-result", "Authentication failed.");
-        }
-      } catch (error) {
-        displayMessage("registration-result", "API could not be contacted.");
+      } 
+      else 
+      {
+        console.log(response)
+        displayMessage("registration-result", "Authentication failed.");
       }
+    } 
+    catch (error) {
+      displayMessage("registration-result", "API could not be contacted.");
     }
   }
 

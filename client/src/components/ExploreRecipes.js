@@ -76,8 +76,4 @@ function ExploreRecipes() {
     );
 }
 
-<<<<<<< HEAD:client/src/components/HomeRecipes.js
-export { HomeRecipes };
-=======
 export { ExploreRecipes };
->>>>>>> 49-recipe-posting-support:client/src/components/ExploreRecipes.js

@@ -25,11 +25,11 @@ function Explore() {
            Here you can find ....*/}
         </div>
 
-        <div className="section3" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
+        <div className="section3" style={{ backgroundColor: 'lightpink', height: '300px' }}>
           {/* Div for the filtering bar */}
         </div>
 
-        <div className="section4" style={{ backgroundColor: 'lightpink', height: '300px' }}>
+        <div className="section4" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
 
           {/* Div for the results of the filtering and recipies 
           Get the top 100 highest rated recipies from the database
