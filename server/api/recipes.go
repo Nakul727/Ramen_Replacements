@@ -12,27 +12,32 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
 // Recipe struct - contains all data for recipe cards
 type Recipe struct {
-	UserID      int    `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int    `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string `json:"Description"` // Description of recipe
-	Steps       string `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string `json:"Ingredients"` // Ingredients used in recipe
-	Picture     string `json:"Picture"`     // Picture of finished product
-	Appliances  int16  `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int    `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
+	UserID      int       `json:"UserID"`      // ID of poster - recipe id is incremented automatically
+	Rating      int       `json:"Rating"`      // Rating from 0-50 of recipe
+	Title       string    `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
+	Description string    `json:"Description"` // Description of recipe
+	Steps       string    `json:"Steps"`       // Steps required to replicate recipe
+	Ingredients string    `json:"Ingredients"` // Ingredients used in recipe
+	Amounts     []int     `json:"Amount"`      // Amount of each ingredient in grams
+	Picture     string    `json:"Picture"`     // Picture of finished product
+	Appliances  int16     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
+	Date        int       `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
+	Nutrition   []float32 `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
 }
+
+// Nutrition
 
 // struct for storing a recipe and its id for searching in second hand API
 type Ingredient struct {
-	Name  string
-	ID    int
-	count int
+	Name   string
+	ID     int
+	Amount int
 }
 
 // for keeping track of max length when putting new data in db
@@ -47,8 +52,8 @@ func contextToRecipe(row *sql.Rows) (*Recipe, error) {
 	var rec Recipe
 	var temp int
 	err := row.Scan(
-		&temp, &rec.UserID, &rec.Rating, &rec.Title, &rec.Description,
-		&rec.Steps, &rec.Ingredients, &rec.Picture, &rec.Appliances, &rec.Date)
+		&temp, &rec.UserID, &rec.Rating, &rec.Title, &rec.Description, &rec.Steps,
+		&rec.Ingredients, &rec.Amounts, &rec.Picture, &rec.Appliances, &rec.Date, &rec.Nutrition)
 	if err != nil {
 		return nil, err
 	} else {
@@ -102,7 +107,9 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 				dollarCount++
 			}
 			if dollarCount == 4 {
-				index++
+				for ingredients[index] == '$' || ingredients[index] == ':' {
+					index++
+				}
 			}
 		} else {
 			if ingredients[index] == '$' {
@@ -130,6 +137,7 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 	var ingredientList []Ingredient
 	for index < resultCount {
 		var curIngredient = searchInCsv(results[index])
+		fmt.Println(results[index])
 		if curIngredient == nil {
 			return nil, errors.New("Ingredient not found in list")
 		}
@@ -162,22 +170,31 @@ func PostRecipe(c *gin.Context) {
 
 	ingredients, err := parseIngredients(rec.Ingredients)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unrecognized ingredient in recipe"})
+		return
 	}
 
 	// TODO
-	_, err = calculate_nutrition_facts(ingredients)
+	nutritionFacts, amounts, err := calculate_nutrition_facts(ingredients)
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error})
+		fmt.Println(err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": err})
+		return
 	}
 
 	// get time of posting
 	currentTime := int32(time.Now().Unix())
 
+	// convert arrays to comma separated strings
+	amountsStr := pq.Array(amounts)
+	nutritionStr := pq.Array(nutritionFacts)
+
 	// insert recipe to database
-	_, err = db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);",
-		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime)
+	_, err = db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);",
+		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, amountsStr)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}

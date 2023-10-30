@@ -14,17 +14,6 @@ import Recipe from './pages/RecipeCard.js';
 
 export default function Main() {
   return (
-<<<<<<< HEAD
-    <Routes>
-      <Route path='/' element={<Home/>}></Route>
-      <Route path='/login' element={<Login/>}></Route>
-      <Route path='/register' element={<Register/>}></Route>
-      <Route path='/dashboard' element={<Dashboard/>}></Route>
-      <Route path='/recipemaker' element={<RecipeMaker/>}></Route>
-      <Route path='/recipe/:recipeID' element={<Recipe/>}></Route>
-      <Route path='/explore' element={<Explore/>}></Route>
-    </Routes>
-=======
     <AuthProvider>
       <Routes>
         <Route path='/' element={<Home />}></Route>
@@ -32,8 +21,8 @@ export default function Main() {
         <Route path='/register' element={<Register />}></Route>
         <Route path='/dashboard' element={<Dashboard />}></Route>
         <Route path='/explore' element={<Explore />}></Route>
+        <Route path='/recipemaker' element={<RecipeMaker />}></Route>
       </Routes>
     </AuthProvider>
->>>>>>> bdbbe7b2ac16af503f235025ceb85f2158f48613
   );
 }

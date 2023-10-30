@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { displayMessage} from "./helper.js"
+import { displayMessage } from "./helper.js"
 import { Link } from "react-router-dom";
 import "../styles/Home.css";
 
@@ -20,9 +20,16 @@ function RecipeCard(rec) {
 }
 
 function getRecipeData() {
+    
     async function getData() {
-        try{
-            const response = await fetch("http://localhost:8080/recipe/latest");
+        try {
+            const backendApi = process.env.REACT_APP_BACKEND;
+            const response = await fetch(`${backendApi}/recipe/latest`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             if (response.ok) {
                 return response.json();
             } else {
@@ -30,7 +37,7 @@ function getRecipeData() {
                 displayMessage("error: ", error.error);
                 return error;
             }
-        } catch(error) {
+        } catch (error) {
             displayMessage("500 internal server error", "there was an error contacting the server")
             return response.json();
         }
@@ -40,7 +47,7 @@ function getRecipeData() {
 }
 
 
-function HomeRecipes() {
+function ExploreRecipes() {
     const [recipeData, setRecipeData] = useState([]);
 
     useEffect(() => {
@@ -69,4 +76,4 @@ function HomeRecipes() {
     );
 }
 
-export {HomeRecipes};
+export { ExploreRecipes };

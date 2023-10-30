@@ -65,43 +65,68 @@ type RecipeNutrition struct {
 	Protein       float64 `json:"protein"`
 	Fat           float64 `json:"fat"`
 	Carbohydrates float64 `json:"carbohydrates"`
+	Sugar         float64 `json:"sugar"`
 	Sodium        float64 `json:"sodium"`
 	Cholesterol   float64 `json:"cholesterol"`
 }
 
-func calculate_nutrition_facts(ingredients []Ingredient) (*RecipeNutrition, error) {
+func calculate_nutrition_facts(ingredients []Ingredient) ([]float64, []int, error) {
 	var apikey string = os.Getenv("API_KEY")
-
 	if len(ingredients) == 0 {
-		return nil, errors.New("no ingredients found")
+		return nil, nil, errors.New("no ingredients found")
 	}
+	var recNutrition RecipeNutrition
+	amounts := make([]int, len(ingredients))
+	for i := 0; i < len(ingredients); i++ {
+		idToQuery := ingredients[i].ID
+		amount := ingredients[i].Amount
+		amounts[i] = ingredients[i].Amount
+		urlToQuery := "https://api.spoonacular.com/food/ingredients/" + fmt.Sprint(idToQuery) + "/information?apiKey=" + apikey +
+			"&amount=" + fmt.Sprint(amount) + "&unit=grams"
 
-	idToQuery := ingredients[0].ID
-	urlToQuery := "https://api.spoonacular.com/food/ingredients/" + fmt.Sprint(idToQuery) + "/information?apiKey=" + apikey +
-		"&amount=1&unit=grams"
+		resp, err := http.Get(urlToQuery)
+		if err != nil {
+			return nil, nil, errors.New("could not contact API")
+		}
 
-	resp, err := http.Get(urlToQuery)
-	if err != nil {
-		return nil, errors.New("could not contact API")
-	}
+		if resp.StatusCode != 200 {
+			return nil, nil, errors.New("API authentication failed")
+		}
 
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.New("error reading data")
-	}
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, nil, errors.New("error reading data")
+		}
 
-	var nutrition NutritionFacts
-	// var recNutrition RecipeNutrition
-	if err := json.Unmarshal(body, &nutrition); err != nil {
-		return nil, errors.New("error unmarshaling json data")
-	} else {
-		fmt.Println(nutrition.ID)
-		fmt.Println(nutrition.Name)
-		fmt.Println(nutrition.Amount)
-		for i := 0; i < len(nutrition.Nutrition.Nutrients); i++ {
-			fmt.Printf("there are %f %s in this\n", nutrition.Nutrition.Nutrients[i].Amount, nutrition.Nutrition.Nutrients[i].Name)
+		var nutrition NutritionFacts
+		if err := json.Unmarshal(body, &nutrition); err != nil {
+			return nil, nil, errors.New("error unmarshaling json data")
+		} else {
+			for i := 0; i < len(nutrition.Nutrition.Nutrients); i++ {
+				switch nutrition.Nutrition.Nutrients[i].Name {
+				case "Calories":
+					recNutrition.Calories += nutrition.Nutrition.Nutrients[i].Amount
+				case "Fat":
+					recNutrition.Fat += nutrition.Nutrition.Nutrients[i].Amount
+				case "Carbohydrates":
+					recNutrition.Carbohydrates += nutrition.Nutrition.Nutrients[i].Amount
+				case "Protein":
+					recNutrition.Protein += nutrition.Nutrition.Nutrients[i].Amount
+				case "Cholesterol":
+					recNutrition.Cholesterol += nutrition.Nutrition.Nutrients[i].Amount
+				case "Sodium":
+					recNutrition.Sodium += nutrition.Nutrition.Nutrients[i].Amount
+				case "Sugar":
+					recNutrition.Sugar += nutrition.Nutrition.Nutrients[i].Amount
+				}
+			}
+
+			fmt.Printf("testing: %f %f %f %f %f %f %f", recNutrition.Calories, recNutrition.Carbohydrates, recNutrition.Fat,
+				recNutrition.Protein, recNutrition.Sodium, recNutrition.Sugar, recNutrition.Cholesterol)
 		}
 	}
-	return nil, nil
+	var arr []float64 = []float64{recNutrition.Calories, recNutrition.Carbohydrates, recNutrition.Fat, recNutrition.Protein,
+		recNutrition.Sodium, recNutrition.Sugar, recNutrition.Cholesterol}
+	return arr, amounts, nil
 }
