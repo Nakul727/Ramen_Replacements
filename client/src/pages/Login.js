@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link , useNavigate } from 'react-router-dom';
 import { Footer } from "../components/footer.js";
-import { Header, Logo_Name, Links } from "../components/header.js";
+import { Header } from "../components/header.js";
 import { useAuth } from "../AuthContext.js";
 import { displayMessage } from "../components/helper.js";
 
 function Login() {
 
-  const header_linkData = [];
-
   // Login Information as React states
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   // authentication context updater function login/logout
-  const { login, logout } = useAuth();
+  const { login } = useAuth();
 
   // Check if the user is already logged in
   // If yes, set the authentication context as logged in
@@ -25,40 +23,54 @@ function Login() {
     }
   }, []);
 
+
+
+  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
+
+  
   // Main Login function
   const handleLogin = async () => {
-    if (email === "" || password === "") {
+    if (username === "" || password === "") {
       displayMessage("registration-result", "Some field(s) are empty.");
       return;
-    } else {
-      try {
-        const backendApi = process.env.REACT_APP_BACKEND;
-        const response = await fetch(`${backendApi}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-        if (response.ok) {
-          // Store the JWT in local storage
-          // Set the logged-in state in the authentication context
-          const jwt = await response.text();
-          localStorage.setItem('jwt', jwt);
-          login();
-        } else {
-          displayMessage("registration-result", "Authentication failed.");
-        }
-      } catch (error) {
-        displayMessage("registration-result", "API could not be contacted.");
+    }
+  
+    try 
+    {
+      const backendApi = process.env.REACT_APP_BACKEND;
+      const response = await fetch(`${backendApi}/acc/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username, password: password }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const jwt = data.token;
+        localStorage.setItem('jwt', jwt);
+        login();
+        console.log("successfully logged in :)")
+        setTimeout(() => {
+          setSuccessMessage('');
+          navigate('/dashboard');
+        }, 2000);
+      } 
+      else {
+        displayMessage("registration-result", "Authentication failed.");
       }
+    } 
+    catch (error) 
+    {
+      displayMessage("registration-result", "API could not be contacted.");
     }
   }
 
   return (
     <div>
       <header>
-        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+        <Header/>
       </header>
 
       <div className="body_sections">
@@ -71,7 +83,7 @@ function Login() {
           <br />
           <section className="inline-block w-40">
             <div className="text-center">
-              <label type="text">Email or Username</label>
+              <label type="text">Username</label>
               <br />
               <label type="password">Password</label>
               <br />
@@ -81,8 +93,8 @@ function Login() {
             <input
               className="border border-solid border-black w-24 md:w-32 xl:w-40"
               id="name"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             ></input>
             <br />
             <input
@@ -114,6 +126,12 @@ function Login() {
               </button>
             </Link>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="text-center text-green-500">{successMessage}</div>
+          )}
+
 
         </div>
       </div>

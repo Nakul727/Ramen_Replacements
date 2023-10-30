@@ -13,29 +13,35 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // set up account struct with username, profile picture, id number, and password
-// password is never returned to the frontend
+// This is the parametres that the register function expects
 type Account struct {
 	ID       int    `json:"id"`
-	Username string `json:"Username"`
-	Email    string `json:"Email"`
-	Password string `json:"Password"`
-	PFP      string `json:"PFP"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	PFP      string `json:"pfp"`
 }
 
-// specific struct used explicitly for login. Note that since the password in the account struct is hashed, we need a unique struct for holding login inputs
-
-type LoginInput struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+// This is the parameters that the login function expects
+type LoginStruct struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 var maxUsernameLen = 25
 var minUsernameLen = 3
 var maxPasswordLen = 8
 var minPasswordLen = 1
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // HELPER FUNCTION
+
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
@@ -59,6 +65,8 @@ func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	}
 	return nil
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HANDLER FUNCTION
 func GetUserByName(c *gin.Context) {
@@ -114,6 +122,10 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, accounts)
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Registeration
+
 func CreateAccount(c *gin.Context) {
 	var acc Account
 	err := c.BindJSON(&acc)
@@ -122,15 +134,6 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(acc.Username)
-	fmt.Println(acc.Password)
-
-	/*
-		The following is a set of hard-imposed rules for restricting correct input for account creation.
-		No authentication method is required for creation.
-	*/
-
-	// ensure user has not created a username or password that is too long/short
 	if len(acc.Username) > maxUsernameLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
 		return
@@ -138,27 +141,27 @@ func CreateAccount(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too long"})
 		return
 	} else if len(acc.Username) < minUsernameLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error:": "Username too short"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too short"})
 		return
 	} else if len(acc.Password) < minPasswordLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error:": "Password too short"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too short"})
 		return
 	}
 
-	// check if username already exists
+	// Check if username already exists
 	res, err := db.Query("SELECT * FROM Users WHERE name=$1", acc.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
 		return
 	}
 
-	// if the user already exists in the database, prompt user to pick a different name
+	// If the user already exists in the database, prompt the user to pick a different name
 	for res.Next() {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User with name already exists"})
 		return
 	}
 
-	// check if account with associated email already exists
+	// Check if an account with the associated email already exists
 	res, err = db.Query("SELECT * FROM Users WHERE email=$1", acc.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
@@ -172,7 +175,7 @@ func CreateAccount(c *gin.Context) {
 
 	// otherwise insert it into database as a new user
 	// password hashing before insertion
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(acc.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Hashing password operation failed"})
 		return
@@ -182,103 +185,62 @@ func CreateAccount(c *gin.Context) {
 	// insertion into database as a new user
 	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting into database"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing the password"})
+		return
+	}
+
+	// Insert the user into the database with the hashed password
+	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, hashedPassword, acc.PFP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting into the database"})
 		return
 	}
 	c.String(http.StatusAccepted, "Profile created")
 }
 
-func VerifyPassword(password, hashedPassword string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-func LoginCheck(username string, password string) (string, error) {
-	var err error
+// Login and Authentication
+func LoginUser(c *gin.Context) {
+	var loginInfo LoginStruct
 
-	acc := Account{}
-
-	err = db.Model(Account{}).Where("Username = ?", username).Take(&acc).Error
-
-	if err != nil {
-		return "", err
-	}
-
-	err = VerifyPassword(password, acc.Password)
-
-	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return "", err
-	}
-
-	token, err := utils.GenerateToken(acc.ID)
-
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
-}
-
-func LoginAuth(c *gin.Context) {
-	var input LoginInput
-
-	/*
-		JWT AUTHENTICATION
-	*/
-	// final error check during binding process.
-	// If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad server request"})
+	// Attempt to bind JSON request data
+	if err := c.BindJSON(&loginInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error with input"})
+		fmt.Printf("Error binding JSON: %v\n", err)
 		return
 	}
 
-	acc := Account{}
-
-	acc.Username = input.Username
-	acc.Password = input.Password
-
-	token, err := LoginCheck(acc.Username, acc.Password)
-
+	// Query the database for the user, including the userID and pfp
+	row := db.QueryRow("SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
+	var userID int
+	var pfp, username, hashedPassword string
+	err := row.Scan(&userID, &username, &hashedPassword, &pfp)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username or password is incorrect"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. User not found."})
+		fmt.Printf("User not found in the database: %v\n", err)
+		return
+	}
+
+	// Login Check function embedded
+	// Compare the hashed password with the provided password
+	// Verify Password
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginInfo.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. Invalid password."})
+		fmt.Printf("Password comparison failed: %v\n", err)
+		return
+	}
+
+	// Generate a JWT token with the userID
+	token, err := utils.GenerateToken(userID, username, pfp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation failed"})
+		fmt.Printf("Token generation failed: %v\n", err)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func (acc *Account) PrepareGive() {
-	acc.Password = ""
-}
-
-func GetUserByID(uid uint) (Account, error) {
-
-	var acc Account
-
-	if err := db.First(&acc, uid).Error; err != nil {
-		return acc, errors.New("User not found!")
-	}
-
-	acc.PrepareGive()
-
-	return acc, nil
-
-}
-
-func CurrentAcc(c *gin.Context) {
-
-	acc_id, err := utils.ExtractTokenID(c)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	acc, err := GetUserByID(acc_id)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "success", "data": acc})
-}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

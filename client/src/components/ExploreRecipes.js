@@ -20,6 +20,7 @@ function RecipeCard(rec) {
 }
 
 function getRecipeData() {
+    
     async function getData() {
         try {
             const backendApi = process.env.REACT_APP_BACKEND;
@@ -46,7 +47,7 @@ function getRecipeData() {
 }
 
 
-function HomeRecipes() {
+function ExploreRecipes() {
     const [recipeData, setRecipeData] = useState([]);
 
     useEffect(() => {
@@ -75,4 +76,4 @@ function HomeRecipes() {
     );
 }
 
-export { HomeRecipes };
+export { ExploreRecipes };
