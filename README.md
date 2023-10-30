@@ -17,20 +17,24 @@ This is a community-based food sharing platform, where users can create, share, 
 
 ---
 
-### Developement
+### Development
 
 ```
 .
 ├── README.md           # documentation
+├── LICENSE             # mit licensing
 ├── docs                # further documentation
+│   ├── api.md          # main documentation for utilization of the api
+│   ├── development.md  # main documentation for deployment of the development
 ├── public              # main html page for frontend
 ├── server              # contains backend code
 │   ├── api             # package api - controllers and models
+│   ├── utils           # package utils - utility files for database/tokens
 │   ├── initializers    # package for initalizing db
 │   ├── go.mod          # dependencies and backend package
 │   ├── go.sum          # more dependencies
 │   └── main.go         # entry point of backend
-├── src                 # contains the frontend code
+├── client/src          # contains the frontend code
 │   ├── assets          # static images
 │   ├── components      # react components
 │   ├── index.js        # main file for routing react
