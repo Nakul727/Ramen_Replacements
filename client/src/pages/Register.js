@@ -2,8 +2,12 @@ import { Link } from "react-router-dom";
 import { Header, Logo_Name, Links } from '../components/header.js';
 import { displayMessage, hideMessage } from "../components/helper.js";
 import { Footer } from "../components/footer.js"
+import { useNavigate } from 'react-router-dom';
+
 
 function Register() {
+
+  const navigate = useNavigate();
 
   const header_linkData = [
     { to: '/explore', text: 'Explore' },
@@ -21,8 +25,12 @@ function Register() {
         body: JSON.stringify({ username: name, email: email, password: pass, pfp: pfp }),
       });
       if (response.ok) {
-        const result = await response.text();
         displayMessage("registration-result", "Profile Registered");
+
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+
       } else {
         const errorData = await response.json();
         displayMessage("registration-result", errorData.error);

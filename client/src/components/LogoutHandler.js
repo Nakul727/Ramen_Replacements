@@ -1,19 +1,9 @@
-// To be implemented
+import { useAuth } from '../AuthContext.js';
 
-// import { useEffect } from "react";
-// import { useAuth } from "../AuthContext.js";
+const handleLogout = () => {
+  const { logout } = useAuth();
+  localStorage.removeItem('jwt');
+  logout();
+};
 
-// // authentication context updater
-// // also deletes the JWT token
-// const { logout } = useAuth();
-
-// const handleLogout = async () => {
-//     useEffect(() => {
-//         const storedToken = localStorage.getItem('jwt');
-//         if (storedToken) {
-//             logout();
-//         }
-//     }, []);
-// }
-
-// export default handleLogout;
+export default handleLogout;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link , useNavigate } from 'react-router-dom';
 import { Footer } from "../components/footer.js";
 import { Header, Logo_Name, Links } from "../components/header.js";
 import { useAuth } from "../AuthContext.js";
@@ -25,6 +25,12 @@ function Login() {
     }
   }, []);
 
+
+
+  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
+
+  
   // Main Login function
   const handleLogin = async () => {
     if (email === "" || password === "") {
@@ -46,6 +52,16 @@ function Login() {
           const jwt = await response.text();
           localStorage.setItem('jwt', jwt);
           login();
+
+
+          setSuccessMessage('Successfully logged in!');
+          setTimeout(() => {
+            setSuccessMessage('');
+            navigate('/dashboard');
+          }, 2000); // Redirect after 2 seconds
+
+
+
         } else {
           displayMessage("registration-result", "Authentication failed.");
         }
@@ -114,6 +130,12 @@ function Login() {
               </button>
             </Link>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="text-center text-green-500">{successMessage}</div>
+          )}
+
 
         </div>
       </div>
