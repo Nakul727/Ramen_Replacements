@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"server/utils"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // set up account struct with username, profile picture, id number, and password
@@ -18,6 +21,13 @@ type Account struct {
 	Email    string `json:"Email"`
 	Password string `json:"Password"`
 	PFP      string `json:"PFP"`
+}
+
+// specific struct used explicitly for login. Note that since the password in the account struct is hashed, we need a unique struct for holding login inputs
+
+type LoginInput struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 var maxUsernameLen = 25
@@ -161,6 +171,15 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// otherwise insert it into database as a new user
+	// password hashing before insertion
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Hashing password operation failed"})
+		return
+	}
+	acc.Password = string(hashedPassword)
+
+	// insertion into database as a new user
 	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting into database"})
@@ -169,31 +188,97 @@ func CreateAccount(c *gin.Context) {
 	c.String(http.StatusAccepted, "Profile created")
 }
 
-func LoginAuth(c *gin.Context) {
-	var acc Account
+func VerifyPassword(password, hashedPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
 
+func LoginCheck(username string, password string) (string, error) {
+	var err error
+
+	acc := Account{}
+
+	err = db.Model(Account{}).Where("Username = ?", username).Take(&acc).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	err = VerifyPassword(password, acc.Password)
+
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return "", err
+	}
+
+	token, err := utils.GenerateToken(acc.ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func LoginAuth(c *gin.Context) {
+	var input LoginInput
+
+	/*
+		JWT AUTHENTICATION
+	*/
 	// final error check during binding process.
 	// If so, JSON data is invalid and it will respond with a JSON error and a sever error of HTTP 400 (bad request)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad server request"})
+		return
+	}
 
-	if err := c.ShouldBindJSON(&acc); err != nil {
+	acc := Account{}
+
+	acc.Username = input.Username
+	acc.Password = input.Password
+
+	token, err := LoginCheck(acc.Username, acc.Password)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username or password is incorrect"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func (acc *Account) PrepareGive() {
+	acc.Password = ""
+}
+
+func GetUserByID(uid uint) (Account, error) {
+
+	var acc Account
+
+	if err := db.First(&acc, uid).Error; err != nil {
+		return acc, errors.New("User not found!")
+	}
+
+	acc.PrepareGive()
+
+	return acc, nil
+
+}
+
+func CurrentAcc(c *gin.Context) {
+
+	acc_id, err := utils.ExtractTokenID(c)
+
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	/*
-		INSERT JWT AUTHENTICATION HERE (TO BE COMPLETED)
-		By default, we will set the success of the authentication to be true temporarily to allow login retrieval
-	*/
-	authSuccess := true
+	acc, err := GetUserByID(acc_id)
 
-	// following code retrieves the successful token (profile) if correct, or displays HTTP 400 (bad request) otherwise
-
-	if authSuccess {
-		c.JSON(http.StatusOK, gin.H{
-			"token": acc.ID, // this is temporary, do not use acc ID as the token
-		})
-		c.String(http.StatusOK, "profile successfully retrieved")
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "success", "data": acc})
 }

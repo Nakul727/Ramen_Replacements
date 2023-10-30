@@ -3,6 +3,8 @@ package api
 import (
 	"database/sql"
 
+	"server/api/middlewares"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -18,7 +20,9 @@ func RunAccounts(r *gin.Engine) {
 	r.GET("/acc/user", GetUserByName)
 	r.GET("/acc/users", GetAllUsers)
 	r.POST("acc/create", CreateAccount)
-	r.POST("acc/login", LoginAuth) // NOT YET COMPLETED
+	r.POST("acc/login", LoginAuth)
+	r.Use(middlewares.JwtAuthMiddleware())
+	r.GET("/acc/curruser", CurrentUser)
 }
 
 // handler for recipe functions
