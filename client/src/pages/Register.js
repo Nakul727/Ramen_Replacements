@@ -12,7 +12,7 @@ function Register() {
   async function register_user(name, email, pass, pfp) {
     try {
       const backendApi = process.env.REACT_APP_BACKEND;
-      const response = await fetch(`${backendApi}/register`, {
+      const response = await fetch(`${backendApi}/acc/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -29,6 +29,8 @@ const RightHeader = () => {
   const { isLoggedIn } = useAuth();
   const [userInfo, setUserInfo] = useState(null);
 
+  // userinfo is the username, pfp, userID from the JWT
+
   useEffect(() => {
     if (isLoggedIn) {
       const jwt = localStorage.getItem('jwt');
@@ -46,6 +48,9 @@ const RightHeader = () => {
     }
   }, [isLoggedIn]);
 
+  console.log(userInfo)
+  console.log(isLoggedIn)
+
 
   return (
     <div className="flex item-center">
@@ -54,27 +59,23 @@ const RightHeader = () => {
         Explore
       </Link>
 
+
       {isLoggedIn ? (
+        // to do add dropdown and logout
         <div className="flex items-center sm:ml-4">
-
-          <Link to="/dashboard" className="h-10 w-10 rounded-full mr-2">
-            <img src={userInfo.profilePicture} alt="Profile"/>
-          </Link>
-
-          <div className="relative ml-2">
-            <button className="text-blue-700">▼</button>
-            <div className="absolute right-0 mt-2 py-2 w-40 bg-white border border-gray-300 shadow-lg rounded-lg invisible">
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          </div>
-
+          {/* <Link to="/dashboard" className="h-10 w-10 rounded-full mr-2">
+            <img src={userInfo.pfp} alt="Profile"/>
+          </Link> */}
         </div>
-      ) : (
-
+      ) 
+      : // if the user is not logged in
+      (
         <Link to="/login" className="text-sm sm:text-lg md:text-xl mr-8">
           Login
         </Link>
       )}
+
+
     </div>
   );
 };

@@ -8,11 +8,11 @@ import { displayMessage } from "../components/helper.js";
 function Login() {
 
   // Login Information as React states
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   // authentication context updater function login/logout
-  const { login, logout } = useAuth();
+  const { login } = useAuth();
 
   // Check if the user is already logged in
   // If yes, set the authentication context as logged in
@@ -31,41 +31,38 @@ function Login() {
   
   // Main Login function
   const handleLogin = async () => {
-    if (email === "" || password === "") {
+    if (username === "" || password === "") {
       displayMessage("registration-result", "Some field(s) are empty.");
       return;
-    } 
-    try {
+    }
+  
+    try 
+    {
       const backendApi = process.env.REACT_APP_BACKEND;
-      const response = await fetch(`${backendApi}/login`, {
+      const response = await fetch(`${backendApi}/acc/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: username, password: password }),
       });
       if (response.ok) {
-
-        console.log(response)
-
-        const jwt = await response.text();
+        const data = await response.json();
+        const jwt = data.token;
         localStorage.setItem('jwt', jwt);
         login();
-
-        setSuccessMessage('Successfully logged in!');
+        console.log("successfully logged in :)")
         setTimeout(() => {
           setSuccessMessage('');
           navigate('/dashboard');
         }, 2000);
-
       } 
-      else 
-      {
-        console.log(response)
+      else {
         displayMessage("registration-result", "Authentication failed.");
       }
     } 
-    catch (error) {
+    catch (error) 
+    {
       displayMessage("registration-result", "API could not be contacted.");
     }
   }
@@ -86,7 +83,7 @@ function Login() {
           <br />
           <section className="inline-block w-40">
             <div className="text-center">
-              <label type="text">Email or Username</label>
+              <label type="text">Username</label>
               <br />
               <label type="password">Password</label>
               <br />
@@ -96,8 +93,8 @@ function Login() {
             <input
               className="border border-solid border-black w-24 md:w-32 xl:w-40"
               id="name"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             ></input>
             <br />
             <input

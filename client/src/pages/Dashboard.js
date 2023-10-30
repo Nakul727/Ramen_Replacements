@@ -14,6 +14,7 @@ function Dashboard() {
   // Check if the user is logged in
   // If logged in, retrieve the JWT token from local storage
   // Decode the JWT token to get user information (payload)
+  // payload has the exp and UserID
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -48,6 +49,7 @@ function Dashboard() {
             <div className="section1" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
             {/* Add more user information fields as needed */}
             {/* Main Dashboard Section */}
+            {/* <p>Welcome to the Dashboard {userInfo.username} You have been successfully logged in and authenticated</p> */}
             </div>
 
             <div className="section2" style={{ backgroundColor: 'lightgreen', height: '300px' }}>

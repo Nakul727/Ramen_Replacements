@@ -3,8 +3,11 @@ package api
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
@@ -13,13 +16,19 @@ import (
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // set up account struct with username, profile picture, id number, and password
-// password is never returned to the frontend
+// This is the parametres that the register function expects
 type Account struct {
 	ID       int    `json:"id"`
-	Username string `json:"Username"`
-	Email    string `json:"Email"`
-	Password string `json:"Password"`
-	PFP      string `json:"PFP"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	PFP      string `json:"pfp"`
+}
+
+// This is the parameters that the login function expects
+type LoginStruct struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,9 +38,29 @@ var minUsernameLen = 3
 var maxPasswordLen = 8
 var minPasswordLen = 1
 
+var jwtSecret = []byte("your_secret_key_here")
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HELPER FUNCTION
+
+func CreateToken(userID int, username string, pfp string) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["userID"] = userID
+	claims["username"] = username
+	claims["pfp"] = pfp
+
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix() // Token expires in 1 hour
+
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
 	for res.Next() {
@@ -182,9 +211,46 @@ func CreateAccount(c *gin.Context) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Login and Authentication
+func LoginUser(c *gin.Context) {
+	var loginInfo LoginStruct
 
-func LoginAuth(c *gin.Context) {
+	// Attempt to bind JSON request data
+	if err := c.BindJSON(&loginInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error with input"})
+		fmt.Printf("Error binding JSON: %v\n", err)
+		return
+	}
 
+	fmt.Printf("Received loginInfo: %+v\n", loginInfo)
+
+	// Query the database for the user, including the userID and pfp
+	row := db.QueryRow("SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
+	var userID int
+	var pfp, username, hashedPassword string
+	err := row.Scan(&userID, &username, &hashedPassword, &pfp)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. User not found."})
+		fmt.Printf("User not found in the database: %v\n", err)
+		return
+	}
+
+	// Compare the hashed password with the provided password
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginInfo.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. Invalid password."})
+		fmt.Printf("Password comparison failed: %v\n", err)
+		return
+	}
+
+	// Generate a JWT token with the userID
+	token, err := CreateToken(userID, username, pfp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation failed"})
+		fmt.Printf("Token generation failed: %v\n", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
