@@ -1,46 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+import { useAuth } from "../AuthContext.js";
+import handleLogout from '../components/LogoutHandler.js';
+
 import logo_img from '../assets/logo.png';
 
-// Separate Header components for logged in and not logged in users
-const LoggedInHeader = ({ userInfo, handleLogout }) => (
-  <div>
-    {userInfo && userInfo.profilePicture && (
-      <img
-        src={userInfo.profilePicture}
-        alt="Profile"
-        className="h-10 w-10 rounded-full mr-4"
-      />
-    )}
-    <button onClick={handleLogout} className="text-blue-700">
-      Logout
-    </button>
-  </div>
-);
+// Left component of the header 
+// Logo and Name
 
-const NotLoggedInHeader = () => (
-  <div>
-    {/* Additional elements or links for not logged in users */}
-    <Link to="/login">Login</Link>
-  </div>
-);
-
-const Header = ({ leftChildren, rightChildren }) => {
-  return (
-    <header className="fixed top-0 w-full bg-slate-100 z-10">
-      <div className="flex items-left sm:items-center justify-between p-4">
-        <div className="flex items-center sm:mx-5 sm:mb-0">
-          {leftChildren}
-        </div>
-        <div className="flex items-center justify-end">
-          {rightChildren}
-        </div>
-      </div>
-    </header>
-  );
-};
-
-const Logo_Name = () => {
+const LeftHeader = () => {
   return (
     <div className="flex items-center">
       <Link to="/">
@@ -51,21 +20,74 @@ const Logo_Name = () => {
   );
 };
 
-const Links = ({ linkData }) => {
+
+// Right component of the header
+// Dynamic based on user logged in state
+
+const RightHeader = () => {
+
+  const { isLoggedIn } = useAuth();
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const jwt = localStorage.getItem('jwt');
+      if (jwt) {
+        const tokenParts = jwt.split('.');
+        if (tokenParts.length === 3) {
+          try {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            setUserInfo(payload);
+          } catch (error) {
+            console.error('Failed to decode JWT token:', error);
+          }
+        }
+      }
+    }
+  }, [isLoggedIn]);
+
+
   return (
-    <div>
-      {linkData.map((link, index) => (
-        <div
-          className="w-16 sm:w-20 md:w-24 mr-2 sm:mr-4 float-right text-center h-9 sm:h-12 bg-slate-200 pt-1 sm:pt-2"
-          key={index}
-        >
-          <Link to={link.to} className="text-sm sm:text-lg md:text-xl">
-            {link.text}
+    <div className="flex item-center">
+
+      <Link to="/explore" className="text-sm sm:text-lg md:text-xl mr-8">
+        Explore
+      </Link>
+
+      {isLoggedIn ? (
+        <div className="flex items-center sm:ml-4">
+
+          <Link to="/dashboard" className="h-10 w-10 rounded-full mr-2">
+            <img src={userInfo.profilePicture} alt="Profile"/>
           </Link>
+
+          <div className="relative ml-2">
+            <button className="text-blue-700">▼</button>
+            <div className="absolute right-0 mt-2 py-2 w-40 bg-white border border-gray-300 shadow-lg rounded-lg invisible">
+              <button onClick={handleLogout}>Logout</button>
+            </div>
+          </div>
+
         </div>
-      ))}
+      ) : (
+
+        <Link to="/login" className="text-sm sm:text-lg md:text-xl mr-8">
+          Login
+        </Link>
+      )}
     </div>
   );
 };
 
-export { Header, Logo_Name, Links, LoggedInHeader, NotLoggedInHeader };
+const Header = () => {
+  return (
+    <header className="fixed top-0 w-full bg-slate-100 z-10">
+      <div className="flex items-center justify-between p-4 flex-wrap">
+        <LeftHeader />
+        <RightHeader />
+      </div>
+    </header>
+  );
+};
+
+export { Header };

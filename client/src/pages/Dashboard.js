@@ -1,28 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Link , useNavigate } from 'react-router-dom';
-import { Header, Logo_Name, Links } from '../components/header.js';
+import { useNavigate } from 'react-router-dom';
+import { Header } from '../components/header.js';
 import { Footer } from '../components/footer.js';
 import { useAuth } from '../AuthContext.js';
-import handleLogout from '../components/LogoutHandler.js';
-
 
 function Dashboard() {
 
   const navigate = useNavigate();
-  const header_linkData = [
-    { to: '/explore', text: 'Explore' },
-  ];
 
   const { isLoggedIn } = useAuth();
   const [userInfo, setUserInfo] = useState(null);
-
-
 
   useEffect(() => {
     // Check if the user is logged in
     // If logged in, retrieve the JWT token from local storage
     // Decode the JWT token to get user information (payload)
-
     if (isLoggedIn) {
       const jwt = localStorage.getItem('jwt');
       if (jwt) {
@@ -42,37 +34,9 @@ function Dashboard() {
 
   return (
     <div>
-      
       <header>
-        <Header
-          leftChildren={<Logo_Name />}
-          rightChildren={
-            <div>
-              {isLoggedIn ? (
-                <div>
-                  {/* Display user's profile picture if logged in */}
-                  {userInfo && userInfo.profilePicture && (
-                    <img
-                      src={userInfo.profilePicture}
-                      alt="Profile"
-                      className="h-10 w-10 rounded-full mr-4"
-                    />
-                  )}
-
-                  {/* Logout button if logged in */}
-                  <button
-                    onClick={() => handleLogout()}
-                    className="text-blue-700"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          }
-        />
+        <Header/>
       </header>
-
 
       <div className="body_sections">
 

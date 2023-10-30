@@ -1,5 +1,5 @@
 import '../styles/Home.css';
-import { Header, Logo_Name, Links } from '../components/header.js';
+import { Header } from '../components/header.js';
 import { Footer } from "../components/footer.js"
 
 // if the user is not logged in, clicking on a recipe promopts to login and redirects
@@ -7,15 +7,10 @@ import { Footer } from "../components/footer.js"
 
 function Explore() {
 
-  const header_linkData = [
-    { to: '/explore', text: 'Explore' },
-    { to: '/login', text: 'Login' },
-  ];
-
   return (
     <div className="explorepage">
       <header>
-        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+        <Header/>
       </header>
 
       <div className='body_sections'>

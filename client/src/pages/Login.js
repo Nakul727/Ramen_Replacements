@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link , useNavigate } from 'react-router-dom';
 import { Footer } from "../components/footer.js";
-import { Header, Logo_Name, Links } from "../components/header.js";
+import { Header } from "../components/header.js";
 import { useAuth } from "../AuthContext.js";
 import { displayMessage } from "../components/helper.js";
 
 function Login() {
-
-  const header_linkData = [];
 
   // Login Information as React states
   const [email, setEmail] = useState("");
@@ -74,7 +72,7 @@ function Login() {
   return (
     <div>
       <header>
-        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+        <Header/>
       </header>
 
       <div className="body_sections">

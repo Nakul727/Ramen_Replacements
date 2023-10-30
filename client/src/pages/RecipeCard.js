@@ -2,7 +2,7 @@ import '../styles/Home.css';
 import '../styles/RecipeCard.css';
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
-import { Header, Logo_Name, Links} from '../components/header.js';
+import { Header } from '../components/header.js';
 import { displayMessage} from "../components/helper.js";
 
 function Recipe() {
@@ -27,17 +27,12 @@ function Recipe() {
     }
 
     const recipe = getRecipeDetail(recipeID);
-
-    const header_linkData = [
-        { to: '/explore', text: 'Explore' },
-        { to: '/login', text: 'Login' },
-    ];
       
     return (
         <div>
             
             <header>
-                <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+                <Header/>
             </header>
 
             <div className="h-[35vw]">

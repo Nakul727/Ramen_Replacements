@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Header, Logo_Name, Links } from '../components/header.js';
+import { Header } from '../components/header.js';
 import { displayMessage, hideMessage } from "../components/helper.js";
 import { Footer } from "../components/footer.js"
 import { useNavigate } from 'react-router-dom';
@@ -8,11 +8,6 @@ import { useNavigate } from 'react-router-dom';
 function Register() {
 
   const navigate = useNavigate();
-
-  const header_linkData = [
-    { to: '/explore', text: 'Explore' },
-    { to: '/login', text: 'Login' },
-  ];
 
   async function register_user(name, email, pass, pfp) {
     try {
@@ -65,7 +60,7 @@ function Register() {
     <div>
 
       <header>  
-        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+        <Header/>
       </header>
 
       <div className="mt-32 md:mt-48 xl:mt-60">
