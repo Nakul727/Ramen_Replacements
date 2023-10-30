@@ -24,11 +24,9 @@ function Login() {
   }, []);
 
 
-
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState('');
 
-  
   // Main Login function
   const handleLogin = async () => {
     if (username === "" || password === "") {
@@ -50,12 +48,13 @@ function Login() {
         const data = await response.json();
         const jwt = data.token;
         localStorage.setItem('jwt', jwt);
-        login();
-        console.log("successfully logged in :)")
+        displayMessage("registration-result", "Loggin In...");
+
         setTimeout(() => {
-          setSuccessMessage('');
+          login();
           navigate('/dashboard');
         }, 2000);
+        
       } 
       else {
         displayMessage("registration-result", "Authentication failed.");
