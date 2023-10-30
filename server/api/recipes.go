@@ -1,43 +1,27 @@
 package api
 
 import (
-	"bufio"
 	"database/sql"
-	"errors"
-	"fmt"
 	"net/http"
-	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 // Recipe struct - contains all data for recipe cards
 type Recipe struct {
 	UserID      int    `json:"UserID"`      // ID of poster - recipe id is incremented automatically
 	Rating      int    `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string `json:"Title"`       // Title of recipe, i.e. "butter chicken"
+	Title       string `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
 	Description string `json:"Description"` // Description of recipe
 	Steps       string `json:"Steps"`       // Steps required to replicate recipe
 	Ingredients string `json:"Ingredients"` // Ingredients used in recipe
 	Picture     string `json:"Picture"`     // Picture of finished product
 	Appliances  int16  `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int    `json:"Date"`        // Represented as # of seconds since 01/01/1970 (unix time)
+	Date        int    `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
 }
-
-// struct for storing a recipe and its id for searching in second hand API
-type Ingredient struct {
-	Name  string
-	ID    int
-	count int
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // for keeping track of max length when putting new data in db
 var maxTitleLen = 100
@@ -45,8 +29,6 @@ var maxDescLen = 1000
 var maxStepsLen = 5000
 var maxIngredientsLen = 500
 var maxPictureLen = 250
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HELPER FUNCTIONS
 func contextToRecipe(row *sql.Rows) (*Recipe, error) {
@@ -61,91 +43,6 @@ func contextToRecipe(row *sql.Rows) (*Recipe, error) {
 		return &rec, nil
 	}
 }
-
-// returns an ingredient if the ingredient is found in the top 1000 ingredients
-func searchInCsv(ingredient string) *Ingredient {
-	file, err := os.Open("top-1k-ingredients.csv")
-	if err != nil {
-		return nil
-	}
-
-	line := bufio.NewScanner(file)
-	ingredient = strings.ToLower(ingredient)
-
-	for line.Scan() {
-		curLine := strings.ToLower(line.Text())
-		var res Ingredient
-		var listElem string
-		index := 0
-		for index < len(curLine) {
-			if curLine[index] == ';' {
-				break
-			}
-			listElem += string(curLine[index])
-			index++
-		}
-		if listElem == ingredient {
-			res.ID, _ = strconv.Atoi(curLine[index+1:])
-			res.Name = ingredient
-			fmt.Println(res.ID)
-			fmt.Println(res.Name)
-			return &res
-		}
-	}
-	return nil
-}
-
-// parses the ingredients string and separates its ingredients into
-func parseIngredients(ingredients string) ([]Ingredient, error) {
-	var results []string
-	index := 0
-	dollarCount := 0
-	resultCount := 0
-	var curIngredient string
-	for index < len(ingredients) {
-		if dollarCount < 4 {
-			if ingredients[index] == '$' {
-				dollarCount++
-			}
-			if dollarCount == 4 {
-				index++
-			}
-		} else {
-			if ingredients[index] == '$' {
-				dollarCount = 1
-				if curIngredient != "" {
-					results = append(results, curIngredient)
-					resultCount++
-					curIngredient = ""
-				}
-				continue
-			}
-			curIngredient += string(ingredients[index])
-		}
-		index++
-	}
-	if curIngredient != "" {
-		results = append(results, curIngredient)
-		resultCount++
-	}
-	if resultCount == 0 {
-		return nil, errors.New("no ingredient found")
-	}
-	index = 0
-
-	var ingredientList []Ingredient
-	for index < resultCount {
-		var curIngredient = searchInCsv(results[index])
-		if curIngredient == nil {
-			return nil, errors.New("Ingredient not found in list")
-		}
-		ingredientList = append(ingredientList, *curIngredient)
-		index++
-	}
-	return ingredientList, nil
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HANDLER FUNCTIONS
 func PostRecipe(c *gin.Context) {
@@ -168,22 +65,11 @@ func PostRecipe(c *gin.Context) {
 		return
 	}
 
-	ingredients, err := parseIngredients(rec.Ingredients)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "unrecognized ingredient in recipe"})
-	}
-
-	// TODO
-	_, err = calculate_nutrition_facts(ingredients)
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error})
-	}
-
 	// get time of posting
 	currentTime := int32(time.Now().Unix())
 
 	// insert recipe to database
-	_, err = db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);",
+	_, err := db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);",
 		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -292,5 +178,3 @@ func GetTopRecent(c *gin.Context) {
 
 	c.JSON(http.StatusOK, recipes)
 }
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
