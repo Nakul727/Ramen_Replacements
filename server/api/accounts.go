@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"server/utils"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
@@ -38,28 +38,9 @@ var minUsernameLen = 3
 var maxPasswordLen = 8
 var minPasswordLen = 1
 
-var jwtSecret = []byte("your_secret_key_here")
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // HELPER FUNCTION
-
-func CreateToken(userID int, username string, pfp string) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["userID"] = userID
-	claims["username"] = username
-	claims["pfp"] = pfp
-
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix() // Token expires in 1 hour
-
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
-}
 
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	found := false
@@ -192,8 +173,17 @@ func CreateAccount(c *gin.Context) {
 		return
 	}
 
-	// Hash the password using bcrypt
+	// otherwise insert it into database as a new user
+	// password hashing before insertion
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(acc.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Hashing password operation failed"})
+		return
+	}
+	acc.Password = string(hashedPassword)
+
+	// insertion into database as a new user
+	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing the password"})
 		return
@@ -221,8 +211,6 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Received loginInfo: %+v\n", loginInfo)
-
 	// Query the database for the user, including the userID and pfp
 	row := db.QueryRow("SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
 	var userID int
@@ -234,7 +222,9 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	// Login Check function embedded
 	// Compare the hashed password with the provided password
+	// Verify Password
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginInfo.Password))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. Invalid password."})
@@ -243,7 +233,7 @@ func LoginUser(c *gin.Context) {
 	}
 
 	// Generate a JWT token with the userID
-	token, err := CreateToken(userID, username, pfp)
+	token, err := utils.GenerateToken(userID, username, pfp)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation failed"})
 		fmt.Printf("Token generation failed: %v\n", err)
