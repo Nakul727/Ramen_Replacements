@@ -28,8 +28,7 @@ func main() {
 
 	// run handlers
 	api.LoadDatabase(db)
-	api.RunAccounts(r)
-	api.RunRecipes(r)
+	api.RunAPI(r)
 
 	// runs backend on port 8080
 	// development environemt

@@ -24,7 +24,7 @@ class RecipeMaker extends Component {
 
     this.state = {
       publicRecipe: false,
-      userInfo: getUserInfo(),
+      userInfo: '',
       title: '',
       description: '',
       steps: [''],
@@ -32,7 +32,8 @@ class RecipeMaker extends Component {
       amounts: [],
       picture: '',
       appliances: [false, false, false, false, false, false, false, false, false, false, false, false],
-      applianceList: ["Oven", "Stove", "Microwave", "Toaster", "Blender", "Air Fryer", "Grill/Barbecue", "Toaster Oven", "Waffle Iron", "Stand Mixer", "Electric Mixer", "Slow Cooker"]
+      applianceList: ["Oven", "Stove", "Microwave", "Toaster", "Blender", "Air Fryer", "Grill/Barbecue", "Toaster Oven", "Waffle Iron", "Stand Mixer", "Electric Mixer", "Slow Cooker"],
+      result: '',
     };
   }
 
@@ -85,6 +86,7 @@ class RecipeMaker extends Component {
 
   handleSubmit = async () => {
     const { publicRecipe, userInfo, title, description, steps, ingredients, amounts, picture, appliances } = this.state;
+    let result = ''
     console.log(publicRecipe)
     var stepsString = "";
     for (var i = 0; i < steps.length; i++) {
@@ -121,7 +123,7 @@ class RecipeMaker extends Component {
         },
         body: JSON.stringify({
           public: publicRecipe,
-          userid: userInfo,
+          userid: 1,
           title: title,
           description: description,
           steps: stepsString,
@@ -134,12 +136,15 @@ class RecipeMaker extends Component {
     
       if (!response.ok) {
         const errorData = await response.json();
+        result = errorData
         console.log(errorData);
       }
       console.log({ publicRecipe, title, description, stepsString, ingredientsString, amountsArray, picture, appliances });
     } catch (error) {
+      result = 'Recipe posted!'
       console.log(error);
     }
+    this.setState({ result });
   }
 
   Checkbox = ({ label, value, onChange }) => {
@@ -153,7 +158,7 @@ class RecipeMaker extends Component {
   
 
   render() {
-    const { publicRecipe, title, description, steps, ingredients, picture, amounts, appliances, applianceList } = this.state;
+    const { publicRecipe, title, description, steps, ingredients, picture, amounts, appliances, applianceList, result } = this.state;
     return (
       <div>
         <div className="text-center">
@@ -248,7 +253,7 @@ class RecipeMaker extends Component {
             </div>
           ), appliances)}
           <button onClick={this.handleSubmit}>Post</button>
-          <p id="post-result"></p>
+          <p id="post-result">{JSON.stringify(result)}</p>
         </div>
       </div>
     );

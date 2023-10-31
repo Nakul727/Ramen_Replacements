@@ -100,11 +100,11 @@ func parseArray(str string) []int {
 func calculate_nutrition_facts(ingredients []Ingredient, amountString string) ([]float64, float64, error) {
 	amounts := parseArray(amountString)
 	if amounts == nil {
-		return nil, 0, errors.New("please use only whole numbers in ingredient counts")
+		return nil, 400, errors.New("please use only whole numbers in ingredient counts")
 	}
 	var apikey string = os.Getenv("API_KEY")
 	if len(ingredients) == 0 {
-		return nil, 0, errors.New("no ingredients found")
+		return nil, 400, errors.New("no ingredients found")
 	}
 	var ingredientNutrition RecipeNutrition
 	var recipeNutrition = make([]float64, 7)
@@ -116,24 +116,24 @@ func calculate_nutrition_facts(ingredients []Ingredient, amountString string) ([
 
 		resp, err := http.Get(urlToQuery)
 		if err != nil {
-			return nil, 0, errors.New("could not contact API")
+			return nil, 502, errors.New("could not contact API")
 		}
 
 		if resp.StatusCode != 200 {
-			return nil, 0, errors.New("API authentication failed")
+			return nil, 502, errors.New("API authentication failed")
 		}
 
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, 0, errors.New("error reading data")
+			return nil, 502, errors.New("error reading data")
 		}
 
 		// since nutrition info is not always returned in the same order, we first put it into a struct
 		// then into an array to return
 		var nutrition NutritionFacts
 		if err := json.Unmarshal(body, &nutrition); err != nil {
-			return nil, 0, errors.New("error unmarshaling json data")
+			return nil, 502, errors.New("error unmarshaling json data")
 		} else {
 			for i := 0; i < len(nutrition.Nutrition.Nutrients); i++ {
 				switch nutrition.Nutrition.Nutrients[i].Name {

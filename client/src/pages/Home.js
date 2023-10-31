@@ -1,20 +1,14 @@
 import '../styles/Home.css';
-import { Header, Logo_Name, Links} from '../components/header.js';
+import { Header } from '../components/header.js';
 import { Footer } from "../components/footer.js"
-// import { HomeRecipes } from "../components/HomeRecipes.js"
 
 function Home() {
 
-  const header_linkData = [
-    { to: '/explore', text: 'Explore' },
-    { to: '/login', text: 'Login' },
-  ];
-  
   return (
     <div className="homepage">
 
       <header>
-        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+        <Header />
       </header>
       
       <div className='body_sections'>

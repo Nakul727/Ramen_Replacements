@@ -13,18 +13,23 @@ func LoadDatabase(database *sql.DB) {
 	db = database
 }
 
+func RunAPI(r *gin.Engine) {
+	RunAccounts(r)
+	RunRecipes(r)
+}
+
 // handler for user account functions
 func RunAccounts(r *gin.Engine) {
 	r.GET("/acc/user", GetUserByName)
 	r.GET("/acc/users", GetAllUsers)
 	r.POST("acc/create", CreateAccount)
-	r.POST("acc/login", LoginAuth) // NOT YET COMPLETED
+	r.POST("acc/login", LoginUser)
 }
 
 // handler for recipe functions
 func RunRecipes(r *gin.Engine) {
-	r.POST("recipe/post", PostRecipe)
-	r.GET("recipe/get", GetRecipe)
-	r.GET("recipe/latest", GetRecipesByDate)
-	r.GET("recipe/top", GetTopRecent)
+	r.POST("/recipe/post", PostRecipe)
+	r.GET("/recipe/get", GetRecipe)
+	r.GET("/recipe/latest", GetRecipesByDate)
+	r.GET("/recipe/top", GetTopRecent)
 }

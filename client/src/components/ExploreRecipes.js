@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { displayMessage } from "./helper.js"
+import { displayMessage } from "./helper.js";
 import { Link } from "react-router-dom";
 import "../styles/Home.css";
-
 
 function RecipeCard(rec) {
     const link = "recipe/" + String(rec.UserID);
@@ -19,41 +18,33 @@ function RecipeCard(rec) {
     );
 }
 
-function getRecipeData() {
-    
-    async function getData() {
-        try {
-            const backendApi = process.env.REACT_APP_BACKEND;
-            const response = await fetch(`${backendApi}/recipe/latest`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (response.ok) {
-                return response.json();
-            } else {
-                const error = await response.json();
-                displayMessage("error: ", error.error);
-                return error;
-            }
-        } catch (error) {
-            displayMessage("500 internal server error", "there was an error contacting the server")
-            return response.json();
-        }
-    }
-
-    return getData();
-}
-
-
 function ExploreRecipes() {
+    
     const [recipeData, setRecipeData] = useState([]);
 
     useEffect(() => {
         async function fetchData() {
-            const data = await getRecipeData();
-            setRecipeData(data);
+            try {
+                const backendApi = process.env.REACT_APP_BACKEND;
+                const response = await fetch(`${backendApi}/recipe/latest`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setRecipeData(data);
+                } else {
+                    const errorData = await response.json();
+                    displayMessage("Error: " + errorData.error);
+                    throw new Error("Request failed with status: " + response.status);
+                }
+            } catch (error) {
+                displayMessage("500 Internal Server Error", "There was an error contacting the server");
+                throw error;
+            }
         }
 
         fetchData();
@@ -63,7 +54,7 @@ function ExploreRecipes() {
         <div className="grid-container-container">
             <div className="grid-container">
                 <div className="recipe-grid">
-                    {recipeData === null ? (
+                    {recipeData.length === 0 ? (
                         <p>No recipes found</p>
                     ) : (
                         recipeData.map(recipe => (

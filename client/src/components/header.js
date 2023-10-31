@@ -1,47 +1,70 @@
 import React from 'react';
-import { Link } from "react-router-dom";
-import logo_img from "../assets/logo.png"
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthContext.js";
+import { getUserInfo } from './UserInfo.js';
+import logo_img from '../assets/logo.png';
 
-const Header = ({ leftChildren, rightChildren }) => {
-    return (
-        <header className="fixed top-0 w-full bg-slate-100 z-10">
-            <div className="flex items-left sm:items-center justify-between p-4">
-                <div className="flex items-center sm:mx-5 sm:mb-0">
-                    {leftChildren}
-                </div>
-                <div className="flex items-center justify-end">
-                    {rightChildren}
-                </div>
-            </div>
-        </header>
-    );
+
+// Left component of the header 
+// Logo and Name
+const LeftHeader = () => {
+  return (
+    <div className="flex items-center">
+      <Link to="/">
+        <img src={logo_img} className="h-14 w-auto mx-1 sm:mx-4" alt="Logo" />
+      </Link>
+      <h1 className="text-md sm:text-xl md:text-2xl">Ramen_Replacements</h1>
+    </div>
+  );
 };
 
-// alligned to the left inside <div>
-const Logo_Name = () => {
-    return (
+// Right component of the header
+// Dynamic based on user logged in state
+const RightHeader = () => {
+  const { isLoggedIn, logout } = useAuth();
+  const userInfo = getUserInfo();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  return (
+    <div className="flex items-center">
+      <Link to="/explore" className="text-sm sm:text-lg md:text-xl mr-8">
+        Explore
+      </Link>
+
+      {isLoggedIn ? (
         <div className="flex items-center">
-            <Link to="/">
-                <img src={logo_img} className="h-14 w-auto mx-1 sm:mx-4" alt="Logo" />
-            </Link>
-            <h1 className="text-md sm:text-xl md:text-2xl">Ramen_Replacements</h1>
+          <button onClick={handleLogout} className="text-sm sm:text-lg md:text-xl mr-8">
+            Logout
+          </button>
+
+          <Link to="/dashboard" className="h-10 w-10 rounded-full mr-8">
+            <img src={userInfo.pfp} alt="Profile" />
+          </Link>
         </div>
-    );
+      ) : (
+        <Link to="/login" className="text-sm sm:text-lg md:text-xl mr-8">
+          Login
+        </Link>
+      )}
+    </div>
+  );
 };
 
-// alligned to the right inside the <div>
-const Links = ({ linkData }) => {
-    return (
-        <div>
-            {linkData.map((link, index) => (
-                <div className="w-16 sm:w-20 md:w-24 mr-2 sm:mr-4 float-right text-center h-9 sm:h-12 bg-slate-200 pt-1 sm:pt-2">
-                    <Link key={index} to={link.to} className="text-sm sm:text-lg md:text-xl">
-                        {link.text}
-                    </Link>
-                </div>
-            ))}
-        </div>
-    );
+const Header = () => {
+  return (
+    <header className="fixed top-0 w-full bg-slate-100 z-10">
+      <div className="flex items-center justify-between p-4 flex-wrap">
+        <LeftHeader />
+        <RightHeader />
+      </div>
+    </header>
+  );
 };
 
-export { Header, Logo_Name, Links };
+export { Header };

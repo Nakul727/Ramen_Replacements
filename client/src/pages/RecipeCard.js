@@ -2,7 +2,7 @@ import '../styles/Home.css';
 import '../styles/RecipeCard.css';
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
-import { Header, Logo_Name, Links} from '../components/header.js';
+import { Header } from '../components/header.js';
 import { displayMessage} from "../components/helper.js";
 
 function Recipe() {
@@ -11,8 +11,8 @@ function Recipe() {
     // get recipe details with API call
     async function getRecipeDetail(recipeID) {
         try{
-            const fetchlink = "http://localhost:8080/recipe/" + String(recipeID);
-            const response = await fetch(fetchlink);
+            const backendApi = process.env.REACT_APP_BACKEND;
+            const response = await fetch(backendApi + String(recipeID));
             if (response.ok) {
                 return response.json();
             } else {
@@ -27,17 +27,12 @@ function Recipe() {
     }
 
     const recipe = getRecipeDetail(recipeID);
-
-    const header_linkData = [
-        { to: '/explore', text: 'Explore' },
-        { to: '/login', text: 'Login' },
-    ];
       
     return (
         <div>
             
             <header>
-                <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+                <Header/>
             </header>
 
             <div className="h-[35vw]">

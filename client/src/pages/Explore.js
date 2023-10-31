@@ -1,22 +1,18 @@
 import '../styles/Home.css';
-import { Header, Logo_Name, Links } from '../components/header.js';
+import { Header } from '../components/header.js';
 import { Footer } from "../components/footer.js"
-
-// if the user is not logged in, clicking on a recipe promopts to login and redirects
-// if the user is logged in, they can click on any recipe and view/rate it
 import { ExploreRecipes } from '../components/ExploreRecipes';
 
-function Explore() {
+// if the user is not logged in, clicking on a recipe promopts to login and redirects
+// if the user is logged in, they can click on any recipe and view/rate i
 
-  const header_linkData = [
-    { to: '/explore', text: 'Explore' },
-    { to: '/login', text: 'Login' },
-  ];
+
+function Explore() {
 
   return (
     <div className="explorepage">
       <header>
-        <Header leftChildren={<Logo_Name />} rightChildren={<Links linkData={header_linkData} />} />
+        <Header/>
       </header>
 
       <div className='body_sections'>
@@ -29,11 +25,11 @@ function Explore() {
            Here you can find ....*/}
         </div>
 
-        <div className="section3" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
+        <div className="section3" style={{ backgroundColor: 'lightpink', height: '300px' }}>
           {/* Div for the filtering bar */}
         </div>
 
-        <div className="section4" style={{ backgroundColor: 'lightpink', height: '300px' }}>
+        <div className="section4" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
 
           {/* Div for the results of the filtering and recipies 
           Get the top 100 highest rated recipies from the database

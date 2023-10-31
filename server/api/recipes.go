@@ -92,7 +92,7 @@ func searchInCsv(ingredient string) *Ingredient {
 			return &res
 		}
 	}
-	return nil
+	return &Ingredient{"none", 0, 0}
 }
 
 // parses the ingredients string and separates its ingredients into
@@ -123,7 +123,9 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 	for index < resultCount {
 		var curIngredient = searchInCsv(results[index])
 		if curIngredient == nil {
-			return nil, errors.New("Ingredient not found in list")
+			return nil, errors.New("error opening csv")
+		} else if curIngredient.Name == "none" {
+			return nil, errors.New("no ingredient found in list")
 		}
 		ingredientList = append(ingredientList, *curIngredient)
 		index++
@@ -232,18 +234,18 @@ func GetRecipe(c *gin.Context) {
 	}
 }
 
-// gets the most recently posted recipes - returns first n recipes or 100 by default
 func GetRecipesByDate(c *gin.Context) {
-	// n is number of recipes to query
+	// n is the number of recipes to query
 	n, err := strconv.Atoi(c.DefaultQuery("num", "100"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	resp, err := db.Query("SELECT * FROM Recipes ORDER BY date DESC")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	i := 0
@@ -251,10 +253,16 @@ func GetRecipesByDate(c *gin.Context) {
 	for resp.Next() && i < n {
 		curRec, err := contextToRecipe(resp)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 		recipes = append(recipes, *curRec)
 		i++
+	}
+
+	if len(recipes) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No recipes found"})
+		return
 	}
 
 	c.JSON(http.StatusOK, recipes)
