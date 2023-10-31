@@ -115,8 +115,8 @@ class RecipeMaker extends Component {
     try {
       // Convert amounts to an array of integers
       const amountsArray = amounts.map(amount => parseInt(amount, 10));
-      
-      const response = await fetch("http://localhost:8080/recipe/post", {
+      const backendApi = process.env.REACT_APP_BACKEND;
+      const response = await fetch(`${backendApi}/recipe/post`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
