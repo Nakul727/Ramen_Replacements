@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 import { getUserInfo } from '../components/UserInfo.js';
-import { displayMessage } from "../components/helper.js";
-import { Footer } from "../components/footer.js";
-import logo_img from "../assets/logo.png";
-import menu_img from "../assets/menu.png";
 
 // returns integer value for appliance bit field
 function calculateAppliancesValue(arr) {
@@ -16,6 +12,10 @@ function calculateAppliancesValue(arr) {
     }
   }
   return curValue
+}
+
+function getUserID() {
+  return getUserInfo.userID
 }
 
 class RecipeMaker extends Component {
@@ -85,7 +85,7 @@ class RecipeMaker extends Component {
   }
 
   handleSubmit = async () => {
-    const { publicRecipe, userInfo, title, description, steps, ingredients, amounts, picture, appliances } = this.state;
+    const { publicRecipe, title, description, steps, ingredients, amounts, picture, appliances } = this.state;
     let result = ''
     console.log(publicRecipe)
     var stepsString = "";
@@ -123,7 +123,7 @@ class RecipeMaker extends Component {
         },
         body: JSON.stringify({
           public: publicRecipe,
-          userid: 1,
+          userid: getUserID(),
           title: title,
           description: description,
           steps: stepsString,

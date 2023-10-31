@@ -11,7 +11,7 @@ function RecipeBuilder() {
             {isLoggedIn ? (
                 <RecipeMaker />
             ) : (
-                <RecipeMaker />
+                <h1>You must be logged in to create recipes.</h1>
             )}
         </div>
     );
