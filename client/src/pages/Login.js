@@ -37,7 +37,7 @@ function Login() {
     try 
     {
       const backendApi = process.env.REACT_APP_BACKEND;
-      const response = await fetch("http://localhost:8080/acc/login", {
+      const response = await fetch(`${backendApi}/acc/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
