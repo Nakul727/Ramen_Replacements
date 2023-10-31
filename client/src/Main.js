@@ -8,6 +8,7 @@ import Register from './pages/Register.js';
 import Dashboard from './pages/Dashboard.js';
 import Explore from './pages/Explore.js';
 import Recipe from './pages/RecipeCard.js';
+import RecipeBuilder from './pages/RecipeBuilder.js'
 
 export default function Main() {
   return (
@@ -19,6 +20,7 @@ export default function Main() {
         <Route path='/dashboard' element={<Dashboard/>}></Route>
         <Route path='/recipe/:recipeID' element={<Recipe/>}></Route>
         <Route path='/explore' element={<Explore/>}></Route>
+        <Route path='/recipebuilder' element={<RecipeBuilder />}></Route>
       </Routes>    
     </AuthProvider>
   );

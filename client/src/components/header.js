@@ -31,6 +31,10 @@ const RightHeader = () => {
     navigate('/');
   };
 
+  const handleRecipeBuilder = () => {
+    navigate('/recipebuilder');
+  }
+
   return (
     <div className="flex items-center">
       <Link to="/explore" className="text-sm sm:text-lg md:text-xl mr-8">
@@ -42,10 +46,14 @@ const RightHeader = () => {
           <button onClick={handleLogout} className="text-sm sm:text-lg md:text-xl mr-8">
             Logout
           </button>
+          <button onClick={handleRecipeBuilder} className="text-sm sm:text-lg md:text-xl mr-8">
+            Post Recipe
+          </button>
 
           <Link to="/dashboard" className="h-10 w-10 rounded-full mr-8">
             <img src={userInfo.pfp} alt="Profile" />
           </Link>
+          
         </div>
       ) : (
         <Link to="/login" className="text-sm sm:text-lg md:text-xl mr-8">

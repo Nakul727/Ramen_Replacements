@@ -28,7 +28,6 @@ func GenerateToken(userID int, username string, pfp string) (string, error) {
 	}
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(token_lifespan)).Unix()
 
-
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return "", err
@@ -38,7 +37,6 @@ func GenerateToken(userID int, username string, pfp string) (string, error) {
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 func TokenValid(c *gin.Context) error {
 	tokenString := ExtractToken(c)
