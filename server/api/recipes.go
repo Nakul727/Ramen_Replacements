@@ -17,6 +17,7 @@ import (
 
 // Recipe struct - contains all data for recipe cards
 type Recipe struct {
+	Public      bool      `json:"Public"`      // true if public - false if private
 	UserID      int       `json:"UserID"`      // ID of poster - recipe id is incremented automatically
 	Rating      int       `json:"Rating"`      // Rating from 0-50 of recipe
 	Title       string    `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
@@ -28,6 +29,8 @@ type Recipe struct {
 	Appliances  int16     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
 	Date        int       `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
 	Nutrition   []float32 `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
+	Cost        float32   `json:"Cost"`        // Estimated cost of recipe
+	Time        float32   `json:"Time"`        // Estimated time to complete recipe in minutes
 }
 
 // Nutrition
@@ -138,6 +141,18 @@ func PostRecipe(c *gin.Context) {
 		return
 	}
 
+	// make sure input was provided for each field
+	missingInput := (len(rec.Description) == 0 ||
+		len(rec.Ingredients) == 0 ||
+		len(rec.Steps) == 0 ||
+		len(rec.Title) == 0 ||
+		len(rec.Picture) == 0)
+
+	if missingInput {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "please provide input for each field"})
+		return
+	}
+
 	// check lengths of input
 	inputTooLong := (len(rec.Description) > maxDescLen ||
 		len(rec.Ingredients) > maxIngredientsLen ||
@@ -159,12 +174,13 @@ func PostRecipe(c *gin.Context) {
 	}
 
 	// calculate nutrition facts for each ingredient
-	nutritionFacts, err := calculate_nutrition_facts(ingredients, rec.Amounts)
+	nutritionFacts, cost, err := calculate_nutrition_facts(ingredients, rec.Amounts)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadGateway, gin.H{"error": err})
 		return
 	}
+	cost /= 100 // since cost is returned in cents, we want it in dollars
 
 	// get time of posting
 	currentTime := int32(time.Now().Unix())
@@ -173,8 +189,8 @@ func PostRecipe(c *gin.Context) {
 	nutritionStr := pq.Array(nutritionFacts)
 
 	// insert recipe to database
-	_, err = db.Exec("INSERT INTO Recipes (userID, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);",
-		rec.UserID, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, rec.Amounts)
+	_, err = db.Exec("INSERT INTO Recipes (userID, public, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts, cost) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);",
+		rec.UserID, rec.Public, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, rec.Amounts, cost)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

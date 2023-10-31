@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { getUserInfo } from '../components/UserInfo.js';
 import { displayMessage } from "../components/helper.js";
 import { Footer } from "../components/footer.js";
 import logo_img from "../assets/logo.png";
@@ -22,11 +23,13 @@ class RecipeMaker extends Component {
     super(props);
 
     this.state = {
+      publicRecipe: false,
+      userInfo: getUserInfo(),
       title: '',
       description: '',
       steps: [''],
       ingredients: [''],
-      amounts: [0],
+      amounts: [],
       picture: '',
       appliances: [false, false, false, false, false, false, false, false, false, false, false, false],
       applianceList: ["Oven", "Stove", "Microwave", "Toaster", "Blender", "Air Fryer", "Grill/Barbecue", "Toaster Oven", "Waffle Iron", "Stand Mixer", "Electric Mixer", "Slow Cooker"]
@@ -46,6 +49,11 @@ class RecipeMaker extends Component {
     });
   }
 
+  handlePublicChange = () => {
+    this.setState((prevState) => ({
+      publicRecipe: !prevState.publicRecipe
+    }));
+  }
 
   addStep = () => {
     this.setState((prevState) => ({
@@ -76,8 +84,8 @@ class RecipeMaker extends Component {
   }
 
   handleSubmit = async () => {
-    const { title, description, steps, ingredients, amounts, picture, appliances } = this.state;
-    const userid = 1;
+    const { publicRecipe, userInfo, title, description, steps, ingredients, amounts, picture, appliances } = this.state;
+    console.log(publicRecipe)
     var stepsString = "";
     for (var i = 0; i < steps.length; i++) {
       // add symbols to number so we know what are steps and what numbers are added by users
@@ -112,7 +120,8 @@ class RecipeMaker extends Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userid: userid,
+          public: publicRecipe,
+          userid: userInfo,
           title: title,
           description: description,
           steps: stepsString,
@@ -127,7 +136,7 @@ class RecipeMaker extends Component {
         const errorData = await response.json();
         console.log(errorData);
       }
-      console.log({ title, description, stepsString, ingredientsString, amountsArray, picture, appliances });
+      console.log({ publicRecipe, title, description, stepsString, ingredientsString, amountsArray, picture, appliances });
     } catch (error) {
       console.log(error);
     }
@@ -144,17 +153,23 @@ class RecipeMaker extends Component {
   
 
   render() {
-    const { title, description, steps, ingredients, picture, amounts, appliances, applianceList } = this.state;
+    const { publicRecipe, title, description, steps, ingredients, picture, amounts, appliances, applianceList } = this.state;
     return (
       <div>
         <div className="text-center">
+        <label htmlFor="public">Public Recipe </label>
+          <input
+            type="checkbox"
+            onChange={() => this.handlePublicChange(publicRecipe)}
+            checked={publicRecipe}
+          /><br />
           <label htmlFor="title">Title</label><br />
           <input
             type="text"
             name="title"
             value={title}
             onChange={this.handleChange}
-            className="border border-solid border-black w-24 md:w-32 xl:w-40"
+            className="border border-solid border-black w-24 md:w-64 xl:w-40"
           /><br />
           <label htmlFor="description">Description</label><br />
           <input
@@ -206,14 +221,14 @@ class RecipeMaker extends Component {
                   this.setState({ amounts: updatedAmounts });
                 }}
                 className="border border-solid border-black w-24 md:w-32 xl:w-40"
-                placeholder="Amount"
+                placeholder="Amount (grams/mL)"
               />
               <button onClick={() => this.removeIngredient(index)}>Remove</button>
             </div>
           ))}
           <button onClick={this.addIngredient}>Add Ingredient</button>
         </div>
-          <label htmlFor="picture">Picture</label><br />
+          <label htmlFor="picture">Picture (URL)</label><br />
           <input
             type="text"
             name="picture"
