@@ -17,20 +17,39 @@ import (
 
 // Recipe struct - contains all data for recipe cards
 type Recipe struct {
-	Public      bool      `json:"Public"`      // true if public - false if private
-	UserID      int       `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int       `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string    `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string    `json:"Description"` // Description of recipe
-	Steps       string    `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string    `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     string    `json:"Amounts"`     // Amount of each ingredient in grams
-	Picture     string    `json:"Picture"`     // Picture of finished product
-	Appliances  int16     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int       `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
-	Nutrition   []float32 `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
-	Cost        float32   `json:"Cost"`        // Estimated cost of recipe
-	Time        float32   `json:"Time"`        // Estimated time to complete recipe in minutes
+	ID          int             `json:"ID"`
+	Public      sql.NullBool    `json:"Public"`      // true if public - false if private
+	UserID      int             `json:"UserID"`      // ID of poster - recipe id is incremented automatically
+	Rating      int             `json:"Rating"`      // Rating from 0-50 of recipe
+	Title       string          `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
+	Description string          `json:"Description"` // Description of recipe
+	Steps       string          `json:"Steps"`       // Steps required to replicate recipe
+	Ingredients string          `json:"Ingredients"` // Ingredients used in recipe
+	Amounts     string          `json:"Amounts"`     // Amount of each ingredient in grams
+	Picture     string          `json:"Picture"`     // Picture of finished product
+	Appliances  int             `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
+	Date        int64           `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
+	Nutrition   []uint8         `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
+	Cost        sql.NullFloat64 `json:"Cost"`        // Estimated cost of recipe
+	Time        sql.NullFloat64 `json:"Time"`        // Estimated time to complete recipe in minutes
+}
+
+// Recipe struct - contains all data for recipe cards going in to database
+type RecipeIn struct {
+	Public      bool    `json:"Public"`      // true if public - false if private
+	UserID      int     `json:"UserID"`      // ID of poster - recipe id is incremented automatically
+	Rating      int     `json:"Rating"`      // Rating from 0-50 of recipe
+	Title       string  `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
+	Description string  `json:"Description"` // Description of recipe
+	Steps       string  `json:"Steps"`       // Steps required to replicate recipe
+	Ingredients string  `json:"Ingredients"` // Ingredients used in recipe
+	Amounts     string  `json:"Amounts"`     // Amount of each ingredient in grams
+	Picture     string  `json:"Picture"`     // Picture of finished product
+	Appliances  int     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
+	Date        int64   `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
+	Nutrition   []uint8 `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
+	Cost        float32 `json:"Cost"`        // Estimated cost of recipe
+	Time        float32 `json:"Time"`        // Estimated time to complete recipe in minutes
 }
 
 // Nutrition
@@ -52,10 +71,9 @@ var maxPictureLen = 250
 // HELPER FUNCTIONS
 func contextToRecipe(row *sql.Rows) (*Recipe, error) {
 	var rec Recipe
-	var temp int
 	err := row.Scan(
-		&temp, &rec.UserID, &rec.Rating, &rec.Title, &rec.Description, &rec.Steps,
-		&rec.Ingredients, &rec.Amounts, &rec.Picture, &rec.Appliances, &rec.Date, &rec.Nutrition)
+		&rec.ID, &rec.UserID, &rec.Rating, &rec.Title, &rec.Description, &rec.Steps, &rec.Ingredients, &rec.Picture,
+		&rec.Appliances, &rec.Date, &rec.Nutrition, &rec.Amounts, &rec.Public, &rec.Time, &rec.Cost)
 	if err != nil {
 		return nil, err
 	} else {
@@ -135,7 +153,7 @@ func parseIngredients(ingredients string) ([]Ingredient, error) {
 
 // HANDLER FUNCTIONS
 func PostRecipe(c *gin.Context) {
-	var rec Recipe
+	var rec RecipeIn
 	if err := c.BindJSON(&rec); err != nil {
 		fmt.Println("error binding json")
 		fmt.Println(err)
@@ -190,9 +208,13 @@ func PostRecipe(c *gin.Context) {
 	// convert arrays to comma separated strings
 	nutritionStr := pq.Array(nutritionFacts)
 
+	var sqpublic sql.NullBool = sql.NullBool{Bool: rec.Public, Valid: true}
+	var sqcost sql.NullFloat64 = sql.NullFloat64{Float64: float64(cost), Valid: true}
+	var sqtime sql.NullFloat64 = sql.NullFloat64{Float64: float64(rec.Time), Valid: true}
+
 	// insert recipe to database
-	_, err = db.Exec("INSERT INTO Recipes (userID, public, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts, cost) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);",
-		rec.UserID, rec.Public, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, rec.Amounts, cost)
+	_, err = db.Exec("INSERT INTO Recipes (userID, public, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts, cost, time) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);",
+		rec.UserID, sqpublic, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, rec.Amounts, sqcost, sqtime)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
