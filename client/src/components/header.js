@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../AuthContext.js";
@@ -6,22 +6,8 @@ import { getUserInfo } from './UserInfo.js';
 import logo_img from '../assets/logo.png';
 
 
-// Left component of the header 
-// Logo and Name
-const LeftHeader = () => {
-  return (
-    <div className="flex items-center">
-      <Link to="/">
-        <img src={logo_img} className="h-14 w-auto mx-1 sm:mx-4" alt="Logo" />
-      </Link>
-      <h1 className="text-md sm:text-xl md:text-2xl">Ramen_Replacements</h1>
-    </div>
-  );
-};
+const Header = () => {
 
-// Right component of the header
-// Dynamic based on user logged in state
-const RightHeader = () => {
   const { isLoggedIn, logout } = useAuth();
   const userInfo = getUserInfo();
   const navigate = useNavigate();
@@ -31,47 +17,57 @@ const RightHeader = () => {
     navigate('/');
   };
 
-  const handleRecipeBuilder = () => {
-    navigate('/recipebuilder');
-  }
-
   return (
-    <div className="flex items-center">
-      <Link to="/explore" className="text-sm sm:text-lg md:text-xl mr-8">
-        Explore
-      </Link>
+    <div>
 
-      {isLoggedIn ? (
-        <div className="flex items-center">
-          <button onClick={handleLogout} className="text-sm sm:text-lg md:text-xl mr-8">
-            Logout
-          </button>
-          <button onClick={handleRecipeBuilder} className="text-sm sm:text-lg md:text-xl mr-8">
-            Post Recipe
-          </button>
+      <nav className="bg-white fixed w-full z-20 top-0 left-0 border-b border-gray-200">
+        <div className="flex flex-wrap items-center justify-between p-4">
 
-          <Link to="/dashboard" className="h-10 w-10 rounded-full mr-8">
-            <img src={userInfo.pfp} alt="Profile" />
-          </Link>
-          
-        </div>
-      ) : (
-        <Link to="/login" className="text-sm sm:text-lg md:text-xl mr-8">
-          Login
-        </Link>
-      )}
-    </div>
-  );
-};
+          {/* Left Part */}
+          <div className="flex items-center justify-between ml-4">
+            <Link to="/">
+              <img src={logo_img} className="h-8 mr-4" />
+            </Link>
+            <span className="self-center text-2xl font-semibold whitespace-nowrap">Ramen_Replacements</span>
+          </div>
 
-const Header = () => {
-  return (
-    <header className="fixed top-0 w-full bg-slate-100 z-10">
-      <div className="flex items-center justify-between p-4 flex-wrap">
-        <LeftHeader />
-        <RightHeader />
-      </div>
-    </header>
+
+          {/* Right Header */}
+
+          <div className="flex items-center justify-between mr-4">
+            <div className="flex items-center justify-between py-2 font-medium">
+              <Link to="/">
+                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Home</p>
+              </Link>
+              <Link to="/explore">
+                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Explore</p>
+              </Link>
+
+              {isLoggedIn ? (
+              <div className='flex'>
+              <Link to="/recipebuilder">
+               <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Create Recipe</p>
+              </Link>
+              <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent cursor-pointer md-hover-text-blue-700 md-p-0" onClick={handleLogout}>Logout</p>
+              <Link to="/dashboard">
+                {/* TO DO PROFILE IMAGE */}
+                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Dashboard</p>
+              </Link>
+              </div>
+              ) : (
+              <div>
+              <Link to="/register">
+                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Get Started</p>
+              </Link>
+              </div>
+              )}
+            </div>
+          </div>
+
+        </div >
+      </nav >
+
+    </div >
   );
 };
 
