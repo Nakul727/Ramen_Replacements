@@ -256,7 +256,7 @@ class RecipeMaker extends Component {
           ), appliances)}
           <button onClick={this.handleSubmit}>Post</button>
           <div>
-            {result == "" ? <p></p> : <p>{result}</p>}  
+            {result.error == "" ? <p></p> : <p>{result.error}</p>}  
           </div> 
         </div>
       </div>
