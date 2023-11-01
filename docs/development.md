@@ -43,17 +43,23 @@ CREATE TABLE Users (
 
 ```sql
 CREATE TABLE Recipes (
-    id          SERIAL PRIMARY KEY,
-    userID      INT NOT NULL,
-    rating      INT,
-    title       VARCHAR(100),
-    description VARCHAR(1000),
-    steps       VARCHAR(5000),
-    ingredients VARCHAR(500),
-    picture     VARCHAR(250),
-    appliances  INT,
-    date        INT
+    id integer NOT NULL,
+    userid integer NOT NULL,
+    rating integer,
+    title character varying(100),
+    description character varying(1000),
+    steps character varying(5000),
+    ingredients character varying(500),
+    picture character varying(250),
+    appliances integer,
+    date integer,
+    nutrition double precision[],
+    amounts integer[],
+    public boolean,
+    "time" double precision,
+    cost double precision
 );
+
 ```
 
 Use `\q` to exit server and `psql ramen_replacements test` in terminal to reopen server.
