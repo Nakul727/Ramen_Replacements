@@ -136,14 +136,14 @@ class RecipeMaker extends Component {
     
       if (!response.ok) {
         const errorData = await response.json();
-        result = errorData
+        result = "There was an error."
         console.log(errorData);
       } else {
         result = "Recipe posted!"
       }
       console.log({ publicRecipe, title, description, stepsString, ingredientsString, amountsArray, picture, appliances });
     } catch (error) {
-      result = "There was an error"
+      result = "There was an error."
       console.log(error);
     }
     this.setState({ result });
@@ -255,14 +255,9 @@ class RecipeMaker extends Component {
             </div>
           ), appliances)}
           <button onClick={this.handleSubmit}>Post</button>
-          <p id="post-result">{result == "" ?
           <div>
-            
-          </div>
-          :
-          <div>
-            <p>{result}</p>
-          </div>}</p>
+            {result == "" ? <p></p> : <p>{result}</p>}  
+          </div> 
         </div>
       </div>
     );
