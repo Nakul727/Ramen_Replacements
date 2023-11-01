@@ -14,6 +14,7 @@ function Recipe() {
             const backendApi = process.env.REACT_APP_BACKEND;
             const response = await fetch(backendApi + String(recipeID));
             if (response.ok) {
+                console.log(response.json())
                 return response.json();
             } else {
                 const error = await response.json();

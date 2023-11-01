@@ -48,7 +48,7 @@ function Login() {
         const data = await response.json();
         const jwt = data.token;
         localStorage.setItem('jwt', jwt);
-        displayMessage("registration-result", "Loggin In...");
+        displayMessage("registration-result", "Logging In...");
 
         setTimeout(() => {
           login();

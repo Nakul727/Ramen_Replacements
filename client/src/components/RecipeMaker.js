@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { getUserInfo } from '../components/UserInfo.js';
 
 // returns integer value for appliance bit field
@@ -87,7 +88,6 @@ class RecipeMaker extends Component {
   handleSubmit = async () => {
     const { publicRecipe, title, description, steps, ingredients, amounts, picture, appliances } = this.state;
     let result = ''
-    console.log(publicRecipe)
     var stepsString = "";
     for (var i = 0; i < steps.length; i++) {
       // add symbols to number so we know what are steps and what numbers are added by users
@@ -138,10 +138,12 @@ class RecipeMaker extends Component {
         const errorData = await response.json();
         result = errorData
         console.log(errorData);
+      } else {
+        result = "Recipe posted!"
       }
       console.log({ publicRecipe, title, description, stepsString, ingredientsString, amountsArray, picture, appliances });
     } catch (error) {
-      result = 'Recipe posted!'
+      result = "There was an error"
       console.log(error);
     }
     this.setState({ result });
@@ -253,7 +255,14 @@ class RecipeMaker extends Component {
             </div>
           ), appliances)}
           <button onClick={this.handleSubmit}>Post</button>
-          <p id="post-result">{JSON.stringify(result)}</p>
+          <p id="post-result">{result == "" ?
+          <div>
+            
+          </div>
+          :
+          <div>
+            <p>{result}</p>
+          </div>}</p>
         </div>
       </div>
     );

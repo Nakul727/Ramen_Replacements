@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import "../styles/Home.css";
 
 function RecipeCard(rec) {
-    const link = "recipe/" + String(rec.UserID);
+    const link = "recipe/" + String(rec.ID);
     return (
         <Link to={link} className="recipe-card">
             <h3 className="text-lg md:text-2xl pt-4"> {rec.Title} </h3>
