@@ -39,11 +39,9 @@ function ExploreRecipes() {
                 } else {
                     const errorData = await response.json();
                     displayMessage("Error: " + errorData.error);
-                    throw new Error("Request failed with status: " + response.status);
                 }
             } catch (error) {
-                displayMessage("500 Internal Server Error", "There was an error contacting the server");
-                throw error;
+                displayMessage("registration-result", "API could not be contacted.");
             }
         }
 
