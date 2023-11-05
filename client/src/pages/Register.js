@@ -42,6 +42,9 @@ function Register() {
     let pass = document.getElementById("register-pass").value;
     let pass_confirm = document.getElementById("register-pass-confirm").value;
 
+    // sanitize the information more
+    // do all the backend checks for the short/long here
+    // this prevent sending API call to the backend and getting error
     if (name === "" || email === "" || pass === "" || pass_confirm === "") {
       displayMessage("registration-result", "Some field(s) are empty.");
     } else {

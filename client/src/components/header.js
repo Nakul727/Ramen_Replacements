@@ -1,73 +1,55 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from "../AuthContext.js";
-import { getUserInfo } from './UserInfo.js';
 import logo_img from '../assets/logo.png';
+import { useAuth } from '../AuthContext.js';
 
+const buttonStyles = "block mr-2 py-3 px-4 text-gray-900 rounded-xl hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out";
 
 const Header = () => {
-
-  const { isLoggedIn, logout } = useAuth();
-  const userInfo = getUserInfo();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  const { isLoggedIn} = useAuth();
 
   return (
     <div>
-
-      <nav className="bg-white fixed w-full z-20 top-0 left-0 border-b border-gray-200">
+      <nav className="bg-white font-arvo fixed w-full z-20 top-0 left-0 drop-shadow-lg">
         <div className="flex flex-wrap items-center justify-between p-4">
 
           {/* Left Part */}
           <div className="flex items-center justify-between ml-4">
             <Link to="/">
-              <img src={logo_img} className="h-8 mr-4" />
+              <img src={logo_img} className="h-12 mr-6" />
             </Link>
-            <span className="self-center text-2xl font-semibold whitespace-nowrap">Ramen_Replacements</span>
+            <span className="self-center text-2xl font-arvo_bold whitespace-nowrap">Ramen_Replacements</span>
           </div>
-
 
           {/* Right Header */}
+          <div className="flex items-center justify-between font-medium">
+            <Link to="/">
+              <button className={buttonStyles}>Home</button>
+            </Link>
+            <Link to="/explore">
+              <button className={buttonStyles}>Explore</button>
+            </Link>
 
-          <div className="flex items-center justify-between mr-4">
-            <div className="flex items-center justify-between py-2 font-medium">
-              <Link to="/">
-                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Home</p>
-              </Link>
-              <Link to="/explore">
-                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Explore</p>
-              </Link>
-
-              {isLoggedIn ? (
+            {isLoggedIn ? (
               <div className='flex'>
-              <Link to="/recipebuilder">
-               <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Create Recipe</p>
-              </Link>
-              <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent cursor-pointer md-hover-text-blue-700 md-p-0" onClick={handleLogout}>Logout</p>
-              <Link to="/dashboard">
-                {/* TO DO PROFILE IMAGE */}
-                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Dashboard</p>
-              </Link>
+                <Link to="/recipebuilder">
+                  <button className={buttonStyles}>Create Recipe</button>
+                </Link>
+                <Link to="/dashboard">
+                  <button className={buttonStyles}>Dashboard</button>
+                </Link>
               </div>
-              ) : (
+            ) : (
               <div>
-              <Link to="/register">
-                <p className="block mx-4 text-gray-900 rounded hover-bg-gray-100 md-hover-bg-transparent md-hover-text-blue-700 md-p-0">Get Started</p>
-              </Link>
+                <Link to="/register">
+                  <button className={buttonStyles}>Get Started</button>
+                </Link>
               </div>
-              )}
-            </div>
+            )}
           </div>
-
-        </div >
-      </nav >
-
-    </div >
+        </div>
+      </nav>
+    </div>
   );
 };
 

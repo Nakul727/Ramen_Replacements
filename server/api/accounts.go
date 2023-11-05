@@ -34,9 +34,8 @@ type LoginStruct struct {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 var maxUsernameLen = 25
-var minUsernameLen = 3
-var maxPasswordLen = 8
-var minPasswordLen = 1
+var maxPasswordLen = 20
+var minPasswordLen = 4
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -139,9 +138,6 @@ func CreateAccount(c *gin.Context) {
 		return
 	} else if len(acc.Password) > maxPasswordLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too long"})
-		return
-	} else if len(acc.Username) < minUsernameLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too short"})
 		return
 	} else if len(acc.Password) < minPasswordLen {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too short"})
