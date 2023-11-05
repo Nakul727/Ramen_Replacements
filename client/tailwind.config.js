@@ -10,7 +10,7 @@ module.exports = {
     },
     fontWeight: {
       arvo_normal: 400,
-      arvo_bold: 500,
+      arvo_bold: 700,
     },
   },
   plugins: [],

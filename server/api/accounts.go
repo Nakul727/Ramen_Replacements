@@ -33,12 +33,6 @@ type LoginStruct struct {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-var maxUsernameLen = 25
-var maxPasswordLen = 20
-var minPasswordLen = 4
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 // HELPER FUNCTION
 
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
@@ -130,17 +124,6 @@ func CreateAccount(c *gin.Context) {
 	err := c.BindJSON(&acc)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error with input"})
-		return
-	}
-
-	if len(acc.Username) > maxUsernameLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Username too long"})
-		return
-	} else if len(acc.Password) > maxPasswordLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too long"})
-		return
-	} else if len(acc.Password) < minPasswordLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Password too short"})
 		return
 	}
 

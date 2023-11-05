@@ -1,15 +1,77 @@
-import { Link } from "react-router-dom";
-import { Header } from '../components/header.js';
-import { displayMessage, hideMessage } from "../components/helper.js";
-import { Footer } from "../components/footer.js"
-import { useNavigate } from 'react-router-dom';
-
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Header } from "../components/header.js";
+import { displayMessage } from "../components/helper.js";
+import { Footer } from "../components/footer.js";
 
 function Register() {
 
   const navigate = useNavigate();
 
-  async function register_user(name, email, pass, pfp) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [pfp, setPfp] = useState("");
+  const [pass, setPass] = useState("");
+  const [passConfirm, setPassConfirm] = useState("");
+
+  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passError, setPassError] = useState("");
+  const [passConfirmError, setPassConfirmError] = useState("");
+
+  const maxNameLen = 50;
+
+  const minPasswordLen = 3;
+  const maxPasswordLen = 20;
+
+  const register_user = async () => {
+    let hasErrors = false; 
+  
+    if (name === "") {
+      setUsernameError("Username is required.");
+      hasErrors = true; // Set the flag to true
+    } else if (name.length > maxNameLen) {
+      setUsernameError("Username is too long.");
+      hasErrors = true; // Set the flag to true
+    } else {
+      setUsernameError("");
+    }
+  
+    if (email === "") {
+      setEmailError("Email is required.");
+      hasErrors = true; // Set the flag to true
+    } else {
+      setEmailError("");
+    }
+  
+    if (pass === "" || passConfirm === "") {
+      setPassError("Passwords are required.");
+      setPassConfirmError("Passwords are required.");
+      hasErrors = true; // Set the flag to true
+    } else if (pass !== passConfirm) {
+      setPassError("Passwords do not match.");
+      setPassConfirmError("Passwords do not match.");
+      hasErrors = true; // Set the flag to true
+    } else if (pass.length < minPasswordLen) {
+      setPassError("Password is too short.");
+      setPassConfirmError("Password is too short.");
+      hasErrors = true; // Set the flag to true
+    } else if (pass.length > maxPasswordLen) {
+      setPassError("Password is too long.");
+      setPassConfirmError("Password is too long.");
+      hasErrors = true; // Set the flag to true
+    } else {
+      setPassError("");
+      setPassConfirmError("");
+    }
+  
+    if (hasErrors) {
+      // Display validation errors and prevent registration
+      displayMessage("registration-result", "Please resolve the field erros.");
+      return;
+    }
+  
+    // Validation passed, proceed with registration
     try {
       const backendApi = process.env.REACT_APP_BACKEND;
       const response = await fetch(`${backendApi}/acc/create`, {
@@ -21,11 +83,10 @@ function Register() {
       });
       if (response.ok) {
         displayMessage("registration-result", "Profile Registered");
-
+  
         setTimeout(() => {
-          navigate('/login');
+          navigate("/login");
         }, 2000);
-
       } else {
         const errorData = await response.json();
         displayMessage("registration-result", errorData.error);
@@ -33,99 +94,113 @@ function Register() {
     } catch (error) {
       displayMessage("registration-result", "API could not be contacted.");
     }
-  }
+  };
+  
 
-  function submit() {
-    let name = document.getElementById("register-name").value;
-    let email = document.getElementById("register-email").value;
-    let pfp = document.getElementById("register-pfp").value;
-    let pass = document.getElementById("register-pass").value;
-    let pass_confirm = document.getElementById("register-pass-confirm").value;
-
-    // sanitize the information more
-    // do all the backend checks for the short/long here
-    // this prevent sending API call to the backend and getting error
-    if (name === "" || email === "" || pass === "" || pass_confirm === "") {
-      displayMessage("registration-result", "Some field(s) are empty.");
-    } else {
-      if (pass !== pass_confirm) {
-        displayMessage("registration-result", "Passwords do not match.");
-        return;
-      } else {
-        hideMessage("registration-result");
-      }
-      register_user(name, email, pass, pfp);
-    }
-  }
 
 
   return (
     <div>
-
-      <header>  
-        <Header/>
+      <header>
+        <Header />
       </header>
 
-      <div className="mt-32 md:mt-48 xl:mt-60">
-        <main className="form">
-          <h2 className="text-center text-2xl font-bold">Register</h2>
-          <hr className="border-black" />
-          <br />
-          <section className="inline-block w-40">
-            <div className="text-center">
-              <label for="type">Username</label>
-              <br />
-              <label for="name">Email</label>
-              <br />
-              <label for="type">Profile Picture</label>
-              <br />
-              <label for="name">Password</label>
-              <br />
-              <label for="name">Confirm Password</label>
-              <br />
-            </div>
-          </section>
-          <section className="inline-block">
-            <input id="register-name" name="name" type="text"
-              className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
-            <br />
-            <input id="register-email" name="email" type="text"
-              className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
-            <br />
-            <input id="register-pfp" name="pfp" type="text"
-              className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
-            <br />
-            <input id="register-pass" name="pass" type="password"
-              className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
-            <br />
-            <input id="register-pass-confirm" name="pass-confirm" type="password"
-              className="border border-solid border-black w-24 md:w-32 xl:w-40"></input>
-            <br />
-          </section>
-          <div className="text-center">
-            <button type="submit" className="w-20 h-8 m-1 bg-stone-300"
-              onClick={submit}>Submit</button>
-            <p id="registration-result"></p>
+      <div className="body_sections overflow-hidden pt-20">
+        <div className="Form py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
+          <div>
+            <p className="font-arvo text-3xl text-center">Ramen Replacements</p>
+            <p className="font-arvo mt-2 text-sm text-center">Create a new account</p>
           </div>
 
-          <Link to="/login">
-            <button className="text-center w-full">
-              <label className="m-1">Already have an account?</label>
-              <label className="my-1 text-blue-700">Log In</label>
-            </button>
-          </Link>
-          <br />
-          <Link to="/">
-            <button className="text-center w-full">
-              <p className="m-2">Cancel</p>
-            </button>
-          </Link>
-        </main>
-      </div>
+          <div className="px-32 mt-24">
+            <label htmlFor="name" className={`font-arvo text-sm text-gray-600 mb-2 ${usernameError ? "text-red-500" : ""}`}>
+              Username*
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={`block rounded-xl w-full h-12 px-4 ${usernameError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
+            />
+            {usernameError && <p className="text-red-500 text-sm">{usernameError}</p>}
+          </div>
 
-      <footer>
-        <Footer />
-      </footer>
+          <div className="px-32 mt-4">
+            <label htmlFor="email" className={`font-arvo text-sm text-gray-600 mb-2 ${emailError ? "text-red-500" : ""}`}>
+              Email*
+            </label>
+            <input
+              id="email"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`block rounded-xl w-full h-12 px-4 ${emailError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
+            />
+            {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+          </div>
+
+          <div className="px-32 mt-4">
+            <label htmlFor="pfp" className="font-arvo text-sm text-gray-600 mb-2">
+              Profile Picture
+            </label>
+            <input
+              id="pfp"
+              type="text"
+              value={pfp}
+              onChange={(e) => setPfp(e.target.value)}
+              className="block rounded-xl w-full h-12 px-4 border border-gray-300 focus:outline-none focus-border-indigo-500 text-gray-700"
+            />
+          </div>
+
+          <div className="px-32 mt-4">
+            <label htmlFor="pass" className={`font-arvo text-sm text-gray-600 mb-2 ${passError ? "text-red-500" : ""}`}>
+              Password*
+            </label>
+            <input
+              id="pass"
+              type="password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              className={`block rounded-xl w-full h-12 px-4 ${passError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
+            />
+            {passError && <p className="text-red-500 text-sm">{passError}</p>}
+          </div>
+
+          <div className="px-32 mt-4">
+            <label htmlFor="pass-confirm" className={`font-arvo text-sm text-gray-600 mb-2 ${passConfirmError ? "text-red-500" : ""}`}>
+              Confirm Password*
+            </label>
+            <input
+              id="pass-confirm"
+              type="password"
+              value={passConfirm}
+              onChange={(e) => setPassConfirm(e.target.value)}
+              className={`block rounded-xl w-full h-12 px-4 ${passConfirmError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
+            />
+            {passConfirmError && <p className="text-red-500 text-sm">{passConfirmError}</p>}
+          </div>
+
+          <div className="text-center font-arvo text-red-900 mt-10" id="registration-result"></div>
+
+          <div className="flex items-center justify-center my-8">
+            <button className="font-arvo bg-white hover-bg-slate-200 rounded-xl px-12 py-4" onClick={register_user}>
+              Register
+            </button>
+          </div>
+
+          <div className="flex items-center justify-center font-arvo text-base">
+            <p className="mr-1">Already have an account?</p>
+            <Link to="/login" className="text-blue-800 hover-underline">
+              Log In
+            </Link>
+          </div>
+        </div>
+
+        <footer>
+          <Footer />
+        </footer>
+      </div>
     </div>
   );
 }
