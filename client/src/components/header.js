@@ -17,8 +17,6 @@ const Header = () => {
     navigate('/');
   };
 
-
-
   const [showDropdown, setShowDropdown] = useState(false);
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -28,6 +26,7 @@ const Header = () => {
     <div>
       <nav className="bg-white font-arvo fixed w-full z-20 top-0 left-0 drop-shadow-lg">
         <div className="flex flex-wrap items-center justify-between p-4">
+
           {/* Left Part */}
           <div className="flex items-center justify-between ml-4">
             <Link to="/">
@@ -64,18 +63,22 @@ const Header = () => {
                   </button>
 
                   {showDropdown && (
-                    <div className="absolute bg-white border border-gray-300 rounded-lg translate-x-[-45px]">
+                    <div className="absolute bg-white border border-gray-300 rounded-lg translate-x-[-35px]">
                       <Link to="/dashboard">
-                        <button className="py-3 px-4 text-gray-900 hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out">Dashboard</button>
+                        <button className="py-3 px-4 w-full text-gray-900 hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out">Dashboard</button>
                       </Link>
-                      <button className="py-3 px-4 text-gray-900 hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out"
+                      <button className="py-3 px-4 w-full text-gray-900 hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out"
                         onClick={handleLogout}>Logout</button>
                     </div>
                   )}
+
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="flex items-center justify-between font-medium">
+                <Link to="/login">
+                  <button className={buttonStyles}>Log In</button>
+                </Link>
                 <Link to="/register">
                   <button className={buttonStyles}>Get Started</button>
                 </Link>

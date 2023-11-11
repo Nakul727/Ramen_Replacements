@@ -8,9 +8,9 @@ import { useAuth } from "../AuthContext.js";
 function Login() {
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { isloggedIn, login } = useAuth();
 
-  // If the user is already loggen in
+  // If the user is already logged in
   useEffect(() => {
     const storedToken = localStorage.getItem('jwt');
     if (storedToken) {
@@ -76,7 +76,7 @@ function Login() {
           navigate("/dashboard");
         }, 2000);
       } else {
-        displayMessage("registration-result", "Authentication failed.");
+        displayMessage("registration-result", "Authentication failed. Please check your credentials or sign up.");
       }
     } catch (error) {
       displayMessage("registration-result", "API could not be contacted.");
@@ -88,54 +88,65 @@ function Login() {
       <header>
         <Header />
       </header>
-      <div className="body_sections overflow-hidden pt-20">
-        <div className="Form py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
-          <div>
-            <p className="font-arvo text-3xl text-center">Ramen Replacements</p>
-            <p className="font-arvo mt-2 text-sm text-center">Sign in to access your account</p>
+
+      {isloggedIn ? (
+        <div className="body-sections">
+          <div className="mt-40">
+              You are already logged in
           </div>
 
-          <div className="px-32 mt-24">
-            <label htmlFor="username" className={`font-arvo text-sm text-gray-600 mb-2 ${usernameError ? "text-red-500" : ""}`}>Username*</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className={`block rounded-xl w-full h-12 px-4 ${usernameError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
-            />
-            {usernameError && <p className="text-red-500 text-xs mt-1 font-arvo">{usernameError}</p>}
-          </div>
+        </div>
+      ) : (
+        <div className="body_sections overflow-hidden pt-20">
+          <div className="Form py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
+            <div>
+              <p className="font-arvo text-3xl text-center">Ramen Replacements</p>
+              <p className="font-arvo mt-2 text-sm text-center">Sign in to access your account</p>
+            </div>
 
-          <div className="px-32 mt-4">
-            <label htmlFor="password" className={`font-arvo text-sm text-gray-600 mb-2 ${passwordError ? "text-red-500" : ""}`}>Password*</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`block rounded-xl w-full h-12 px-4 ${passwordError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
-            />
-            {passwordError && <p className="text-red-500 text-xs mt-1 font-arvo">{passwordError}</p>}
-          </div>
+            <div className="px-32 mt-24">
+              <label htmlFor="username" className={`font-arvo text-sm text-gray-600 mb-2 ${usernameError ? "text-red-500" : ""}`}>Username*</label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={`block rounded-xl w-full h-12 px-4 ${usernameError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
+              />
+              {usernameError && <p className="text-red-500 text-xs mt-1 font-arvo">{usernameError}</p>}
+            </div>
 
-          <div className="text-center font-arvo text-red-900 mt-10" id="registration-result"></div>
+            <div className="px-32 mt-4">
+              <label htmlFor="password" className={`font-arvo text-sm text-gray-600 mb-2 ${passwordError ? "text-red-500" : ""}`}>Password*</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`block rounded-xl w-full h-12 px-4 ${passwordError ? "border-red-500" : "border-gray-300"} focus:outline-none focus-border-indigo-500 text-gray-700`}
+              />
+              {passwordError && <p className="text-red-500 text-xs mt-1 font-arvo">{passwordError}</p>}
+            </div>
 
-          <div className="flex items-center justify-center my-8">
-            <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" onClick={handleLogin}>Log In</button>
-          </div>
+            <div className="text-center font-arvo text-red-900 mt-10" id="registration-result"></div>
 
-          <div className="flex items-center justify-center font-arvo text-base">
-            <p className="mr-1">Don't have an account?</p>
-            <Link to="/register" className="text-blue-800 hover:underline">Signup</Link>
+            <div className="flex items-center justify-center my-8">
+              <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" onClick={handleLogin}>Log In</button>
+            </div>
+
+            <div className="flex items-center justify-center font-arvo text-base">
+              <p className="mr-1">Don't have an account?</p>
+              <Link to="/register" className="text-blue-800 hover:underline">Signup</Link>
+            </div>
           </div>
         </div>
+      )}
 
-        <footer>
-          <Footer />
-        </footer>
-      </div>
-    </div>
+      <footer>
+        <Footer />
+      </footer>
+
+    </div >
   );
 }
 

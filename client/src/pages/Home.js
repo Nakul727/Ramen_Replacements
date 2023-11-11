@@ -1,6 +1,11 @@
 import '../styles/Home.css';
-import { Header } from '../components/header.js';
+import { Header } from '../components/header.js'
 import { Footer } from "../components/footer.js"
+import home_img from "../assets/whitebg.svg"
+import { Link } from 'react-router-dom';
+
+
+
 
 function Home() {
 
@@ -10,48 +15,59 @@ function Home() {
       <header>
         <Header />
       </header>
-      <br/><br/><br/><br/>
-      <h1>Welcome to Ramen Replacements, your new home for delicious and affordable recipes</h1>
-      <p>
-        Here you can view, rate and comment on others' recipes, as well as upload your own. 
-        You can get started by making an account and logging in, then check out the Explore page to see other recipes, 
-        or upload a recipe of your own.
-      </p>
-      <>
-      
+
+
       <div className='body_sections'>
-        <div className="section1" style={{ backgroundColor: 'white', height: '675px' }}>
+        <div className="section1 flex items-center justify-center bg-zinc-200 h-[40rem]">
+{/* 
+          Text Section
+          <div className="flex-1 mx-4 px-4" style={{ backgroundColor: 'pink' }}>
 
-          {/* Short description of the platform 
-          Call to action sign up button
-          Image on the right */}
+            <div className="mt-10 text-center text-3xl font-arvo font-semibold">Welcome to Ramen Replacements</div>
+
+            <Link to="/register">
+            <button className="mt-4 mb-10 py-3 px-4 font-arvo text-gray-900 rounded-xl bg-gray-200 hover:bg-gray-400 md-hover-bg-transparent transition-all duration-200 ease-in-out">Sign Up</button>
+            </Link>
+
+          </div>
+
+          Image Section
+          <div className="flex-1 mx-4 px-4" style={{ backgroundColor: 'pink' }}>
+            <img
+              src={home_img}
+              alt="Platform Image"
+              className="h-full w-full object-cover"
+            />
+          </div> 
+*/}
 
         </div>
       </div>
-      {/*
-        <div className="section2" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
 
-          {/* Why ramen replacements?
+
+
+      <div className="section2" style={{ backgroundColor: 'white', height: '700px' }}>
+
+        {/* Why ramen replacements?
           - Who this platform is for. 
-          Explore button }
-          
-        </div>
-        <div className="section3" style={{ backgroundColor: 'lightpink', height: '300px' }}>
+          Explore button } */}
 
-          {/* Features
-          - Create your own custom recipies!
-            - add ingredients, add instructions, enjoy!
-          - Explore the Top latest recipies (pictures of the highest rated and latest recipies)
-          - Share your recipies with the world!
-          }
-        }
-        </div>
       </div>
-      */}
-      </>
+      <div className="section3" style={{ backgroundColor: 'lightgrey', height: '700px' }}>
+        {/* 
+        Features
+          - Create your own custom recipies!
+          - add ingredients, add instructions, enjoy!
+          - Explore the Top latest recipies (pictures of the highest rated and latest recipies)
+          - Share your recipies with the world! */}
+      </div>
+
+
+
+
 
       <footer>
-        <Footer/>
+        <Footer />
       </footer>
 
     </div>

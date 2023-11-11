@@ -67,7 +67,7 @@ func GetUserByName(c *gin.Context) {
 	// return error if no account name is provided
 	if name == "NULL" || name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "no username provided",
+			"error": "no username provided", 
 		})
 		return
 	}
