@@ -3,10 +3,18 @@ import { Header } from '../components/header.js';
 import { Footer } from '../components/footer.js';
 import { useAuth } from '../AuthContext.js';
 import { getUserInfo } from '../components/UserInfo.js';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
+
   const { isLoggedIn, logout } = useAuth();
   const userInfo = getUserInfo();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <div>
@@ -18,16 +26,14 @@ function Dashboard() {
         {isLoggedIn ? (
 
           <div className="body_sections">
+            
 
             <div className="section1" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
-              {/* Add more user information fields as needed */}
-              {/* Main Dashboard Section */}
-              <p>Welcome to the Dashboard {userInfo.username} You have been successfully logged in and authenticated</p>
+              <p className="mt-10">Welcome to the Dashboard {userInfo.username} You have been successfully logged in and authenticated</p>
+              <button className={`mt-10 cursor-pointer`} onClick={handleLogout}>Logout</button>
             </div>
 
             <div className="section2" style={{ backgroundColor: 'lightgreen', height: '300px' }}>
-              {/* Div for welcome message to the explore page and what the page is about
-            Here you can find ....*/}
             </div>
 
           </div>
