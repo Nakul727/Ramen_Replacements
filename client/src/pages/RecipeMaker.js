@@ -26,6 +26,8 @@ function RecipeMaker() {
   const [selectedTag, setSelectedTag] = useState('');
   const predefinedTags = ['Dairy', 'Vegan', 'Gluten-free', 'Vegetarian'];
 
+  const [isPublic, setIsPublic] = useState(false);
+
   const [enteredIngredients, setEnteredIngredients] = useState("");
   const [enteredInstructions, setEnteredInstructions] = useState("");
 
@@ -55,11 +57,6 @@ function RecipeMaker() {
     fat: 0,
     protein: 0,
   });
-
-
-
-  // rating backend int
-
 
   //---------------------------------------------------------------------------
 
@@ -91,10 +88,12 @@ function RecipeMaker() {
   // get the information from the field of ingredients (External API)
   // call the spoonacular api -> update the cost and nutritional react hooks
 
-  const handleIngredients = async () => { 
+  const handleIngredients = async () => {
 
-    checkEmptyFields();
-    
+    if (!checkEmptyFields()) {
+      return;
+    }
+
     try {
       const ingredientList = enteredIngredients;
       const servings = 1;
@@ -102,7 +101,7 @@ function RecipeMaker() {
       const language = "en";
 
       const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;
-      const apiUrl = `https://apii.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}
+      const apiUrl = `https://api.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}
                       &servings=${servings}&includeNutrition=${includeNutrition}&language=${language}`;
 
       const response = await fetch(apiUrl, {
@@ -114,9 +113,8 @@ function RecipeMaker() {
       });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
-      } 
-      else 
-      {
+      }
+      else {
         // update the required hooks accordingly
         const jsonResponse = await response.json();
         console.log('Parsed Ingredients:', jsonResponse);
@@ -160,22 +158,22 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
-    // Function to add a tag
-    const addTag = () => {
-      const tagToAdd = enteredTag.trim() || selectedTag.trim();
-      if (tagToAdd !== '' && tags.indexOf(tagToAdd) === -1) {
-        setTags([...tags, tagToAdd]);
-        setEnteredTag('');
-        setSelectedTag('');
-      }
-    };
+  // Function to add a tag
+  const addTag = () => {
+    const tagToAdd = enteredTag.trim() || selectedTag.trim();
+    if (tagToAdd !== '' && tags.indexOf(tagToAdd) === -1) {
+      setTags([...tags, tagToAdd]);
+      setEnteredTag('');
+      setSelectedTag('');
+    }
+  };
 
-  
-    // Function to remove a tag
-    const removeTag = (tagToRemove) => {
-      const updatedTags = tags.filter(tag => tag !== tagToRemove);
-      setTags(updatedTags);
-    };
+
+  // Function to remove a tag
+  const removeTag = (tagToRemove) => {
+    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    setTags(updatedTags);
+  };
 
   //---------------------------------------------------------------------------
 
@@ -183,15 +181,50 @@ function RecipeMaker() {
   // main handler function - handling the posting of the recipe
   // send the complete information regarding the recipe to the backend
   // includes things like title, desc, nutrition object, cost, etc.
-  const handlePostRecipe = () => {
+
+  const handlePostRecipe = async () => {
     setPostTime(Math.floor(new Date().getTime() / 1000));
 
+    if (!checkEmptyFields()) {
+      return;
+    }
 
+    try {
+      const backendApi = process.env.REACT_APP_BACKEND;
+      const response = await fetch(`${backendApi}/recipe/post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userID: userInfo.userID,
+          title: title,
+          image: image,
+          description: description,
+          postTime: postTime,
+          isPublic: isPublic,
+          rating: 0,
+          tags: tags,
+          Ingredients: enteredIngredients,
+          Instructions: enteredInstructions,
+          Appliances: selectedAppliances,
+          totalCost,
+          CostBreakdown: costBreakdown,
+          nutrients,
+        }),
+      });
 
-
-
-    
+      if (response.ok) {
+        // Handle success, e.g., show a success message
+      } else {
+        // Handle failure, e.g., show an error message
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
   };
+
+
 
   //---------------------------------------------------------------------------
 
@@ -206,7 +239,7 @@ function RecipeMaker() {
         <div className="body_sections overflow-hidden pt-20">
           <div className="Form py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
 
-                                        {/* Recipe Maker */}
+            {/* Recipe Maker */}
             {/*---------------------------------------------------------------------------*/}
             <div>
               <p className="font-arvo text-3xl text-center">Recipe Maker</p>
@@ -242,7 +275,7 @@ function RecipeMaker() {
               ></textarea>
             </div>
 
-     
+
             {/* Instructions */}
             <div className="flex px-32 mt-4">
               <label className='mr-4'>Instructions</label>
@@ -288,8 +321,8 @@ function RecipeMaker() {
 
 
 
-           {/* Tags */}
-           <div className="flex px-32 mt-4">
+            {/* Tags */}
+            <div className="flex px-32 mt-4">
               <p>Tags</p>
               <div className="tags-container">
                 {/* Display selected tags as buttons with remove option on hover */}
@@ -335,6 +368,17 @@ function RecipeMaker() {
             </div>
 
 
+            {/* Public/Private Checkbox */}
+            <div className="flex px-32 mt-4">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isPublic}
+                  onChange={() => setIsPublic(!isPublic)}
+                />
+                Public Recipe
+              </label>
+            </div>
 
             <div className="flex items-center justify-center my-8">
               <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" onClick={handleIngredients}>Generate Cost and Nutrition</button>
@@ -351,7 +395,7 @@ function RecipeMaker() {
                 </ul>
               </div>
             )}
-                    
+
             {/* If there are no errors and  */}
             {displayInformation && (
               <div>
