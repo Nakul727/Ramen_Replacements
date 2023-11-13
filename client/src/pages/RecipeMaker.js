@@ -8,6 +8,7 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
+  // variables for component
   const { isLoggedIn } = useAuth();
   const userInfo = getUserInfo();
   const [displayInformation, setDisplayInformation] = useState(false);
@@ -15,7 +16,7 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
-  // react hooks
+  // react hooks for recipe information
   const [title, setTitle] = useState("");
   const [image, setImage] = useState("");
   const [description, setDesc] = useState("");
@@ -168,7 +169,6 @@ function RecipeMaker() {
     }
   };
 
-
   // Function to remove a tag
   const removeTag = (tagToRemove) => {
     const updatedTags = tags.filter(tag => tag !== tagToRemove);
@@ -176,7 +176,6 @@ function RecipeMaker() {
   };
 
   //---------------------------------------------------------------------------
-
 
   // main handler function - handling the posting of the recipe
   // send the complete information regarding the recipe to the backend
@@ -215,19 +214,14 @@ function RecipeMaker() {
       });
 
       if (response.ok) {
-        // Handle success, e.g., show a success message
       } else {
-        // Handle failure, e.g., show an error message
       }
     } catch (error) {
       console.error('Error:', error.message);
     }
   };
 
-
-
   //---------------------------------------------------------------------------
-
 
   return (
     <div>
@@ -380,8 +374,12 @@ function RecipeMaker() {
               </label>
             </div>
 
+            {/*---------------------------------------------------------------------------*/}
+            {/* External API Call*/}
+
             <div className="flex items-center justify-center my-8">
-              <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" onClick={handleIngredients}>Generate Cost and Nutrition</button>
+              <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" 
+                      onClick={handleIngredients}>Generate Cost and Nutrition</button>
             </div>
 
             {/* Display error messages */}
@@ -396,7 +394,9 @@ function RecipeMaker() {
               </div>
             )}
 
-            {/* If there are no errors and  */}
+            {/*---------------------------------------------------------------------------*/}
+            {/* If API call was successful, display results and Post button to RR Backend */}
+
             {displayInformation && (
               <div>
                 {/* Display the total cost */}
@@ -432,15 +432,18 @@ function RecipeMaker() {
                     ))}
                   </tbody>
                 </table>
+                
+                {/* Recipe Post Button */}
+                <div className="flex items-center justify-center my-8">
+                  <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" 
+                          onClick={handlePostRecipe}>Post</button>
+                </div>
+
               </div>
             )}
-
-            <div className="flex items-center justify-center my-8">
-              <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" onClick={handlePostRecipe}>Post</button>
-            </div>
-
           </div>
         </div>
+
       ) : (
         // if the user is not logged in
         <div className="body-sections">

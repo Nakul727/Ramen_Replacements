@@ -55,88 +55,7 @@ var maxStepsLen = 5000
 var maxIngredientsLen = 500
 var maxPictureLen = 250
 
-// HELPER FUNCTIONS
-func contextToRecipe(row *sql.Rows) (*Recipe, error) {
-	var rec Recipe
-	err := row.Scan(
-		&rec.ID, &rec.UserID, &rec.Rating, &rec.Title, &rec.Description, &rec.Steps, &rec.Ingredients, &rec.Picture,
-		&rec.Appliances, &rec.Date, &rec.Nutrition, &rec.Amounts, &rec.Public, &rec.Time, &rec.Cost)
-	if err != nil {
-		return nil, err
-	} else {
-		return &rec, nil
-	}
-}
-
-// returns an ingredient if the ingredient is found in the top 1000 ingredients
-func searchInCsv(ingredient string) *Ingredient {
-	file, err := os.Open("top-1k-ingredients.csv")
-	if err != nil {
-		return nil
-	}
-
-	line := bufio.NewScanner(file)
-	ingredient = strings.ToLower(ingredient)
-
-	for line.Scan() {
-		curLine := strings.ToLower(line.Text())
-		var res Ingredient
-		var listElem string
-		index := 0
-		for index < len(curLine) {
-			if curLine[index] == ';' {
-				break
-			}
-			listElem += string(curLine[index])
-			index++
-		}
-		if len(listElem) >= len(ingredient) && listElem[:len(ingredient)] == ingredient {
-			res.ID, _ = strconv.Atoi(curLine[index+1:])
-			res.Name = ingredient
-			fmt.Println("found ingredient: ", curLine)
-			return &res
-		}
-	}
-	return &Ingredient{"none", 0, 0}
-}
-
-// parses the ingredients string and separates its ingredients into
-func parseIngredients(ingredients string) ([]Ingredient, error) {
-	var results []string
-	index := 2
-	resultCount := 0
-	startSlice, endSlice := 2, 2
-	for index < len(ingredients) {
-		// if next letter is apostrophe, then comma after that, it's the end of the ingredient name
-		if ingredients[index] == '\'' && (ingredients[index+1] == ',' || ingredients[index+1] == '}') {
-			endSlice = index
-			results = append(results, ingredients[startSlice:endSlice])
-			resultCount++
-			// move index and start to beginning of next ingredient
-			index += 3
-			startSlice = index
-		} else {
-			index++
-		}
-	}
-	if resultCount == 0 {
-		return nil, errors.New("no ingredient found")
-	}
-	index = 0
-
-	var ingredientList []Ingredient
-	for index < resultCount {
-		var curIngredient = searchInCsv(results[index])
-		if curIngredient == nil {
-			return nil, errors.New("error opening csv")
-		} else if curIngredient.Name == "none" {
-			return nil, errors.New("no ingredient found in list")
-		}
-		ingredientList = append(ingredientList, *curIngredient)
-		index++
-	}
-	return ingredientList, nil
-}
+//----------------------------------------------------------------------------------
 
 // HANDLER FUNCTIONS
 func PostRecipe(c *gin.Context) {
@@ -210,6 +129,8 @@ func PostRecipe(c *gin.Context) {
 	c.Status(http.StatusAccepted)
 }
 
+//----------------------------------------------------------------------------------
+
 // queries database: finds post recipe with given id
 func GetRecipe(c *gin.Context) {
 	id_string := c.DefaultQuery("id", "??NULL??")
@@ -242,6 +163,8 @@ func GetRecipe(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "no entry found"})
 	}
 }
+
+//----------------------------------------------------------------------------------
 
 func GetRecipesByDate(c *gin.Context) {
 	// n is the number of recipes to query
@@ -276,6 +199,8 @@ func GetRecipesByDate(c *gin.Context) {
 
 	c.JSON(http.StatusOK, recipes)
 }
+
+//----------------------------------------------------------------------------------
 
 // gets all recipes posted in specified time range, sorted by rating
 func GetTopRecent(c *gin.Context) {
@@ -316,3 +241,5 @@ func GetTopRecent(c *gin.Context) {
 
 	c.JSON(http.StatusOK, recipes)
 }
+
+//----------------------------------------------------------------------------------
