@@ -46,7 +46,7 @@ const Header = () => {
 
             {isLoggedIn ? (
               <div className='flex items-center justify-between font-medium'>
-                <Link to="/recipebuilder">
+                <Link to="/recipemaker">
                   <button className={buttonStyles}>Create Recipe</button>
                 </Link>
 

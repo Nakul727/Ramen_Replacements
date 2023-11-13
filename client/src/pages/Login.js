@@ -8,7 +8,7 @@ import { useAuth } from "../AuthContext.js";
 function Login() {
 
   const navigate = useNavigate();
-  const { isloggedIn, login } = useAuth();
+  const { isLoggedIn, login } = useAuth();
 
   // If the user is already logged in
   useEffect(() => {
@@ -89,7 +89,7 @@ function Login() {
         <Header />
       </header>
 
-      {isloggedIn ? (
+      {isLoggedIn ? (
         <div className="body-sections">
           <div className="mt-40">
               You are already logged in

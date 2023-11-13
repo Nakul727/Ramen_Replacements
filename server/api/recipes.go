@@ -18,20 +18,20 @@ import (
 // Recipe struct - contains all data for recipe cards
 type Recipe struct {
 	ID          int             `json:"ID"`
-	Public      sql.NullBool    `json:"Public"`      // true if public - false if private
-	UserID      int             `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int             `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string          `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string          `json:"Description"` // Description of recipe
-	Steps       string          `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string          `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     string          `json:"Amounts"`     // Amount of each ingredient in grams
-	Picture     string          `json:"Picture"`     // Picture of finished product
-	Appliances  int             `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int64           `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
-	Nutrition   []uint8         `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
-	Cost        sql.NullFloat64 `json:"Cost"`        // Estimated cost of recipe
-	Time        sql.NullFloat64 `json:"Time"`        // Estimated time to complete recipe in minutes
+	Public      sql.NullBool    `json:"Public"`      
+	UserID      int             `json:"UserID"`      
+	Rating      int             `json:"Rating"`      
+	Title       string          `json:"Title"`       
+	Description string          `json:"Description"` 
+	Steps       string          `json:"Steps"`       
+	Ingredients string          `json:"Ingredients"` 
+	Amounts     string          `json:"Amounts"`     
+	Picture     string          `json:"Picture"`     
+	Appliances  int             `json:"Appliances"`  
+	Date        int64           `json:"Date"`        
+	Nutrition   []uint8         `json:"Nutrition"`   
+	Cost        sql.NullFloat64 `json:"Cost"`        
+	Time        sql.NullFloat64 `json:"Time"`        
 }
 
 // Recipe struct - contains all data for recipe cards going in to database
