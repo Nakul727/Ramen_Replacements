@@ -17,10 +17,11 @@ function RecipeMaker() {
   //---------------------------------------------------------------------------
 
   // react hooks for recipe information
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("");   
   const [image, setImage] = useState("");
   const [description, setDesc] = useState("");
-  const [postTime, setPostTime] = useState(null);
+  const [enteredIngredients, setEnteredIngredients] = useState("");
+  const [enteredInstructions, setEnteredInstructions] = useState("");
 
   const [tags, setTags] = useState([]);
   const [enteredTag, setEnteredTag] = useState('');
@@ -28,9 +29,6 @@ function RecipeMaker() {
   const predefinedTags = ['Dairy', 'Vegan', 'Gluten-free', 'Vegetarian'];
 
   const [isPublic, setIsPublic] = useState(false);
-
-  const [enteredIngredients, setEnteredIngredients] = useState("");
-  const [enteredInstructions, setEnteredInstructions] = useState("");
 
   const [selectedAppliances, setSelectedAppliances] = useState({
     "Oven": false,
@@ -47,17 +45,25 @@ function RecipeMaker() {
     "Slow Cooker": false,
   });
 
+
   // Fields obtained from/needed by external API
   const conversionRate = 1.38;
   const [totalCost, setTotalCost] = useState(0);
-  const [costBreakdown, setCostBreakdown] = useState([]);
+  const [costBreakdown, setCostBreakdown] = useState({});
 
   const [nutrients, setNutrients] = useState({
     calories: 0,
-    carbohydrates: 0,
+
     fat: 0,
+    saturated_fat: 0,
+    carbohydrates: 0,
     protein: 0,
+
+    sugar: 0,
+    cholestrol: 0,
+    sodium: 0,
   });
+
 
   //---------------------------------------------------------------------------
 
@@ -102,8 +108,7 @@ function RecipeMaker() {
       const language = "en";
 
       const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;
-      const apiUrl = `https://api.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}
-                      &servings=${servings}&includeNutrition=${includeNutrition}&language=${language}`;
+      const apiUrl = `https://api.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}&servings=${servings}&includeNutrition=${includeNutrition}&language=${language}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -120,12 +125,18 @@ function RecipeMaker() {
         const jsonResponse = await response.json();
         console.log('Parsed Ingredients:', jsonResponse);
 
-
         // Calculate total cost and update the state
         const newTotalCost = jsonResponse.reduce((sum, item) => sum + item.estimatedCost.value, 0);
         const totalCostInCAD = (newTotalCost / 100) * conversionRate;
         setTotalCost(totalCostInCAD);
-        setCostBreakdown(jsonResponse);
+
+        // Create an array of objects for costBreakdown
+        const costBreakdownData = jsonResponse.map(ingredient => ({
+        name: ingredient.original,
+        costUSD: (ingredient.estimatedCost.value / 100).toFixed(2),
+        costCAD: ((ingredient.estimatedCost.value / 100) * conversionRate).toFixed(2),
+        }));
+        setCostBreakdown(costBreakdownData);
 
         // Parse nutritional information
         const nutrientInfo = jsonResponse.reduce((acc, item) => {
@@ -134,10 +145,18 @@ function RecipeMaker() {
               acc.carbohydrates += nutrient.amount;
             } else if (nutrient.name === 'Fat') {
               acc.fat += nutrient.amount;
+            } else if (nutrient.name === 'Saturated Fat') {
+              acc.saturated_fat += nutrient.amount;
             } else if (nutrient.name === 'Protein') {
               acc.protein += nutrient.amount;
             } else if (nutrient.name === 'Calories') {
               acc.calories += nutrient.amount;
+            } else if (nutrient.name === 'Sugar') {
+              acc.sugar += nutrient.amount;
+            } else if (nutrient.name === 'Cholesterol') {
+              acc.cholestrol += nutrient.amount;
+            } else if (nutrient.name === 'Sodium') {
+              acc.sodium += nutrient.amount;
             }
           });
           return acc;
@@ -149,6 +168,7 @@ function RecipeMaker() {
         });
         setNutrients(nutrientInfo);
 
+        // display the information
         setDisplayInformation(true);
       }
     } catch (error) {
@@ -182,45 +202,62 @@ function RecipeMaker() {
   // includes things like title, desc, nutrition object, cost, etc.
 
   const handlePostRecipe = async () => {
-    setPostTime(Math.floor(new Date().getTime() / 1000));
-
     if (!checkEmptyFields()) {
       return;
     }
-
+  
     try {
       const backendApi = process.env.REACT_APP_BACKEND;
+
+      // Check userInfo before sending
+      if (!userInfo || !userInfo.userID) {
+      console.error('User information is missing or incomplete.');
+      return;
+      }
+  
+      const postData = {
+        userID: userInfo.userID,              // int
+
+        title: title,                         // string
+        image: image,                         // string
+        description: description,             // string
+        Ingredients: enteredIngredients,      // string (parse with \n)
+        Instructions: enteredInstructions,    // string (parse with \n)
+
+        isPublic: isPublic,                   // bool value
+
+        postTime: 0,                          // int64 (calcluated in backend)
+        rating: 0,                            // float64 (calculated and updated in backend)
+        totalCost: totalCost,                 // float64
+
+        tags: tags,                           // array of strings
+
+        Appliances: selectedAppliances,       // json object {"key": boolean}
+        nutrients: nutrients,                 // json object {"key": float64}
+        CostBreakdown: costBreakdown,         // array of json object [{"key": float64, "xyz: 123"}, {}]
+      };
+      console.log('Sending JSON data:', postData);
+  
       const response = await fetch(`${backendApi}/recipe/post`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userID: userInfo.userID,
-          title: title,
-          image: image,
-          description: description,
-          postTime: postTime,
-          isPublic: isPublic,
-          rating: 0,
-          tags: tags,
-          Ingredients: enteredIngredients,
-          Instructions: enteredInstructions,
-          Appliances: selectedAppliances,
-          totalCost,
-          CostBreakdown: costBreakdown,
-          nutrients,
-        }),
+        body: JSON.stringify(postData),
       });
-
-      if (response.ok) {
+  
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error("Server error:", errorResponse);
       } else {
+        console.log("Recipe successfully posted");
       }
     } catch (error) {
-      console.error('Error:', error.message);
+      console.error('Error:', error);
     }
   };
-
+  
+  
   //---------------------------------------------------------------------------
 
   return (
@@ -313,8 +350,6 @@ function RecipeMaker() {
               ))}
             </div>
 
-
-
             {/* Tags */}
             <div className="flex px-32 mt-4">
               <p>Tags</p>
@@ -361,7 +396,6 @@ function RecipeMaker() {
               </div>
             </div>
 
-
             {/* Public/Private Checkbox */}
             <div className="flex px-32 mt-4">
               <label>
@@ -376,11 +410,11 @@ function RecipeMaker() {
 
             {/*---------------------------------------------------------------------------*/}
             {/* External API Call*/}
-
             <div className="flex items-center justify-center my-8">
               <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" 
                       onClick={handleIngredients}>Generate Cost and Nutrition</button>
             </div>
+            {/*---------------------------------------------------------------------------*/}
 
             {/* Display error messages */}
             {errorMessages.length > 0 && (
@@ -394,9 +428,7 @@ function RecipeMaker() {
               </div>
             )}
 
-            {/*---------------------------------------------------------------------------*/}
             {/* If API call was successful, display results and Post button to RR Backend */}
-
             {displayInformation && (
               <div>
                 {/* Display the total cost */}
@@ -413,31 +445,13 @@ function RecipeMaker() {
                   <p>Protein: {nutrients.protein.toFixed(2)} g</p>
                 </div>
 
-                {/* Display cost breakdown as a table */}
-                <table className="mt-8">
-                  <thead>
-                    <tr>
-                      <th>Ingredient</th>
-                      <th>Cost (USD)</th>
-                      <th>Cost (CAD)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {costBreakdown.map((ingredient) => (
-                      <tr key={ingredient.id}>
-                        <td>{ingredient.original}</td>
-                        <td>{(ingredient.estimatedCost.value / 100).toFixed(2)}</td>
-                        <td>{((ingredient.estimatedCost.value / 100) * conversionRate).toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                
+                {/*---------------------------------------------------------------------------*/}
                 {/* Recipe Post Button */}
                 <div className="flex items-center justify-center my-8">
                   <button className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4" 
                           onClick={handlePostRecipe}>Post</button>
                 </div>
+                {/*---------------------------------------------------------------------------*/}
 
               </div>
             )}
