@@ -15,51 +15,38 @@ import (
 	"github.com/lib/pq"
 )
 
-// Recipe struct - contains all data for recipe cards
+//----------------------------------------------------------------------------------
+
 type Recipe struct {
-	ID          int             `json:"ID"`
-	Public      sql.NullBool    `json:"Public"`      // true if public - false if private
-	UserID      int             `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int             `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string          `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string          `json:"Description"` // Description of recipe
-	Steps       string          `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string          `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     string          `json:"Amounts"`     // Amount of each ingredient in grams
-	Picture     string          `json:"Picture"`     // Picture of finished product
-	Appliances  int             `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int64           `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
-	Nutrition   []uint8         `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
-	Cost        sql.NullFloat64 `json:"Cost"`        // Estimated cost of recipe
-	Time        sql.NullFloat64 `json:"Time"`        // Estimated time to complete recipe in minutes
+    ID              int             `json:"ID"`             // RecipeID
+
+    UserID          int             `json:"userID"`         // UserID
+    Title           string          `json:"title"`          // Title of Recipe
+    Image           string          `json:"image"`          // Cover Image of Recipe
+    Description     string          `json:"description"`    // Description
+    PostTime        int64           `json:"postTime"`       // Time of posted (from UNIX)
+    IsPublic        bool            `json:"isPublic"`       // Public/Private Recipe
+    Rating          int             `json:"rating"`         // Current rating of recipe
+
+    Tags            []string        `json:"tags"`           //
+    Ingredients     string          `json:"Ingredients"`    //
+    Instructions    string          `json:"Instructions"`   //
+    Appliances      map[string]bool `json:"Appliances"`     //
+
+    TotalCost       float64         `json:"totalCost"`      //
+    CostBreakdown   map[string]int  `json:"CostBreakdown"`  // {"2 bananas": 20,}
+    Nutrients       NutrientInfo    `json:"nutrients"`      // 
 }
 
-// Recipe struct - contains all data for recipe cards going in to database
-type RecipeIn struct {
-	Public      bool    `json:"Public"`      // true if public - false if private
-	UserID      int     `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int     `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string  `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string  `json:"Description"` // Description of recipe
-	Steps       string  `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string  `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     string  `json:"Amounts"`     // Amount of each ingredient in grams
-	Picture     string  `json:"Picture"`     // Picture of finished product
-	Appliances  int     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int64   `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
-	Nutrition   []uint8 `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
-	Cost        float32 `json:"Cost"`        // Estimated cost of recipe
-	Time        float32 `json:"Time"`        // Estimated time to complete recipe in minutes
+type NutrientInfo struct {
+    ID              int         `json:"ID"`             // RecipeID
+    Calories        float64     `json:"calories"`
+    Carbohydrates   float64     `json:"carbohydrates"`
+    Fat             float64     `json:"fat"`
+    Protein         float64     `json:"protein"`
 }
 
-// Nutrition
-
-// struct for storing a recipe and its id for searching in second hand API
-type Ingredient struct {
-	Name   string
-	ID     int
-	Amount int
-}
+//----------------------------------------------------------------------------------
 
 // for keeping track of max length when putting new data in db
 var maxTitleLen = 100
