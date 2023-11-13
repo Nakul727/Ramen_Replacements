@@ -21,6 +21,11 @@ function RecipeMaker() {
   const [description, setDesc] = useState("");
   const [postTime, setPostTime] = useState(null);
 
+  const [tags, setTags] = useState([]);
+  const [enteredTag, setEnteredTag] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
+  const predefinedTags = ['Dairy', 'Vegan', 'Gluten-free', 'Vegetarian'];
+
   const [enteredIngredients, setEnteredIngredients] = useState("");
   const [enteredInstructions, setEnteredInstructions] = useState("");
 
@@ -51,8 +56,12 @@ function RecipeMaker() {
     protein: 0,
   });
 
-  //---------------------------------------------------------------------------
 
+
+  // rating backend int
+
+
+  //---------------------------------------------------------------------------
 
   // Input Error handling function
   const checkEmptyFields = () => {
@@ -78,7 +87,6 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
-
   // main handler function - handling cost and nutritional component rendering
   // get the information from the field of ingredients (External API)
   // call the spoonacular api -> update the cost and nutritional react hooks
@@ -94,7 +102,9 @@ function RecipeMaker() {
       const language = "en";
 
       const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;
-      const apiUrl = `https://apii.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}&servings=${servings}&includeNutrition=${includeNutrition}&language=${language}`;
+      const apiUrl = `https://apii.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}
+                      &servings=${servings}&includeNutrition=${includeNutrition}&language=${language}`;
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -150,7 +160,24 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
+    // Function to add a tag
+    const addTag = () => {
+      const tagToAdd = enteredTag.trim() || selectedTag.trim();
+      if (tagToAdd !== '' && tags.indexOf(tagToAdd) === -1) {
+        setTags([...tags, tagToAdd]);
+        setEnteredTag('');
+        setSelectedTag('');
+      }
+    };
 
+  
+    // Function to remove a tag
+    const removeTag = (tagToRemove) => {
+      const updatedTags = tags.filter(tag => tag !== tagToRemove);
+      setTags(updatedTags);
+    };
+
+  //---------------------------------------------------------------------------
 
 
   // main handler function - handling the posting of the recipe
@@ -258,6 +285,55 @@ function RecipeMaker() {
                 </div>
               ))}
             </div>
+
+
+
+           {/* Tags */}
+           <div className="flex px-32 mt-4">
+              <p>Tags</p>
+              <div className="tags-container">
+                {/* Display selected tags as buttons with remove option on hover */}
+                {tags.map((tag, index) => (
+                  <div key={index} className="tag">
+                    <button
+                      className="tag-button p-4 bg-slate-400 rounded-lg"
+                      onClick={() => removeTag(tag)}
+                    >
+                      {tag}
+                    </button>
+                    <button
+                      className="tag-remove"
+                      onClick={() => removeTag(tag)}
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                ))}
+                {/* Dropdown for predefined tags */}
+                <select
+                  className="tag-dropdown"
+                  value={selectedTag}
+                  onChange={(e) => setSelectedTag(e.target.value)}
+                >
+                  <option value="">Select a tag</option>
+                  {predefinedTags.map((tag, index) => (
+                    <option key={index} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+                {/* Input for custom tags */}
+                <input
+                  type="text"
+                  placeholder="Add a custom tag"
+                  value={enteredTag}
+                  onChange={(e) => setEnteredTag(e.target.value)}
+                />
+                {/* Button to add tag */}
+                <button className="tag-add" onClick={addTag}>+</button>
+              </div>
+            </div>
+
 
 
             <div className="flex items-center justify-center my-8">
