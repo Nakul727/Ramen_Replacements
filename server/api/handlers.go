@@ -29,7 +29,5 @@ func RunAccounts(r *gin.Engine) {
 // handler for recipe functions
 func RunRecipes(r *gin.Engine) {
 	r.POST("/recipe/post", PostRecipe)
-	// r.GET("/recipe/get", GetRecipe)
-	// r.GET("/recipe/latest", GetRecipesByDate)
-	// r.GET("/recipe/top", GetTopRecent)
+	r.GET("/recipe/explore", ExploreRecipes)
 }

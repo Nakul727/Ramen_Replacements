@@ -84,3 +84,66 @@ func StoreRecipeInDB(recipe Recipe) error {
 }
 
 //----------------------------------------------------------------------------------
+
+func ExploreRecipes(c *gin.Context) {
+
+	// Query to select all public recipes
+	rows, err := db.Query(`
+		SELECT id, title, image, description, is_public, post_time, rating, total_cost, tags, nutrients, cost_breakdown
+		FROM recipes
+		WHERE is_public = true
+	`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipes from the database"})
+		return
+	}
+	defer rows.Close()
+
+	// Create a slice to store the retrieved recipes
+	var recipes []Recipe
+
+	// Iterate through the result set and populate the recipes slice
+	for rows.Next() {
+		var recipe Recipe
+		var tagsJSON, nutrientsJSON, costBreakdownJSON []byte
+
+		err := rows.Scan(
+			&recipe.ID, &recipe.Title, &recipe.Image, &recipe.Description,
+			&recipe.IsPublic, &recipe.PostTime, &recipe.Rating, &recipe.TotalCost,
+			&tagsJSON, &nutrientsJSON, &costBreakdownJSON,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan recipe from the database"})
+			return
+		}
+
+		// Unmarshal JSON data
+		err = json.Unmarshal(tagsJSON, &recipe.Tags)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal tags"})
+			return
+		}
+		err = json.Unmarshal(nutrientsJSON, &recipe.Nutrients)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal nutrients"})
+			return
+		}
+		err = json.Unmarshal(costBreakdownJSON, &recipe.CostBreakdown)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal cost breakdown"})
+			return
+		}
+
+		recipes = append(recipes, recipe)
+	}
+
+	// Check for errors from iterating over rows.
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while iterating over rows"})
+		return
+	}
+
+	c.JSON(http.StatusOK, recipes)
+}
+
+//----------------------------------------------------------------------------------
