@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo_img from '../assets/logo.png';
+import dropdown_img from '../assets/dropdown.png';
 import { useAuth } from '../AuthContext.js';
-import { getUserInfo } from './UserInfo';
+import { getUserInfo } from './userInfo';
 import { useNavigate } from 'react-router-dom';
 
 const buttonStyles = "block mr-2 py-3 px-4 text-gray-900 rounded-xl hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out";
@@ -46,20 +47,14 @@ const Header = () => {
 
             {isLoggedIn ? (
               <div className='flex items-center justify-between font-medium'>
-                <Link to="/recipebuilder">
+                <Link to="/recipemaker">
                   <button className={buttonStyles}>Create Recipe</button>
                 </Link>
 
                 <div className="relative">
                   <button className={`${buttonStyles} flex items-center justify-between`} onClick={toggleDropdown}>
                     <img src={userInfo.pfp} alt="User Profile Picture" className="w-8 h-8 rounded-full border" />
-                    <svg className="w-2.5 h-2.5 ml-2.5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 10 6">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={showDropdown ? "M9 1L5 5 1 1" : "M1 1L5 5 9 1"} />
-                    </svg>
+                    <img src={dropdown_img} alt="Drop Down" className="w-2.5 h-2.5 ml-2.5" />
                   </button>
 
                   {showDropdown && (

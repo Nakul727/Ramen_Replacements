@@ -1,37 +1,149 @@
-import '../styles/Home.css';
-import { Header } from '../components/header.js';
-import { Footer } from "../components/footer.js"
-import { ExploreRecipes } from '../components/ExploreRecipes';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Header } from "../components/header.js";
+import { displayMessage } from "../components/helper.js";
+import { Footer } from "../components/footer.js";
+import { useAuth } from "../AuthContext.js";
+import Modal from "react-modal";
 
-// if the user is not logged in, clicking on a recipe promopts to login and redirects
-// if the user is logged in, they can click on any recipe and view/rate i
-
-// TODO
-// section 1:
-/*  Welcome to the explore page!*/
-// section 2:
-/* Div for welcome message to the explore page and what the page is about
-           Here you can find ....*/
-// section 3
-/* Div for the results of the filtering and recipies 
-          Get the top 100 highest rated recipies from the database
-          Display them here in a grid like manner, users can click on it
-          It gets routed to the recipe's unique card. */
 function Explore() {
 
+  //---------------------------------------------------------------------------
+
+  const [recipes, setRecipes] = useState([]);
+  const { isLoggedIn } = useAuth();
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+
+  //---------------------------------------------------------------------------
+
+  // async function to get all the recipes from the backend and db
+
+  const handleExploreRecipes = async () => {
+    try {
+      const backendApi = process.env.REACT_APP_BACKEND;
+      const response = await fetch(`${backendApi}/recipe/explore`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        displayMessage('Error', `Failed to fetch recipes: ${errorResponse.error}`);
+        return;
+      } else {
+        const data = await response.json();
+        setRecipes(data);
+      }
+    } catch (error) {
+      displayMessage('Error', `An error occurred while fetching recipes: ${error}`);
+    }
+  };
+
+  // make sure the function is called on page load
+  useEffect(() => {
+    handleExploreRecipes();
+  }, []);
+
+  //---------------------------------------------------------------------------
+
+  // Function to show the login popup
+  const showLoginPopupHandler = () => {
+    setShowLoginPopup(true);
+  };
+
+  // Function to hide the login popup
+  const hideLoginPopupHandler = () => {
+    setShowLoginPopup(false);
+  };
+
+  //---------------------------------------------------------------------------
+
   return (
-    <div className="explorepage">
+    <div>
+
       <header>
-        <Header/>
+        <Header />
       </header>
 
-      <div>
-        <ExploreRecipes />
+      <div className="body_sections overflow-hidden pt-20">
+        
+        {/* Section 1 - Welcome to the Explore page */}
+        {/* Section 2 - Search bar */}
+        {/* Section 1 - Filtering bar */}
+
+        {/* Section 4 - Recipes Grid */}
+        <div className="py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
+
+          <h1>Recipes</h1>
+
+          {/* If the api response is null, there are no recipes */ 
+           /* Otherwise Display the recipes in a grid */}
+
+          {recipes === null ? (
+            <p>No recipe found.</p>
+          ) : (
+            <div className="grid grid-cols-3 gap-4">
+              
+              {/* If the user is logged in clicking on the recipe will display recipe card */}
+              {/* If the user is not logged in, popup is shown for logging in */}
+              {recipes.map((recipe) => (
+                <div key={recipe.ID} className="border p-4 rounded-md">
+                  <Link
+                    to={isLoggedIn ? `/recipe/${recipe.ID}` : "#"}
+                    onClick={isLoggedIn ? null : showLoginPopupHandler}
+                  >
+                    <img
+                      src={recipe.image}
+                      alt={recipe.title}
+                      className="w-full h-32 object-cover rounded-md mb-2"
+                    />
+                    <h3 className="text-lg font-semibold">{recipe.title}</h3>
+                    {!isLoggedIn && (
+                      <button onClick={showLoginPopupHandler}>
+                        Log in to view recipe
+                      </button>
+                    )}
+                  </Link>
+                </div>
+              ))}
+
+            </div>
+          )}
+
+        </div>
       </div>
 
       <footer>
         <Footer />
       </footer>
+
+      {/* --------------------------------------------------------------------------- */}
+
+      {/* Popup using React Modal */}
+      <Modal
+        isOpen={showLoginPopup}
+        onRequestClose={hideLoginPopupHandler}
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-6 rounded-md shadow-lg text-white"
+        overlayClassName="fixed inset-0 bg-black opacity-75"
+        contentLabel="Login Popup"
+      >
+        <p>You must be logged in to view the recipes.</p>
+        <Link to="/login">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-blue-600">
+            Go to Login Page
+          </button>
+        </Link>
+        <button
+          className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400"
+          onClick={hideLoginPopupHandler}
+        >
+          Close
+        </button>
+      </Modal>
+
+      {/* --------------------------------------------------------------------------- */}
     </div>
   );
 }

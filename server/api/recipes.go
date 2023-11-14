@@ -1,331 +1,217 @@
 package api
 
 import (
-	"bufio"
-	"database/sql"
-	"errors"
-	"fmt"
+	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 )
 
-// Recipe struct - contains all data for recipe cards
+//----------------------------------------------------------------------------------
+
 type Recipe struct {
-	ID          int             `json:"ID"`
-	Public      sql.NullBool    `json:"Public"`      // true if public - false if private
-	UserID      int             `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int             `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string          `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string          `json:"Description"` // Description of recipe
-	Steps       string          `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string          `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     string          `json:"Amounts"`     // Amount of each ingredient in grams
-	Picture     string          `json:"Picture"`     // Picture of finished product
-	Appliances  int             `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int64           `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
-	Nutrition   []uint8         `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
-	Cost        sql.NullFloat64 `json:"Cost"`        // Estimated cost of recipe
-	Time        sql.NullFloat64 `json:"Time"`        // Estimated time to complete recipe in minutes
+	ID            int                        `json:"ID"`
+	UserID        int                        `json:"userID"`
+	Username      string                     `json:"username"`
+	Title         string                     `json:"title"`
+	Image         string                     `json:"image"`
+	Description   string                     `json:"description"`
+	Ingredients   string                     `json:"Ingredients"`
+	Instructions  string                     `json:"Instructions"`
+	IsPublic      bool                       `json:"isPublic"`
+	PostTime      int64                      `json:"postTime"`
+	Likes         float64                    `json:"likes"`
+	TotalCost     float64                    `json:"totalCost"`
+	Tags          []string                   `json:"tags"`
+	Appliances    map[string]bool            `json:"Appliances"`
+	Nutrients     map[string]float64         `json:"nutrients"`
+	CostBreakdown []map[string]interface{}   `json:"CostBreakdown"`
 }
 
-// Recipe struct - contains all data for recipe cards going in to database
-type RecipeIn struct {
-	Public      bool    `json:"Public"`      // true if public - false if private
-	UserID      int     `json:"UserID"`      // ID of poster - recipe id is incremented automatically
-	Rating      int     `json:"Rating"`      // Rating from 0-50 of recipe
-	Title       string  `json:"Title"`       // Title of recipe, i.e. "butter chicken" or "breakfast sandwich with bacon"
-	Description string  `json:"Description"` // Description of recipe
-	Steps       string  `json:"Steps"`       // Steps required to replicate recipe
-	Ingredients string  `json:"Ingredients"` // Ingredients used in recipe
-	Amounts     string  `json:"Amounts"`     // Amount of each ingredient in grams
-	Picture     string  `json:"Picture"`     // Picture of finished product
-	Appliances  int     `json:"Appliances"`  // Appliances needed : oven? stove? microwave? etc.
-	Date        int64   `json:"Date"`        // Date and time of posting. Represented as # of seconds since 01/01/1970 (unix time)
-	Nutrition   []uint8 `json:"Nutrition"`   // Array of nutrition facts - each entry corresponds to a particular nutrient
-	Cost        float32 `json:"Cost"`        // Estimated cost of recipe
-	Time        float32 `json:"Time"`        // Estimated time to complete recipe in minutes
-}
+//----------------------------------------------------------------------------------
 
-// Nutrition
-
-// struct for storing a recipe and its id for searching in second hand API
-type Ingredient struct {
-	Name   string
-	ID     int
-	Amount int
-}
-
-// for keeping track of max length when putting new data in db
-var maxTitleLen = 100
-var maxDescLen = 1000
-var maxStepsLen = 5000
-var maxIngredientsLen = 500
-var maxPictureLen = 250
-
-// HELPER FUNCTIONS
-func contextToRecipe(row *sql.Rows) (*Recipe, error) {
-	var rec Recipe
-	err := row.Scan(
-		&rec.ID, &rec.UserID, &rec.Rating, &rec.Title, &rec.Description, &rec.Steps, &rec.Ingredients, &rec.Picture,
-		&rec.Appliances, &rec.Date, &rec.Nutrition, &rec.Amounts, &rec.Public, &rec.Time, &rec.Cost)
-	if err != nil {
-		return nil, err
-	} else {
-		return &rec, nil
-	}
-}
-
-// returns an ingredient if the ingredient is found in the top 1000 ingredients
-func searchInCsv(ingredient string) *Ingredient {
-	file, err := os.Open("top-1k-ingredients.csv")
-	if err != nil {
-		return nil
-	}
-
-	line := bufio.NewScanner(file)
-	ingredient = strings.ToLower(ingredient)
-
-	for line.Scan() {
-		curLine := strings.ToLower(line.Text())
-		var res Ingredient
-		var listElem string
-		index := 0
-		for index < len(curLine) {
-			if curLine[index] == ';' {
-				break
-			}
-			listElem += string(curLine[index])
-			index++
-		}
-		if len(listElem) >= len(ingredient) && listElem[:len(ingredient)] == ingredient {
-			res.ID, _ = strconv.Atoi(curLine[index+1:])
-			res.Name = ingredient
-			fmt.Println("found ingredient: ", curLine)
-			return &res
-		}
-	}
-	return &Ingredient{"none", 0, 0}
-}
-
-// parses the ingredients string and separates its ingredients into
-func parseIngredients(ingredients string) ([]Ingredient, error) {
-	var results []string
-	index := 2
-	resultCount := 0
-	startSlice, endSlice := 2, 2
-	for index < len(ingredients) {
-		// if next letter is apostrophe, then comma after that, it's the end of the ingredient name
-		if ingredients[index] == '\'' && (ingredients[index+1] == ',' || ingredients[index+1] == '}') {
-			endSlice = index
-			results = append(results, ingredients[startSlice:endSlice])
-			resultCount++
-			// move index and start to beginning of next ingredient
-			index += 3
-			startSlice = index
-		} else {
-			index++
-		}
-	}
-	if resultCount == 0 {
-		return nil, errors.New("no ingredient found")
-	}
-	index = 0
-
-	var ingredientList []Ingredient
-	for index < resultCount {
-		var curIngredient = searchInCsv(results[index])
-		if curIngredient == nil {
-			return nil, errors.New("error opening csv")
-		} else if curIngredient.Name == "none" {
-			return nil, errors.New("no ingredient found in list")
-		}
-		ingredientList = append(ingredientList, *curIngredient)
-		index++
-	}
-	return ingredientList, nil
-}
-
-// HANDLER FUNCTIONS
 func PostRecipe(c *gin.Context) {
-	var rec RecipeIn
-	if err := c.BindJSON(&rec); err != nil {
-		fmt.Println("error binding json")
-		fmt.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
+	var recipe Recipe
 
-	// make sure input was provided for each field
-	missingInput := (len(rec.Description) == 0 ||
-		len(rec.Ingredients) == 0 ||
-		len(rec.Steps) == 0 ||
-		len(rec.Title) == 0 ||
-		len(rec.Picture) == 0)
-
-	if missingInput {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "please provide input for each field"})
-		return
-	}
-
-	// check lengths of input
-	inputTooLong := (len(rec.Description) > maxDescLen ||
-		len(rec.Ingredients) > maxIngredientsLen ||
-		len(rec.Steps) > maxStepsLen ||
-		len(rec.Title) > maxTitleLen ||
-		len(rec.Picture) > maxPictureLen)
-
-	// ensure length of input fits in db
-	if inputTooLong {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "input too long for one or more fields"})
-		return
-	}
-
-	ingredients, err := parseIngredients(rec.Ingredients)
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "unrecognized ingredient in recipe"})
-		return
-	}
-
-	// calculate nutrition facts for each ingredient
-	nutritionFacts, cost, err := calculate_nutrition_facts(ingredients, rec.Amounts)
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusBadGateway, gin.H{"error": err})
-		return
-	}
-	cost /= 100 // since cost is returned in cents, we want it in dollars
-
-	// get time of posting
-	currentTime := int32(time.Now().Unix())
-
-	// convert arrays to comma separated strings
-	nutritionStr := pq.Array(nutritionFacts)
-
-	var sqpublic sql.NullBool = sql.NullBool{Bool: rec.Public, Valid: true}
-	var sqcost sql.NullFloat64 = sql.NullFloat64{Float64: float64(cost), Valid: true}
-	var sqtime sql.NullFloat64 = sql.NullFloat64{Float64: float64(rec.Time), Valid: true}
-
-	// insert recipe to database
-	_, err = db.Exec("INSERT INTO Recipes (userID, public, rating, title, description, steps, ingredients, picture, appliances, date, nutrition, amounts, cost, time) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);",
-		rec.UserID, sqpublic, rec.Rating, rec.Title, rec.Description, rec.Steps, rec.Ingredients, rec.Picture, rec.Appliances, currentTime, nutritionStr, rec.Amounts, sqcost, sqtime)
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-	c.Status(http.StatusAccepted)
-}
-
-// queries database: finds post recipe with given id
-func GetRecipe(c *gin.Context) {
-	id_string := c.DefaultQuery("id", "??NULL??")
-	if id_string == "??NULL??" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no id provided for search query"})
-		return
-	}
-	id, _ := strconv.Atoi(id_string)
-
-	resp, err := db.Query("SELECT * FROM Recipes WHERE id = $1;", id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	// return json data for recipe
-	found := false
-	for resp.Next() {
-		rec, err := contextToRecipe(resp)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-		c.JSON(http.StatusOK, rec)
-		found = true
-	}
-
-	// querying by id should always yield a result
-	if !found {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no entry found"})
-	}
-}
-
-func GetRecipesByDate(c *gin.Context) {
-	// n is the number of recipes to query
-	n, err := strconv.Atoi(c.DefaultQuery("num", "100"))
-	if err != nil {
+	if err := c.BindJSON(&recipe); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp, err := db.Query("SELECT * FROM Recipes ORDER BY date DESC")
+	recipe.PostTime = time.Now().Unix()
+
+	err := StoreRecipeInDB(recipe)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store the recipe in the database"})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"message": "Recipe successfully posted"})
+}
 
-	i := 0
+func StoreRecipeInDB(recipe Recipe) error {
+	ingredientsJSONB, _ := json.Marshal(recipe.Ingredients)
+	instructionsJSONB, _ := json.Marshal(recipe.Instructions)
+	tagsJSONB, _ := json.Marshal(recipe.Tags)
+	appliancesJSONB, _ := json.Marshal(recipe.Appliances)
+	nutrientsJSONB, _ := json.Marshal(recipe.Nutrients)
+	costBreakdownJSONB, _ := json.Marshal(recipe.CostBreakdown)
+
+	_, err := db.Exec(`
+		INSERT INTO recipes (
+			user_id, username, title, image, description, ingredients, instructions,
+			is_public, post_time, likes, total_cost, tags, appliances, nutrients, cost_breakdown
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+		)`,
+		recipe.UserID, recipe.Username, recipe.Title, recipe.Image, recipe.Description,
+		ingredientsJSONB, instructionsJSONB, recipe.IsPublic, recipe.PostTime,
+		recipe.Likes, recipe.TotalCost, tagsJSONB, appliancesJSONB,
+		nutrientsJSONB, costBreakdownJSONB,
+	)
+	return err
+}
+
+//----------------------------------------------------------------------------------
+
+func ExploreRecipes(c *gin.Context) {
+	rows, err := db.Query(`
+		SELECT id, user_id, username, title, image, description, is_public, post_time, likes, total_cost, tags, nutrients, cost_breakdown
+		FROM recipes
+		WHERE is_public = true
+	`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipes from the database"})
+		return
+	}
+	defer rows.Close()
+
 	var recipes []Recipe
-	for resp.Next() && i < n {
-		curRec, err := contextToRecipe(resp)
+
+	for rows.Next() {
+		var recipe Recipe
+		var tagsJSON, nutrientsJSON, costBreakdownJSON []byte
+
+		err := rows.Scan(
+			&recipe.ID, &recipe.UserID, &recipe.Username, &recipe.Title, &recipe.Image, &recipe.Description,
+			&recipe.IsPublic, &recipe.PostTime, &recipe.Likes, &recipe.TotalCost,
+			&tagsJSON, &nutrientsJSON, &costBreakdownJSON,
+		)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan recipe from the database"})
 			return
 		}
-		recipes = append(recipes, *curRec)
-		i++
-	}
 
-	if len(recipes) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No recipes found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, recipes)
-}
-
-// gets all recipes posted in specified time range, sorted by rating
-func GetTopRecent(c *gin.Context) {
-	// period is the time frame to get
-	period := c.DefaultQuery("range", "day")
-	// by default period is 1 day
-	postRange := 60 * 60 * 24
-	if period == "year" {
-		postRange *= 365
-	} else if period == "month" {
-		postRange *= 30
-	} else if period == "week" {
-		postRange *= 7
-	} else if period == "hour" {
-		postRange /= 24
-	}
-
-	// set time to current time - time period i.e. - current time minus one week if applicable
-	postRange = int(time.Now().Unix()) - postRange
-
-	// get the first 1000 posts that fit in this time period
-	resp, err := db.Query("SELECT * FROM Recipes WHERE date>$1 ORDER BY rating DESC", postRange)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-
-	// query recipes from db
-	i := 0
-	var recipes []Recipe
-	for resp.Next() && i < 1000 {
-		rec, err := contextToRecipe(resp)
+		err = json.Unmarshal(tagsJSON, &recipe.Tags)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal tags"})
+			return
 		}
-		recipes = append(recipes, *rec)
+		err = json.Unmarshal(nutrientsJSON, &recipe.Nutrients)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal nutrients"})
+			return
+		}
+		err = json.Unmarshal(costBreakdownJSON, &recipe.CostBreakdown)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal cost breakdown"})
+			return
+		}
+
+		recipes = append(recipes, recipe)
+	}
+
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while iterating over rows"})
+		return
 	}
 
 	c.JSON(http.StatusOK, recipes)
 }
+
+//----------------------------------------------------------------------------------
+
+func GetRecipeByID(c *gin.Context) {
+	recipeIDStr := c.Param("id")
+	recipeID, err := strconv.Atoi(recipeIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID"})
+		return
+	}
+
+	row := db.QueryRow(`
+		SELECT id, user_id, username, title, image, description, ingredients, instructions,
+			is_public, post_time, likes, total_cost, tags, appliances, nutrients, cost_breakdown
+		FROM recipes
+		WHERE id = $1
+	`, recipeID)
+
+	var recipe Recipe
+	var tagsJSON, nutrientsJSON, costBreakdownJSON, appliancesJSON []byte
+
+	err = row.Scan(
+		&recipe.ID, &recipe.UserID, &recipe.Username,
+		&recipe.Title, &recipe.Image, &recipe.Description,
+		&recipe.Ingredients, &recipe.Instructions, &recipe.IsPublic, &recipe.PostTime,
+		&recipe.Likes, &recipe.TotalCost, &tagsJSON, &appliancesJSON,
+		&nutrientsJSON, &costBreakdownJSON,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipe from the database"})
+		return
+	}
+
+	err = json.Unmarshal(tagsJSON, &recipe.Tags)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal tags"})
+		return
+	}
+	err = json.Unmarshal(nutrientsJSON, &recipe.Nutrients)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal nutrients"})
+		return
+	}
+
+	var recipeAppliances map[string]bool
+	err = json.Unmarshal(appliancesJSON, &recipeAppliances)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal appliances"})
+		return
+	}
+	recipe.Appliances = recipeAppliances
+
+	err = json.Unmarshal(costBreakdownJSON, &recipe.CostBreakdown)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal cost breakdown"})
+		return
+	}
+
+	c.JSON(http.StatusOK, recipe)
+}
+
+//----------------------------------------------------------------------------------
+
+func UpdateLikes(c *gin.Context) {
+	recipeIDStr := c.Param("id")
+	recipeID, err := strconv.Atoi(recipeIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID"})
+		return
+	}
+
+	_, err = db.Exec(`
+		UPDATE recipes
+		SET likes = likes + 1
+		WHERE id = $1
+	`, recipeID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update likes in the database"})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+//----------------------------------------------------------------------------------
