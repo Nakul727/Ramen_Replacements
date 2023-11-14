@@ -4,9 +4,6 @@ import { Footer } from "../components/footer.js"
 import home_img from "../assets/whitebg.svg"
 import { Link } from 'react-router-dom';
 
-
-
-
 function Home() {
 
   return (

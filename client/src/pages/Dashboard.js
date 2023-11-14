@@ -2,7 +2,7 @@ import React from 'react';
 import { Header } from '../components/header.js';
 import { Footer } from '../components/footer.js';
 import { useAuth } from '../AuthContext.js';
-import { getUserInfo } from '../components/userInfo.js';
+import { getUserInfo } from '../components/UserInfo.js';
 import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
