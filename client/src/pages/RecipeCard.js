@@ -11,6 +11,7 @@ function Recipe() {
     // Information Regarding the recipe
     const { recipeID } = useParams();
     const [recipe, setRecipe] = useState(null);
+    const [userRating, setUserRating] = useState(0);
 
     // Function to retrive recipe information from backend endpoint
     const getRecipeDetail = async (recipeID) => {
@@ -26,7 +27,7 @@ function Recipe() {
                 const errorResponse = await response.json();
                 displayMessage('Error', `Failed to fetch recipes: ${errorResponse.error}`);
                 return;
-              }
+            }
             else {
                 return response.json();
             }
@@ -35,6 +36,30 @@ function Recipe() {
             return error;
         }
     }
+
+    const handleRatingChange = async (newRating) => {
+        try {
+            const backendApi = process.env.REACT_APP_BACKEND;
+            const response = await fetch(`${backendApi}/recipe/${recipeID}/rating`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rating: newRating }),
+            });
+
+            if (!response.ok) {
+                const errorResponse = await response.json();
+                displayMessage('Error', `Failed to update recipe rating: ${errorResponse.error}`);
+            } else {
+                // Update the local state with the new rating
+                setUserRating(newRating);
+                displayMessage('Success', 'Recipe rating updated successfully');
+            }
+        } catch (error) {
+            displayMessage('500 internal server error', 'Error contacting the server');
+        }
+    };
 
     // get recipe details with API call
     useEffect(() => {
@@ -48,7 +73,6 @@ function Recipe() {
         }
         fetchRecipe();
     }, [recipeID]);
-
 
     return (
         <div>
@@ -115,11 +139,36 @@ function Recipe() {
                             <p class="info_text">Calories: {recipe.nutrients.calories}</p>
                         </div>
 
+
+
                         <section className="m-auto w-3/4">
-                            <p class="info_text">Rate it: </p>
+                            <div className="flex items-center">
+                                <p className="info_text mr-2">Rate it:</p>
+                                {[1, 2, 3, 4, 5].map((number) => (
+                                    <span
+                                        key={number}
+                                        className={`rating_number ${userRating === number ? 'selected' : ''}`}
+                                        onClick={() => handleRatingChange(number)}
+                                    >
+                                        {number}
+                                    </span>
+                                ))}
+                                <button
+                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 ml-4 rounded"
+                                    onClick={() => handleRatingChange(userRating)}
+                                >
+                                    Submit Rating
+                                </button>
+                            </div>
                             <hr className="border-black w-11/12 m-auto"></hr>
-                            <p class="info_text">Comments </p>
+                            <p className="info_text">Comments</p>
                         </section>
+
+
+
+
+
+
                         <div className="m-20"> </div>
                     </article>
 

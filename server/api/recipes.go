@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-// ... (import statements)
 
 //----------------------------------------------------------------------------------
 
@@ -187,6 +186,54 @@ func GetRecipeByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, recipe)
+}
+
+//----------------------------------------------------------------------------------
+
+func UpdateRecipeRating(c *gin.Context) {
+	recipeIDStr := c.Param("id")
+	recipeID, err := strconv.Atoi(recipeIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID"})
+		return
+	}
+
+	var ratingUpdate struct {
+		Rating float64 `json:"rating"`
+	}
+
+	if err := c.BindJSON(&ratingUpdate); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+
+	// Fetch the existing recipe from the database
+	row := db.QueryRow(`
+		SELECT id, rating
+		FROM recipes
+		WHERE id = $1
+	`, recipeID)
+
+	var existingRating float64
+	err = row.Scan(&recipeID, &existingRating)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipe from the database"})
+		return
+	}
+
+	// Update the recipe's rating in the database
+	newRating := (existingRating + ratingUpdate.Rating) / 2.0
+	_, err = db.Exec(`
+		UPDATE recipes
+		SET rating = $1
+		WHERE id = $2
+	`, newRating, recipeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update recipe rating in the database"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Recipe rating updated successfully"})
 }
 
 //----------------------------------------------------------------------------------

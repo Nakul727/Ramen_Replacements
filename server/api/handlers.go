@@ -31,4 +31,5 @@ func RunRecipes(r *gin.Engine) {
 	r.POST("/recipe/post", PostRecipe)
 	r.GET("/recipe/explore", ExploreRecipes)
 	r.GET("/recipe/:id", GetRecipeByID)
+	r.PUT("/recipes/:id/rating", UpdateRecipeRating)
 }
