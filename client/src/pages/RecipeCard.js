@@ -90,7 +90,7 @@ function Recipe() {
                                 <h3 className="text-xl px-10 pt-10"> {recipe.description} </h3>
                             </div>
                             {/*userid is a placeholder for username*/}
-                            <p className="text-2xl mx-20 mt-3 float-left">Added by: {recipe.userID}</p>
+                            <p className="text-2xl mx-20 mt-3 float-left">Added by: {recipe.username}</p>
                             <div className="pr-20">
                                 <span class={recipe.rating >= 5 ? "coloured_star" : "uncoloured_star"}>★</span>
                                 <span class={recipe.rating >= 4 ? "coloured_star" : "uncoloured_star"}>★</span>

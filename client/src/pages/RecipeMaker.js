@@ -217,6 +217,7 @@ function RecipeMaker() {
   
       const postData = {
         userID: userInfo.userID,              // int
+        username: userInfo.username,          // string
 
         title: title,                         // string
         image: image,                         // string

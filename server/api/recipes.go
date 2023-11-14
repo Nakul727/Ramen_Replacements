@@ -14,6 +14,7 @@ import (
 type Recipe struct {
 	ID            int                        `json:"ID"`
 	UserID        int                        `json:"userID"`
+	Username      string                     `json:"username"`
 	Title         string                     `json:"title"`
 	Image         string                     `json:"image"`
 	Description   string                     `json:"description"`
@@ -59,12 +60,12 @@ func StoreRecipeInDB(recipe Recipe) error {
 
 	_, err := db.Exec(`
 		INSERT INTO recipes (
-			user_id, title, image, description, ingredients, instructions,
+			user_id, username, title, image, description, ingredients, instructions,
 			is_public, post_time, rating, total_cost, tags, appliances, nutrients, cost_breakdown
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
 		)`,
-		recipe.UserID, recipe.Title, recipe.Image, recipe.Description,
+		recipe.UserID, recipe.Username, recipe.Title, recipe.Image, recipe.Description,
 		ingredientsJSONB, instructionsJSONB, recipe.IsPublic, recipe.PostTime,
 		recipe.Rating, recipe.TotalCost, tagsJSONB, appliancesJSONB,
 		nutrientsJSONB, costBreakdownJSONB,
@@ -76,7 +77,7 @@ func StoreRecipeInDB(recipe Recipe) error {
 
 func ExploreRecipes(c *gin.Context) {
 	rows, err := db.Query(`
-		SELECT id, title, image, description, is_public, post_time, rating, total_cost, tags, nutrients, cost_breakdown
+		SELECT id, user_id, username, title, image, description, is_public, post_time, rating, total_cost, tags, nutrients, cost_breakdown
 		FROM recipes
 		WHERE is_public = true
 	`)
@@ -93,7 +94,7 @@ func ExploreRecipes(c *gin.Context) {
 		var tagsJSON, nutrientsJSON, costBreakdownJSON []byte
 
 		err := rows.Scan(
-			&recipe.ID, &recipe.Title, &recipe.Image, &recipe.Description,
+			&recipe.ID, &recipe.UserID, &recipe.Username, &recipe.Title, &recipe.Image, &recipe.Description,
 			&recipe.IsPublic, &recipe.PostTime, &recipe.Rating, &recipe.TotalCost,
 			&tagsJSON, &nutrientsJSON, &costBreakdownJSON,
 		)
@@ -140,7 +141,7 @@ func GetRecipeByID(c *gin.Context) {
 	}
 
 	row := db.QueryRow(`
-		SELECT id, user_id, title, image, description, ingredients, instructions,
+		SELECT id, user_id, username, title, image, description, ingredients, instructions,
 			is_public, post_time, rating, total_cost, tags, appliances, nutrients, cost_breakdown
 		FROM recipes
 		WHERE id = $1
@@ -150,7 +151,8 @@ func GetRecipeByID(c *gin.Context) {
 	var tagsJSON, nutrientsJSON, costBreakdownJSON, appliancesJSON []byte
 
 	err = row.Scan(
-		&recipe.ID, &recipe.UserID, &recipe.Title, &recipe.Image, &recipe.Description,
+		&recipe.ID, &recipe.UserID, &recipe.Username,
+		&recipe.Title, &recipe.Image, &recipe.Description,
 		&recipe.Ingredients, &recipe.Instructions, &recipe.IsPublic, &recipe.PostTime,
 		&recipe.Rating, &recipe.TotalCost, &tagsJSON, &appliancesJSON,
 		&nutrientsJSON, &costBreakdownJSON,
