@@ -28,37 +28,37 @@ function Register() {
     let hasErrors = false; 
   
     if (name === "") {
-      setUsernameError("Username is required.");
+      setUsernameError("A username is required. Please try again.");
       hasErrors = true; // Set the flag to true
     } else if (name.length > maxNameLen) {
-      setUsernameError("Username is too long.");
+      setUsernameError("Username is too long. You must choose a username within 50 characters.");
       hasErrors = true; // Set the flag to true
     } else {
       setUsernameError("");
     }
   
     if (email === "") {
-      setEmailError("Email is required.");
+      setEmailError("An email is required. Please try again.");
       hasErrors = true; // Set the flag to true
     } else {
       setEmailError("");
     }
   
     if (pass === "" || passConfirm === "") {
-      setPassError("Passwords are required.");
-      setPassConfirmError("Passwords are required.");
+      setPassError("Passwords are required. Please try again.");
+      setPassConfirmError("Passwords are required. Please try again.");
       hasErrors = true; // Set the flag to true
     } else if (pass !== passConfirm) {
-      setPassError("Passwords do not match.");
-      setPassConfirmError("Passwords do not match.");
+      setPassError("Passwords do not match. Please try again.");
+      setPassConfirmError("Passwords do not match. Please try again.");
       hasErrors = true; // Set the flag to true
     } else if (pass.length < minPasswordLen) {
-      setPassError("Password is too short.");
-      setPassConfirmError("Password is too short.");
+      setPassError("Password is too short. You must choose a password within 3-20 characters.");
+      setPassConfirmError("Password is too short. You must choose a password within 3-20 characters.");
       hasErrors = true; // Set the flag to true
     } else if (pass.length > maxPasswordLen) {
-      setPassError("Password is too long.");
-      setPassConfirmError("Password is too long.");
+      setPassError("Password is too long. You must choose a password within 3-20 characters.");
+      setPassConfirmError("Password is too long. You must choose a password within 3-20 characters.");
       hasErrors = true; // Set the flag to true
     } else {
       setPassError("");
@@ -67,7 +67,7 @@ function Register() {
   
     if (hasErrors) {
       // Display validation errors and prevent registration
-      displayMessage("registration-result", "Please resolve the field erros.");
+      displayMessage("registration-result", "Please resolve the field errors.");
       return;
     }
   
