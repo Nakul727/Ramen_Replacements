@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo_img from '../assets/logo.png';
+import dropdown_img from '../assets/dropdown.png';
 import { useAuth } from '../AuthContext.js';
 import { getUserInfo } from './userInfo';
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +54,7 @@ const Header = () => {
                 <div className="relative">
                   <button className={`${buttonStyles} flex items-center justify-between`} onClick={toggleDropdown}>
                     <img src={userInfo.pfp} alt="User Profile Picture" className="w-8 h-8 rounded-full border" />
-                    <svg className="w-2.5 h-2.5 ml-2.5" src={logo_img} ></svg>
+                    <img src={dropdown_img} alt="Drop Down" className="w-2.5 h-2.5 ml-2.5" />
                   </button>
 
                   {showDropdown && (
