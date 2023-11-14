@@ -67,27 +67,24 @@ function Explore() {
         <Header />
       </header>
 
-      <div className="body_sections overflow-hidden pt-20">
-        
+      <div className="body_sections overflow-hidden">
+
         {/* Section 1 - Welcome to the Explore page */}
         {/* Section 2 - Search bar */}
         {/* Section 1 - Filtering bar */}
 
         {/* Section 4 - Recipes Grid */}
-        <div className="py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
+        <div className="p-16" style={{ backgroundColor: "lightgrey" }}>
 
-          <h1>Recipes</h1>
+          <h1 className="text-center font-arvo text-3xl mb-12">Explore Recipes</h1>
 
-          {/* If the api response is null, there are no recipes */ 
+          {/* If the api response is null, there are no recipes */
            /* Otherwise Display the recipes in a grid */}
 
           {recipes === null ? (
             <p>No recipe found.</p>
           ) : (
             <div className="grid grid-cols-3 gap-4">
-              
-              {/* If the user is logged in clicking on the recipe will display recipe card */}
-              {/* If the user is not logged in, popup is shown for logging in */}
               {recipes.map((recipe) => (
                 <div key={recipe.ID} className="border p-4 rounded-md">
                   <Link
@@ -97,9 +94,9 @@ function Explore() {
                     <img
                       src={recipe.image}
                       alt={recipe.title}
-                      className="w-full h-32 object-cover rounded-md mb-2"
+                      className="w-96 h-96 object-cover rounded-md"
                     />
-                    <h3 className="text-lg font-semibold">{recipe.title}</h3>
+                    <h3 className="text-lg w-96 p-4 font-arvo text-center bg-zinc-200 font-semibold">{recipe.title}</h3>
                     {!isLoggedIn && (
                       <button onClick={showLoginPopupHandler}>
                         Log in to view recipe

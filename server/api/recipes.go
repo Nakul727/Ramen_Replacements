@@ -132,6 +132,71 @@ func ExploreRecipes(c *gin.Context) {
 
 //----------------------------------------------------------------------------------
 
+func DashboardRecipes(c *gin.Context) {
+	userIDStr := c.Param("id")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	rows, err := db.Query(`
+		SELECT id, user_id, username, title, image, description, is_public, post_time, likes, total_cost, tags, nutrients, cost_breakdown
+		FROM recipes
+		WHERE user_id = $1
+	`, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve dashboard recipes from the database"})
+		return
+	}
+	defer rows.Close()
+
+
+	var recipes []Recipe
+
+	for rows.Next() {
+		var recipe Recipe
+		var tagsJSON, nutrientsJSON, costBreakdownJSON []byte
+
+		err := rows.Scan(
+			&recipe.ID, &recipe.UserID, &recipe.Username, &recipe.Title, &recipe.Image, &recipe.Description,
+			&recipe.IsPublic, &recipe.PostTime, &recipe.Likes, &recipe.TotalCost,
+			&tagsJSON, &nutrientsJSON, &costBreakdownJSON,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan recipe from the database"})
+			return
+		}
+
+		err = json.Unmarshal(tagsJSON, &recipe.Tags)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal tags"})
+			return
+		}
+		err = json.Unmarshal(nutrientsJSON, &recipe.Nutrients)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal nutrients"})
+			return
+		}
+		err = json.Unmarshal(costBreakdownJSON, &recipe.CostBreakdown)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal cost breakdown"})
+			return
+		}
+
+		recipes = append(recipes, recipe)
+	}
+
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while iterating over rows"})
+		return
+	}
+
+	c.JSON(http.StatusOK, recipes)
+}
+
+//----------------------------------------------------------------------------------
+
 func GetRecipeByID(c *gin.Context) {
 	recipeIDStr := c.Param("id")
 	recipeID, err := strconv.Atoi(recipeIDStr)
