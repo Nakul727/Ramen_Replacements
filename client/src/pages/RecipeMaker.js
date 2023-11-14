@@ -228,7 +228,7 @@ function RecipeMaker() {
         isPublic: isPublic,                   // bool value
 
         postTime: 0,                          // int64 (calcluated in backend)
-        rating: 0,                            // float64 (calculated and updated in backend)
+        likes: 0,                             // int
         totalCost: totalCost,                 // float64
 
         tags: tags,                           // array of strings

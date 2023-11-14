@@ -22,7 +22,7 @@ type Recipe struct {
 	Instructions  string                     `json:"Instructions"`
 	IsPublic      bool                       `json:"isPublic"`
 	PostTime      int64                      `json:"postTime"`
-	Rating        float64                    `json:"rating"`
+	Likes         float64                    `json:"likes"`
 	TotalCost     float64                    `json:"totalCost"`
 	Tags          []string                   `json:"tags"`
 	Appliances    map[string]bool            `json:"Appliances"`
@@ -61,13 +61,13 @@ func StoreRecipeInDB(recipe Recipe) error {
 	_, err := db.Exec(`
 		INSERT INTO recipes (
 			user_id, username, title, image, description, ingredients, instructions,
-			is_public, post_time, rating, total_cost, tags, appliances, nutrients, cost_breakdown
+			is_public, post_time, likes, total_cost, tags, appliances, nutrients, cost_breakdown
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
 		)`,
 		recipe.UserID, recipe.Username, recipe.Title, recipe.Image, recipe.Description,
 		ingredientsJSONB, instructionsJSONB, recipe.IsPublic, recipe.PostTime,
-		recipe.Rating, recipe.TotalCost, tagsJSONB, appliancesJSONB,
+		recipe.Likes, recipe.TotalCost, tagsJSONB, appliancesJSONB,
 		nutrientsJSONB, costBreakdownJSONB,
 	)
 	return err
@@ -77,7 +77,7 @@ func StoreRecipeInDB(recipe Recipe) error {
 
 func ExploreRecipes(c *gin.Context) {
 	rows, err := db.Query(`
-		SELECT id, user_id, username, title, image, description, is_public, post_time, rating, total_cost, tags, nutrients, cost_breakdown
+		SELECT id, user_id, username, title, image, description, is_public, post_time, likes, total_cost, tags, nutrients, cost_breakdown
 		FROM recipes
 		WHERE is_public = true
 	`)
@@ -95,7 +95,7 @@ func ExploreRecipes(c *gin.Context) {
 
 		err := rows.Scan(
 			&recipe.ID, &recipe.UserID, &recipe.Username, &recipe.Title, &recipe.Image, &recipe.Description,
-			&recipe.IsPublic, &recipe.PostTime, &recipe.Rating, &recipe.TotalCost,
+			&recipe.IsPublic, &recipe.PostTime, &recipe.Likes, &recipe.TotalCost,
 			&tagsJSON, &nutrientsJSON, &costBreakdownJSON,
 		)
 		if err != nil {
@@ -142,7 +142,7 @@ func GetRecipeByID(c *gin.Context) {
 
 	row := db.QueryRow(`
 		SELECT id, user_id, username, title, image, description, ingredients, instructions,
-			is_public, post_time, rating, total_cost, tags, appliances, nutrients, cost_breakdown
+			is_public, post_time, likes, total_cost, tags, appliances, nutrients, cost_breakdown
 		FROM recipes
 		WHERE id = $1
 	`, recipeID)
@@ -154,7 +154,7 @@ func GetRecipeByID(c *gin.Context) {
 		&recipe.ID, &recipe.UserID, &recipe.Username,
 		&recipe.Title, &recipe.Image, &recipe.Description,
 		&recipe.Ingredients, &recipe.Instructions, &recipe.IsPublic, &recipe.PostTime,
-		&recipe.Rating, &recipe.TotalCost, &tagsJSON, &appliancesJSON,
+		&recipe.Likes, &recipe.TotalCost, &tagsJSON, &appliancesJSON,
 		&nutrientsJSON, &costBreakdownJSON,
 	)
 	if err != nil {
@@ -192,7 +192,7 @@ func GetRecipeByID(c *gin.Context) {
 
 //----------------------------------------------------------------------------------
 
-func UpdateRecipeRating(c *gin.Context) {
+func UpdateLikes(c *gin.Context) {
 	recipeIDStr := c.Param("id")
 	recipeID, err := strconv.Atoi(recipeIDStr)
 	if err != nil {
@@ -200,42 +200,18 @@ func UpdateRecipeRating(c *gin.Context) {
 		return
 	}
 
-	var ratingUpdate struct {
-		Rating float64 `json:"rating"`
-	}
-
-	if err := c.BindJSON(&ratingUpdate); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
-		return
-	}
-
-	// Fetch the existing recipe from the database
-	row := db.QueryRow(`
-		SELECT id, rating
-		FROM recipes
+	_, err = db.Exec(`
+		UPDATE recipes
+		SET likes = likes + 1
 		WHERE id = $1
 	`, recipeID)
 
-	var existingRating float64
-	err = row.Scan(&recipeID, &existingRating)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipe from the database"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update likes in the database"})
 		return
 	}
 
-	// Update the recipe's rating in the database
-	newRating := (existingRating + ratingUpdate.Rating) / 2.0
-	_, err = db.Exec(`
-		UPDATE recipes
-		SET rating = $1
-		WHERE id = $2
-	`, newRating, recipeID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update recipe rating in the database"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Recipe rating updated successfully"})
+	c.Status(http.StatusOK)
 }
 
 //----------------------------------------------------------------------------------

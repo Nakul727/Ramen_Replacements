@@ -53,13 +53,7 @@ const Header = () => {
                 <div className="relative">
                   <button className={`${buttonStyles} flex items-center justify-between`} onClick={toggleDropdown}>
                     <img src={userInfo.pfp} alt="User Profile Picture" className="w-8 h-8 rounded-full border" />
-                    <svg className="w-2.5 h-2.5 ml-2.5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 10 6">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={showDropdown ? "M9 1L5 5 1 1" : "M1 1L5 5 9 1"} />
-                    </svg>
+                    <svg className="w-2.5 h-2.5 ml-2.5" src={logo_img} ></svg>
                   </button>
 
                   {showDropdown && (

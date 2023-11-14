@@ -5,15 +5,18 @@ import { useParams } from 'react-router-dom';
 import { Header } from '../components/header.js';
 import { displayMessage } from "../components/helper.js";
 import { useEffect, useState } from 'react'
+import { useAuth } from '../AuthContext.js';
+
 
 function Recipe() {
 
     //---------------------------------------------------------------------------
 
+    const { isLoggedIn } = useAuth();
+
     // Information Regarding the recipe
     const { recipeID } = useParams();
     const [recipe, setRecipe] = useState(null);
-    const [userRating, setUserRating] = useState(0);
 
     //---------------------------------------------------------------------------
 
@@ -33,7 +36,9 @@ function Recipe() {
                 return;
             }
             else {
-                return response.json();
+                const recipeData = await response.json();
+                setRecipe(recipeData);
+                return;
             }
         } catch (error) {
             displayMessage("500 internal server error", "Error contacting the server");
@@ -45,8 +50,7 @@ function Recipe() {
     useEffect(() => {
         async function fetchRecipe() {
             try {
-                const recipeData = await getRecipeDetail(recipeID);
-                setRecipe(recipeData);
+                getRecipeDetail(recipeID);
             } catch (error) {
                 displayMessage("Error: ", error.error);
             }
@@ -55,132 +59,119 @@ function Recipe() {
     }, [recipeID]);
 
     //---------------------------------------------------------------------------
-
-    const handleRatingChange = async (newRating) => {
+    const handleLike = async () => {
         try {
             const backendApi = process.env.REACT_APP_BACKEND;
-            const response = await fetch(`${backendApi}/recipe/${recipeID}/rating`, {
+            const response = await fetch(`${backendApi}/recipe/${recipeID}/likes`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ rating: newRating }),
             });
 
             if (!response.ok) {
                 const errorResponse = await response.json();
-                displayMessage('Error', `Failed to update recipe rating: ${errorResponse.error}`);
-            } else {
-                // Update the local state with the new rating
-                setUserRating(newRating);
-                displayMessage('Success', 'Recipe rating updated successfully');
+                displayMessage('Error', `Failed to update likes: ${errorResponse.error}`);
+                return;
+            }
+            else {
+                // Update the state with the new number of likes
+                setRecipe((prevRecipe) => {
+                    return {
+                        ...prevRecipe,
+                        likes: prevRecipe.likes + 1,
+                    };
+                });
             }
         } catch (error) {
             displayMessage('500 internal server error', 'Error contacting the server');
+            return error;
         }
     };
 
-    //---------------------------------------------------------------------------
 
+    //---------------------------------------------------------------------------
     return (
         <div>
-            {recipe == null ? <p>loading...</p> :
-                <>
-                    <header>
-                        <Header />
-                    </header>
+            <header>
+                <Header />
+            </header>
 
-                    <div className="h-[35vw]">
-                        <section className="float-left w-7/12 h-[30vw] mt-28">
-                            <h1 className="text-center text-4xl py-10">{recipe.title}</h1>
-                            <hr className="border-slate-600 w-4/6 m-auto"></hr>
-                            <div className="bg-slate-200 mx-20 my-5 h-64 rounded-xl">
-                                <h3 className="text-xl px-10 pt-10"> {recipe.description} </h3>
-                            </div>
-                            {/*userid is a placeholder for username*/}
-                            <p className="text-2xl mx-20 mt-3 float-left">Added by: {recipe.username}</p>
-                            <div className="pr-20">
-                                <span class={recipe.rating >= 5 ? "coloured_star" : "uncoloured_star"}>★</span>
-                                <span class={recipe.rating >= 4 ? "coloured_star" : "uncoloured_star"}>★</span>
-                                <span class={recipe.rating >= 3 ? "coloured_star" : "uncoloured_star"}>★</span>
-                                <span class={recipe.rating >= 2 ? "coloured_star" : "uncoloured_star"}>★</span>
-                                <span class={recipe.rating >= 1 ? "coloured_star" : "uncoloured_star"}>★</span>
-                            </div>
-                        </section>
+            {isLoggedIn ? (
+                <div className="body_sections overflow-hidden pt-20">
 
-                        <aside className="float-right w-4/12 mt-32 m-auto">
-                            <img src={recipe.image} alt={`${recipe.title}`}
-                                class="recipe_image"></img>
-                        </aside>
+
+                    {recipe ? (
+                        <div className="p-12 mx-12 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
+
+                            <div className="flex justify-center items-center">
+                                {/* Left Section */}
+                                <div className="flex-1 mx-4 p-4">
+                                    <p className="font-arvo text-3xl text-center">{recipe.title}</p>
+                                    <hr className='mx-auto w-80 mt-2 border border-black'></hr>
+                                    <div className="my-10 p-12 rounded-3xl bg-zinc-200">
+                                        {recipe.description}
+                                    </div>
+                                    <div className="section1 flex items-center justify-center">
+                                        <div className="flex-1 mx-4 p-4">
+                                            <p className="font-arvo text-3xl text-center">Added By: {recipe.username}</p>
+                                        </div>
+                                        <div className="flex-1 mx-4 p-4">
+                                            <p className="font-arvo text-3xl text-center">Likes: {recipe.likes}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Section */}
+                                <div className="flex-1 mx-4 p-4 flex items-center justify-center">
+                                    <div className="relative w-96 h-96 aspect-w-1 aspect-h-1">
+                                        <img
+                                            src={recipe.image}
+                                            alt={`${recipe.title}`}
+                                            className="absolute inset-0 mx-auto my-auto object-contain rounded-lg"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-zinc-200 mt-8">
+                                <p>Ingredients: {recipe.Ingredients}</p>
+                                <p>Instructions: {recipe.Instructions}</p>
+                                <p>Total Cost: $ {recipe.totalCost} CAD</p>
+                                <br></br>
+                                <p>Nutritional Values</p>
+
+                                <p>Calories: {recipe.nutrients.calories} kcal</p>
+                            </div>
+
+
+                            {/* Like function */}
+                            <div className="flex bg-zinc-200 mt-8">
+                                <p>Like the Recipe</p>
+                                <button className="font-arvo bg-white hover:bg-slate-200 ml-12" onClick={handleLike}>Like</button>
+                            </div>
+
+
+                        </div>
+
+                    ) : (
+                        <p>Loading...</p>
+                    )}
+
+                </div>
+
+            ) : (
+                // if the user is not logged in
+                <div className="body-sections">
+                    <div className="mt-40">
+                        <p>You are not logged In</p>
                     </div>
-                    <div className="mt-28"></div>
+                </div>
+            )}
 
-                    <article>
-                        <div class="info_box">
-                            <h3 className="text-4xl px-20 pt-10">Ingredients</h3>
-                            <hr className="border-black w-11/12 m-auto"></hr>
-                            <p class="info_text">{recipe.Ingredients}</p>
-                        </div>
-
-                        <div class="info_box">
-                            <h3 className="text-4xl px-20 pt-10">Instructions</h3>
-                            <hr className="border-black w-11/12 m-auto"></hr>
-                            <p class="info_text">{recipe.Instructions}</p>
-                        </div>
-
-
-                        <div class="info_box">
-                            <h3 className="text-4xl px-20 pt-10">Post Time</h3>
-                            <hr className="border-black w-11/12 m-auto"></hr>
-                            <p class="info_text">{recipe.postTime}</p>
-                        </div>
-
-                        <div class="info_box">
-                            <h3 className="text-4xl px-20 pt-10">Total Cost</h3>
-                            <hr className="border-black w-11/12 m-auto"></hr>
-                            <p class="info_text">{recipe.totalCost}</p>
-                        </div>
-
-                        <div class="info_box">
-                            <h3 className="text-4xl px-20 pt-10">Nutrition</h3>
-                            <hr className="border-black w-11/12 m-auto"></hr>
-                            <p class="info_text">Calories: {recipe.nutrients.calories}</p>
-                        </div>
-
-
-
-                        <section className="m-auto w-3/4">
-                            <div className="flex items-center">
-                                <p className="info_text mr-2">Rate it:</p>
-                                {[1, 2, 3, 4, 5].map((number) => (
-                                    <span
-                                        key={number}
-                                        className={`rating_number ${userRating === number ? 'selected' : ''}`}
-                                        onClick={() => handleRatingChange(number)}
-                                    >
-                                        {number}
-                                    </span>
-                                ))}
-                                <button
-                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 ml-4 rounded"
-                                    onClick={() => handleRatingChange(userRating)}
-                                >
-                                    Submit Rating
-                                </button>
-                            </div>
-                            <hr className="border-black w-11/12 m-auto"></hr>
-                            <p className="info_text">Comments</p>
-                        </section>
-
-
-                        <div className="m-20"> </div>
-                    </article>
-
-                    <footer>
-                        <Footer />
-                    </footer>
-                </>
-            }
+            <footer>
+                <Footer />
+            </footer>
         </div>
     );
 }
