@@ -97,11 +97,6 @@ function Explore() {
                       className="w-96 h-96 object-cover rounded-md"
                     />
                     <h3 className="text-lg w-96 p-4 font-arvo text-center bg-zinc-200 font-semibold">{recipe.title}</h3>
-                    {!isLoggedIn && (
-                      <button onClick={showLoginPopupHandler}>
-                        Log in to view recipe
-                      </button>
-                    )}
                   </Link>
                 </div>
               ))}
