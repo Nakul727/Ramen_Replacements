@@ -91,7 +91,7 @@ function Explore() {
 
       <Modal isOpen={showLoginPopup} onRequestClose={hideLoginPopupHandler}
       className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-6 rounded-md shadow-lg text-white"
-      overlayClassName="fixed inset-0 bg-black opacity-75"  // Set opacity to 50 for a faded background
+      overlayClassName="fixed inset-0 bg-black opacity-75"
       contentLabel="Login Popup">
 
       <p>You must be logged in to view the recipes.</p>
