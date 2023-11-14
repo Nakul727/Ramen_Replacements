@@ -7,9 +7,16 @@ import { useAuth } from "../AuthContext.js";
 import Modal from "react-modal";
 
 function Explore() {
+
+  //---------------------------------------------------------------------------
+
   const [recipes, setRecipes] = useState([]);
   const { isLoggedIn } = useAuth();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+
+  //---------------------------------------------------------------------------
+
+  // async function to get all the recipes from the backend and db
 
   const handleExploreRecipes = async () => {
     try {
@@ -34,9 +41,12 @@ function Explore() {
     }
   };
 
+  // make sure the function is called on page load
   useEffect(() => {
     handleExploreRecipes();
   }, []);
+
+  //---------------------------------------------------------------------------
 
   // Function to show the login popup
   const showLoginPopupHandler = () => {
@@ -48,19 +58,36 @@ function Explore() {
     setShowLoginPopup(false);
   };
 
+  //---------------------------------------------------------------------------
+
   return (
     <div>
+
       <header>
         <Header />
       </header>
 
       <div className="body_sections overflow-hidden pt-20">
+        
+        {/* Section 1 - Welcome to the Explore page */}
+        {/* Section 2 - Search bar */}
+        {/* Section 1 - Filtering bar */}
+
+        {/* Section 4 - Recipes Grid */}
         <div className="py-20 mx-56 mb-12 rounded-3xl" style={{ backgroundColor: "lightgrey" }}>
+
           <h1>Recipes</h1>
+
+          {/* If the api response is null, there are no recipes */ 
+           /* Otherwise Display the recipes in a grid */}
+
           {recipes === null ? (
             <p>No recipe found.</p>
           ) : (
             <div className="grid grid-cols-3 gap-4">
+              
+              {/* If the user is logged in clicking on the recipe will display recipe card */}
+              {/* If the user is not logged in, popup is shown for logging in */}
               {recipes.map((recipe) => (
                 <div key={recipe.ID} className="border p-4 rounded-md">
                   <Link
@@ -81,8 +108,10 @@ function Explore() {
                   </Link>
                 </div>
               ))}
+
             </div>
           )}
+
         </div>
       </div>
 
@@ -90,6 +119,9 @@ function Explore() {
         <Footer />
       </footer>
 
+      {/* --------------------------------------------------------------------------- */}
+
+      {/* Popup using React Modal */}
       <Modal
         isOpen={showLoginPopup}
         onRequestClose={hideLoginPopupHandler}
@@ -110,6 +142,8 @@ function Explore() {
           Close
         </button>
       </Modal>
+
+      {/* --------------------------------------------------------------------------- */}
     </div>
   );
 }

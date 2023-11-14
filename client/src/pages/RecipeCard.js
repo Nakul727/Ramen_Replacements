@@ -8,10 +8,14 @@ import { useEffect, useState } from 'react'
 
 function Recipe() {
 
+    //---------------------------------------------------------------------------
+
     // Information Regarding the recipe
     const { recipeID } = useParams();
     const [recipe, setRecipe] = useState(null);
     const [userRating, setUserRating] = useState(0);
+
+    //---------------------------------------------------------------------------
 
     // Function to retrive recipe information from backend endpoint
     const getRecipeDetail = async (recipeID) => {
@@ -37,6 +41,21 @@ function Recipe() {
         }
     }
 
+    // get recipe details with API call
+    useEffect(() => {
+        async function fetchRecipe() {
+            try {
+                const recipeData = await getRecipeDetail(recipeID);
+                setRecipe(recipeData);
+            } catch (error) {
+                displayMessage("Error: ", error.error);
+            }
+        }
+        fetchRecipe();
+    }, [recipeID]);
+
+    //---------------------------------------------------------------------------
+
     const handleRatingChange = async (newRating) => {
         try {
             const backendApi = process.env.REACT_APP_BACKEND;
@@ -61,18 +80,7 @@ function Recipe() {
         }
     };
 
-    // get recipe details with API call
-    useEffect(() => {
-        async function fetchRecipe() {
-            try {
-                const recipeData = await getRecipeDetail(recipeID);
-                setRecipe(recipeData);
-            } catch (error) {
-                displayMessage("Error: ", error.error);
-            }
-        }
-        fetchRecipe();
-    }, [recipeID]);
+    //---------------------------------------------------------------------------
 
     return (
         <div>
@@ -163,10 +171,6 @@ function Recipe() {
                             <hr className="border-black w-11/12 m-auto"></hr>
                             <p className="info_text">Comments</p>
                         </section>
-
-
-
-
 
 
                         <div className="m-20"> </div>
