@@ -33,4 +33,5 @@ func RunRecipes(r *gin.Engine) {
 	r.GET("/recipe/:id/dashboard", DashboardRecipes)
 	r.GET("/recipe/:id", GetRecipeByID)
 	r.PUT("/recipe/:id/likes", UpdateLikes)
+	r.GET("/recipe/most_liked", MostLikedRecipe)
 }
