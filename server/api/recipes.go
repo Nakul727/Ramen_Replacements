@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -296,12 +295,9 @@ func MostLikedRecipe(c *gin.Context) {
         &recipe.ID, &recipe.Title, &recipe.Image,
     )
     if err != nil {
-        log.Println("Error scanning row:", err)
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve most liked recipe from the database"})
         return
     }
-
-    log.Println("Most liked recipe:", recipe)
 
     c.JSON(http.StatusOK, recipe)
 }

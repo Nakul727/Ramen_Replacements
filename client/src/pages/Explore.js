@@ -71,7 +71,7 @@ function Explore() {
 
         {/* Section 1 - Welcome to the Explore page */}
         {/* Section 2 - Search bar */}
-        {/* Section 1 - Filtering bar */}
+        {/* Section 3 - Filtering bar */}
 
         {/* Section 4 - Recipes Grid */}
         <div className="p-16" style={{ backgroundColor: "lightgrey" }}>
@@ -84,23 +84,23 @@ function Explore() {
           {recipes === null ? (
             <p>No recipe found.</p>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
-              {recipes.map((recipe) => (
-                <div key={recipe.ID} className="border p-4 rounded-md">
-                  <Link
-                    to={isLoggedIn ? `/recipe/${recipe.ID}` : "#"}
-                    onClick={isLoggedIn ? null : showLoginPopupHandler}
-                  >
-                    <img
-                      src={recipe.image}
-                      alt={recipe.title}
-                      className="w-96 h-96 object-cover rounded-md"
-                    />
-                    <h3 className="text-lg w-96 p-4 font-arvo text-center bg-zinc-200 font-semibold">{recipe.title}</h3>
-                  </Link>
-                </div>
+            <div className="grid grid-cols-3 gap-4 place-items-center">
+                {/* For each recipe in the grid col */}
+                {recipes.map((recipe) => (
+                  <div key={recipe.ID} className="border p-4 rounded-md text-center">
+                    <Link
+                      to={isLoggedIn ? `/recipe/${recipe.ID}` : "/login"}
+                      onClick={isLoggedIn ? null : showLoginPopupHandler}
+                    >
+                      <img
+                        src={recipe.image}
+                        alt={recipe.title}
+                        className="w-96 h-96 object-cover rounded-md mx-auto"
+                      />
+                      <h3 className="text-lg w-96 p-4 font-arvo bg-zinc-200 font-semibold">{recipe.title}</h3>
+                    </Link>
+                  </div>
               ))}
-
             </div>
           )}
 
@@ -127,18 +127,18 @@ function Explore() {
           </p>
 
           <div className="flex items-center justify-center">
-          <Link to="/login">
-            <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
-              Go to Login Page
-            </button>
-          </Link>
+            <Link to="/login">
+              <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
+                Go to Login Page
+              </button>
+            </Link>
 
-          <button
-            className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
-            onClick={hideLoginPopupHandler}
-          >
-            Close
-          </button>
+            <button
+              className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
+              onClick={hideLoginPopupHandler}
+            >
+              Close
+            </button>
           </div>
         </div>
       </Modal>

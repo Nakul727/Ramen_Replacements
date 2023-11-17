@@ -80,7 +80,7 @@ function Dashboard() {
               {recipes === null ? (
                 <p>No recipe found.</p>
               ) : (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-4 place-items-center">
                   {recipes.map((recipe) => (
                     <div key={recipe.ID} className="border p-4 rounded-md">
                       <Link

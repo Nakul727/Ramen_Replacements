@@ -52,7 +52,7 @@ function TopHomeRecipe() {
   return (
     <div>
       {topRecipe.ID ? (
-        <div key={topRecipe.ID} className="ml-20 mr-32 border border-black rounded-md">
+        <div key={topRecipe.ID} className="ml-20 mr-32 rounded-md">
           <Link
             to={isLoggedIn ? `/recipe/${topRecipe.ID}` : "#"}
             onClick={isLoggedIn ? null : showLoginPopupHandler}
