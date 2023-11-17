@@ -92,38 +92,38 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
-    const handleAutoFill = () => {
+  const handleAutoFill = () => {
 
-      // demo data as a object
-      const demoData = {
-        title: "The Lengendary 276 Sandwich",
-        image: "https://images.nightcafe.studio/jobs/DjXaUmDc5oRjE1d7uRqR/DjXaUmDc5oRjE1d7uRqR--1--76ikb.jpg?tr=w-1600,c-at_max",
-        description: "This is the most prestigous sandwich ever created. This recipe is not just for a demo, but for the world to remember as 'The legendary sandwich of Steve's 276 class'",
-        enteredInstructions: "Use the ingredients to make the sandwich\nEat it",
-      };
-  
-      // Set the state with demo data
-      setTitle(demoData.title);
-      setImage(demoData.image);
-      setDesc(demoData.description);
-      setEnteredInstructions(demoData.enteredInstructions);
-      setTags(["DemoTag1", "#Vegan"]);
-
-      setSelectedAppliances({
-        Oven: false,
-        Microwave: false,
-        Blender: false,
-        Stove: true,
-        Toaster: true,
-        "Air Fryer": false,
-        "Grill/Barbecue": false,
-        "Toaster Oven": false,
-        "Waffle Iron": false,
-        "Stand Mixer": false,
-        "Electric Mixer": false,
-        "Slow Cooker": false,
-      });
+    // demo data as a object
+    const demoData = {
+      title: "The Lengendary 276 Sandwich",
+      image: "https://images.nightcafe.studio/jobs/DjXaUmDc5oRjE1d7uRqR/DjXaUmDc5oRjE1d7uRqR--1--76ikb.jpg?tr=w-1600,c-at_max",
+      description: "This is the most prestigous sandwich ever created. This recipe is not just for a demo, but for the world to remember as 'The legendary sandwich of Steve's 276 class'",
+      enteredInstructions: "Use the ingredients to make the sandwich\nEat it",
     };
+
+    // Set the state with demo data
+    setTitle(demoData.title);
+    setImage(demoData.image);
+    setDesc(demoData.description);
+    setEnteredInstructions(demoData.enteredInstructions);
+    setTags(["DemoTag1", "Vegan"]);
+
+    setSelectedAppliances({
+      Oven: false,
+      Microwave: false,
+      Blender: false,
+      Stove: true,
+      Toaster: true,
+      "Air Fryer": false,
+      "Grill/Barbecue": false,
+      "Toaster Oven": false,
+      "Waffle Iron": false,
+      "Stand Mixer": false,
+      "Electric Mixer": false,
+      "Slow Cooker": false,
+    });
+  };
 
   //---------------------------------------------------------------------------
 
@@ -158,6 +158,25 @@ function RecipeMaker() {
         // update the required hooks accordingly
         const jsonResponse = await response.json();
         console.log("Parsed Ingredients:", jsonResponse);
+
+        // Check if any ingredients were not found
+        const notFoundIngredients = jsonResponse.filter(
+          (ingredient) => !ingredient.estimatedCost || !ingredient.estimatedCost.value
+        );
+
+        if (notFoundIngredients.length > 0) {
+          // Display an error message for not found ingredients
+          const notFoundIngredientNames = notFoundIngredients.map(
+            (ingredient) => ingredient.original
+          );
+          const errorMessage = `Some ingredients not found: ${notFoundIngredientNames.join(
+            ", "
+          )}. Please adjust your ingredient wording.`;
+
+          setErrorMessages([errorMessage]);
+          setDisplayInformation(false);
+          return;
+        }
 
         // Calculate total cost and update the state
         const newTotalCost = jsonResponse.reduce(
@@ -361,13 +380,13 @@ function RecipeMaker() {
             </div>
 
             <div className="flex items-center justify-center my-8">
-        <button
-          className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4"
-          onClick={handleAutoFill}
-        >
-          Auto Fill Demo
-        </button>
-      </div>
+              <button
+                className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4"
+                onClick={handleAutoFill}
+              >
+                Auto Fill Demo
+              </button>
+            </div>
 
             <hr className="mx-32 w-auto my-6 border-black"></hr>
 
@@ -509,7 +528,7 @@ function RecipeMaker() {
 
             <hr className="mx-32 w-auto my-6 border-black"></hr>
 
-            
+
 
             {/*---------------------------------------------------------------------------*/}
             {/* External API Call*/}
@@ -525,7 +544,6 @@ function RecipeMaker() {
             {/* Display error messages */}
             {errorMessages.length > 0 && (
               <div className="error-messages mx-32 text-red-800 text-center">
-                <p>Please fix the following issues:</p>
                 <ul>
                   {errorMessages.map((error, index) => (
                     <li key={index}>{error}</li>
