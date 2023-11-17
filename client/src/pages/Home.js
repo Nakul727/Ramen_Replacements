@@ -13,7 +13,7 @@ function Home() {
       </header>
 
       <div className="body_sections">
-        <div className="section1 mt-32 md:mt-20 flex flex-col items-center justify-center bg-zinc-100">
+        <div className="section1 mt-32 md:mt-20 flex flex-col items-center justify-center bg-orange-200">
           <div className="flex-1 mx-4 px-4 w-full">
             <img
               src={home_img}
@@ -36,7 +36,7 @@ function Home() {
         </div>
       </div>
 
-      <div className="px-16 pb-16" style={{ backgroundColor: "lightgrey" }}>
+      <div className="px-16 pb-16 bg-amber-100">
         <div className="flex justify-center items-center">
           {/* Left Section */}
           <div className="flex-1 ml-20 p-4">
