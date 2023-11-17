@@ -117,22 +117,30 @@ function Explore() {
       <Modal
         isOpen={showLoginPopup}
         onRequestClose={hideLoginPopupHandler}
-        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-6 rounded-md shadow-lg text-white"
-        overlayClassName="fixed inset-0 bg-black opacity-75"
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-6 rounded-md"
+        overlayClassName="fixed inset-0 bg-zinc-200 bg-opacity-75"
         contentLabel="Login Popup"
       >
-        <p>You must be logged in to view the recipes.</p>
-        <Link to="/login">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-blue-600">
-            Go to Login Page
+        <div className="bg-zinc-500 p-10 bg-opacity-100 rounded-md">
+          <p className="text-lg lg:text-xl font-arvo text-neutral-200 mb-8">
+            You must be logged in to view the recipes.
+          </p>
+
+          <div className="flex items-center justify-center">
+          <Link to="/login">
+            <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
+              Go to Login Page
+            </button>
+          </Link>
+
+          <button
+            className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
+            onClick={hideLoginPopupHandler}
+          >
+            Close
           </button>
-        </Link>
-        <button
-          className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400"
-          onClick={hideLoginPopupHandler}
-        >
-          Close
-        </button>
+          </div>
+        </div>
       </Modal>
 
       {/* --------------------------------------------------------------------------- */}

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -277,6 +278,32 @@ func UpdateLikes(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+//----------------------------------------------------------------------------------
+
+func MostLikedRecipe(c *gin.Context) {
+    row := db.QueryRow(`
+        SELECT id, title, image
+        FROM recipes
+        ORDER BY likes DESC
+        LIMIT 1
+    `)
+
+    var recipe Recipe
+
+    err := row.Scan(
+        &recipe.ID, &recipe.Title, &recipe.Image,
+    )
+    if err != nil {
+        log.Println("Error scanning row:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve most liked recipe from the database"})
+        return
+    }
+
+    log.Println("Most liked recipe:", recipe)
+
+    c.JSON(http.StatusOK, recipe)
 }
 
 //----------------------------------------------------------------------------------
