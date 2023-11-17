@@ -36,7 +36,7 @@ function Home() {
         </div>
       </div>
 
-      <div className="px-16 pb-16 bg-amber-100">
+      <div className="px-16 pb-16 pt-16 bg-amber-100">
         <div className="flex justify-center items-center">
           {/* Left Section */}
           <div className="flex-1 ml-20 p-4">

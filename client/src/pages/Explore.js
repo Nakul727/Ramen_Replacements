@@ -89,7 +89,7 @@ function Explore() {
                 {recipes.map((recipe) => (
                   <div key={recipe.ID} className="border p-4 rounded-md text-center">
                     <Link
-                      to={isLoggedIn ? `/recipe/${recipe.ID}` : "/login"}
+                      to={isLoggedIn ? `/recipe/${recipe.ID}` : "#"}
                       onClick={isLoggedIn ? null : showLoginPopupHandler}
                     >
                       <img
