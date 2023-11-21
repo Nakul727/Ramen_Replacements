@@ -1,5 +1,4 @@
 import '../styles/Home.css';
-import '../styles/RecipeCard.css';
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
 import { Header } from '../components/header.js';
