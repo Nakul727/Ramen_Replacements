@@ -6,6 +6,8 @@ import home_img from "../assets/whitebg.svg";
 import { TopHomeRecipe } from "../components/TopHomeRecipe.js";
 
 function Home() {
+  console.log('Micah was here.')
+
   return (
     <div className="homepage">
       <header>
