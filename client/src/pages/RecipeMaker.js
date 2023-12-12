@@ -92,41 +92,6 @@ function RecipeMaker() {
 
   //---------------------------------------------------------------------------
 
-  const handleAutoFill = () => {
-
-    // demo data as a object
-    const demoData = {
-      title: "The Legendary 276 Sandwich",
-      image: "https://images.nightcafe.studio/jobs/DjXaUmDc5oRjE1d7uRqR/DjXaUmDc5oRjE1d7uRqR--1--76ikb.jpg?tr=w-1600,c-at_max",
-      description: "This is the most prestigious sandwich ever created. This recipe is not just for a demo, but for the world to remember as 'The legendary sandwich of Steve's 276 class'",
-      enteredInstructions: "Use the ingredients to make the sandwich\nEat it",
-    };
-
-    // Set the state with demo data
-    setTitle(demoData.title);
-    setImage(demoData.image);
-    setDesc(demoData.description);
-    setEnteredInstructions(demoData.enteredInstructions);
-    setTags(["DemoTag1", "Vegan"]);
-
-    setSelectedAppliances({
-      Oven: false,
-      Microwave: false,
-      Blender: false,
-      Stove: true,
-      Toaster: true,
-      "Air Fryer": false,
-      "Grill/Barbecue": false,
-      "Toaster Oven": false,
-      "Waffle Iron": false,
-      "Stand Mixer": false,
-      "Electric Mixer": false,
-      "Slow Cooker": false,
-    });
-  };
-
-  //---------------------------------------------------------------------------
-
   // main handler function - handling cost and nutritional component rendering
   // get the information from the field of ingredients (External API)
   // call the spoonacular api -> update the cost and nutritional react hooks
