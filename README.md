@@ -46,12 +46,11 @@ This is a community-based food sharing platform, where users can create, share, 
 
 #### Requirements
 
-- GoLang
-- PostgreSQL
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [go](https://go.dev/doc/install)
+- [postgres](https://www.postgresql.org/download/)
 
-</br>
-
-Read more about the project and local developement [here](./docs/).
+Read more local developement [here](./docs/).
 
 ---
 
@@ -65,6 +64,3 @@ Read more about the project and local developement [here](./docs/).
 ```
 
 ---
-## License
-
-All code in this repository is licensed under MIT—see the [LICENSE](LICENSE) file for more information.
