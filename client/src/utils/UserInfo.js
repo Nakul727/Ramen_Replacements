@@ -1,8 +1,5 @@
 import { useAuth } from '../AuthContext.js';
 
-// function to extract userInfo from the JWT token 
-// stored at the client local storage
-
 const getUserInfo = () => {
 
     const { isLoggedIn } = useAuth();

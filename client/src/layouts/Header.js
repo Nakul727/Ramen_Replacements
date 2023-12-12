@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo_img from '../assets/logo.png';
-import dropdown_img from '../assets/dropdown.png';
+
 import { useAuth } from '../AuthContext.js';
 import { useNavigate } from 'react-router-dom';
-import { getUserInfo } from '../helpers/userinfo.js';
+import { getUserInfo } from '../utils/userinfo.js';
+
+import logo_img from '../assets/logo.png';
+import dropdown_img from '../assets/dropdown.png';
 
 const buttonStyles = "block mr-2 py-3 px-4 text-gray-900 rounded-xl hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out";
 
