@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"server/utils"
@@ -15,8 +14,9 @@ import (
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// set up account struct with username, profile picture, id number, and password
-// This is the parametres that the register function expects
+// STRUCTS
+
+// Account is a struct that represents a user account
 type Account struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
@@ -25,7 +25,7 @@ type Account struct {
 	PFP      string `json:"pfp"`
 }
 
-// This is the parameters that the login function expects
+// LoginStruct is a struct that represents a user login
 type LoginStruct struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -33,66 +33,86 @@ type LoginStruct struct {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// HELPER FUNCTION
+// HELPER FUNCTIONS
 
+// jsonProfile is a helper function that returns a user profile in JSON format
 func jsonProfile(c *gin.Context, res *sql.Rows) error {
+	var profiles []gin.H
 	found := false
+
 	for res.Next() {
 		found = true
-		var u, e, p, pw string
+		var u, e, p string
 		var i int
-		if err := res.Scan(&i, &u, &e, &p, &pw); err != nil {
+		if err := res.Scan(&i, &u, &e, &p); err != nil {
 			return err
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"name":     u,
-			"pfp":      p,
-			"email":    e,
-			"id":       i,
-			"password": pw,
+		profiles = append(profiles, gin.H{
+			"name":  u,
+			"pfp":   p,
+			"email": e,
+			"id":    i,
 		})
 	}
-	// if no profiles found
+
+	// return error if no user is found
 	if !found {
 		return errors.New("no user found")
 	}
+
+	c.JSON(http.StatusOK, profiles)
 	return nil
+}
+
+// prepareAndExecute is a helper function that prepares and executes a SQL query
+// preparing before querying prevents SQL injections
+func prepareAndExecute(query string, args ...interface{}) (*sql.Rows, error) {
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return nil, err
+    }
+    res, err := stmt.Query(args...)
+    if err != nil {
+        return nil, err
+    }
+    return res, nil
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// HANDLER FUNCTION
+// HANDLER FUNCTIONS
+
+// Endpoint: /acc/user (GET)
+// Returns a user profile given a username
 func GetUserByName(c *gin.Context) {
-	name := c.DefaultQuery("name", "NULL")
+	name := c.Query("name")
+
 	// return error if no account name is provided
-	if name == "NULL" || name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "no username provided", 
-		})
+	if name == "" {
+		utils.RespondWithError(c, http.StatusBadRequest, "No username provided")
 		return
 	}
 
-	// query database for given name
-	res, err := db.Query("SELECT * FROM Users WHERE name=$1", name)
+	// prepare and execute the query
+	res, err := prepareAndExecute("SELECT * FROM Users WHERE name=$1", name)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+
 	// return found user data
 	err = jsonProfile(c, res)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		utils.RespondWithError(c, http.StatusNotFound, err.Error())
 	}
 }
 
+// Endpoint: /acc/users (GET)
+// Returns all user profiles
 func GetAllUsers(c *gin.Context) {
-	res, err := db.Query("SELECT * FROM Users")
+	res, err := prepareAndExecute("SELECT * FROM Users")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -101,7 +121,7 @@ func GetAllUsers(c *gin.Context) {
 		var u, p, e, pw string
 		var i int
 		if err := res.Scan(&i, &u, &e, &pw, &p); err != nil {
-			c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+			utils.RespondWithError(c, http.StatusBadGateway, err.Error())
 			return
 		}
 		var account Account
@@ -114,108 +134,85 @@ func GetAllUsers(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, accounts)
 }
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// Registeration
-
+// Endpoint: /acc/create (POST)
+// Creates a new user profile
 func CreateAccount(c *gin.Context) {
 	var acc Account
 	err := c.BindJSON(&acc)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error with input"})
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// Check if username already exists
-	res, err := db.Query("SELECT * FROM Users WHERE name=$1", acc.Username)
+	// Check if username or email already exists
+	res, err := prepareAndExecute("SELECT * FROM Users WHERE username=$1 OR email=$2", acc.Username, acc.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
+		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if res.Next() {
+		utils.RespondWithError(c, http.StatusBadRequest, "Username or email already exists")
 		return
 	}
 
-	// If the user already exists in the database, prompt the user to pick a different name
-	for res.Next() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User with name already exists"})
-		return
-	}
-
-	// Check if an account with the associated email already exists
-	res, err = db.Query("SELECT * FROM Users WHERE email=$1", acc.Email)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: error querying database"})
-		return
-	}
-
-	for res.Next() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User with associated email already exists"})
-		return
-	}
-
-	// otherwise insert it into database as a new user
-	// password hashing before insertion
+	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(acc.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Hashing password operation failed"})
+		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	acc.Password = string(hashedPassword)
 
-	// insertion into database as a new user
-	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
+	// Insert the new account into the database
+	_, err = prepareAndExecute("INSERT INTO Users (username, email, password, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing the password"})
+		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Insert the user into the database with the hashed password
-	_, err = db.Exec("INSERT INTO Users (name, email, pass, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, hashedPassword, acc.PFP)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error inserting into the database"})
-		return
-	}
-	c.String(http.StatusAccepted, "Profile created")
+	c.JSON(http.StatusOK, gin.H{"message": "Account created successfully"})
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// Login and Authentication
+// Endpoint: /acc/login (POST)
+// Logs in and authenticates a user
 func LoginUser(c *gin.Context) {
 	var loginInfo LoginStruct
 
-	// Attempt to bind JSON request data
 	if err := c.BindJSON(&loginInfo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error with input"})
-		fmt.Printf("Error binding JSON: %v\n", err)
+		utils.RespondWithError(c, http.StatusBadRequest, "Error with input")
 		return
 	}
 
-	// Query the database for the user, including the userID and pfp
-	row := db.QueryRow("SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
+	row, err := prepareAndExecute("SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
+	if err != nil {
+		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if !row.Next() {
+		utils.RespondWithError(c, http.StatusUnauthorized, "Authentication failed. User not found.")
+		return
+	}
+
+	// Get the hashed password from the database
 	var userID int
 	var pfp, username, hashedPassword string
-	err := row.Scan(&userID, &username, &hashedPassword, &pfp)
+	err = row.Scan(&userID, &username, &hashedPassword, &pfp)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. User not found."})
-		fmt.Printf("User not found in the database: %v\n", err)
+		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Login Check function embedded
-	// Compare the hashed password with the provided password
-	// Verify Password
+	// Compare the stored hashed password, with the hashed version of the password that was received
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginInfo.Password))
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed. Invalid password."})
-		fmt.Printf("Password comparison failed: %v\n", err)
+		utils.RespondWithError(c, http.StatusUnauthorized, "Authentication failed. Invalid password.")
 		return
 	}
 
-	// Generate a JWT token with the userID
+	// Generate JWT token
 	token, err := utils.GenerateToken(userID, username, pfp)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation failed"})
-		fmt.Printf("Token generation failed: %v\n", err)
+		utils.RespondWithError(c, http.StatusInternalServerError, "Token generation failed")
 		return
 	}
 
