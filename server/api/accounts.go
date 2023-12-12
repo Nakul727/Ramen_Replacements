@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------
 
 // STRUCTS
 
@@ -31,7 +31,7 @@ type LoginStruct struct {
 	Password string `json:"password"`
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------
 
 // HELPER FUNCTIONS
 
@@ -64,21 +64,7 @@ func jsonProfile(c *gin.Context, res *sql.Rows) error {
 	return nil
 }
 
-// prepareAndExecute is a helper function that prepares and executes a SQL query
-// preparing before querying prevents SQL injections
-func prepareAndExecute(query string, args ...interface{}) (*sql.Rows, error) {
-    stmt, err := db.Prepare(query)
-    if err != nil {
-        return nil, err
-    }
-    res, err := stmt.Query(args...)
-    if err != nil {
-        return nil, err
-    }
-    return res, nil
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------
 
 // HANDLER FUNCTIONS
 
@@ -94,7 +80,7 @@ func GetUserByName(c *gin.Context) {
 	}
 
 	// prepare and execute the query
-	res, err := prepareAndExecute("SELECT * FROM Users WHERE name=$1", name)
+	res, err := utils.PrepareAndExecute(db, "SELECT * FROM Users WHERE name=$1", name)
 	if err != nil {
 		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
@@ -110,7 +96,7 @@ func GetUserByName(c *gin.Context) {
 // Endpoint: /acc/users (GET)
 // Returns all user profiles
 func GetAllUsers(c *gin.Context) {
-	res, err := prepareAndExecute("SELECT * FROM Users")
+	res, err := utils.PrepareAndExecute(db, "SELECT * FROM Users")
 	if err != nil {
 		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
@@ -145,7 +131,7 @@ func CreateAccount(c *gin.Context) {
 	}
 
 	// Check if username or email already exists
-	res, err := prepareAndExecute("SELECT * FROM Users WHERE username=$1 OR email=$2", acc.Username, acc.Email)
+	res, err := utils.PrepareAndExecute(db, "SELECT * FROM Users WHERE username=$1 OR email=$2", acc.Username, acc.Email)
 	if err != nil {
 		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
@@ -164,7 +150,7 @@ func CreateAccount(c *gin.Context) {
 	acc.Password = string(hashedPassword)
 
 	// Insert the new account into the database
-	_, err = prepareAndExecute("INSERT INTO Users (username, email, password, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
+	_, err = utils.PrepareAndExecute(db, "INSERT INTO Users (username, email, password, pfp) VALUES ($1, $2, $3, $4)", acc.Username, acc.Email, acc.Password, acc.PFP)
 	if err != nil {
 		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
@@ -183,7 +169,7 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	row, err := prepareAndExecute("SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
+	row, err := utils.PrepareAndExecute(db, "SELECT id, name, pass, pfp FROM Users WHERE name = $1", loginInfo.Username)
 	if err != nil {
 		utils.RespondWithError(c, http.StatusInternalServerError, err.Error())
 		return
@@ -219,4 +205,4 @@ func LoginUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------

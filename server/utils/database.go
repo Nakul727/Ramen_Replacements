@@ -10,7 +10,6 @@ import (
 )
 
 func InitDB() (*sql.DB, error) {
-
 	// Make sure environment variables can be loaded
 	err := godotenv.Load()
 	if err != nil {
@@ -23,15 +22,24 @@ func InitDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Ping the server to check status
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
-	// If the connection has been established successfully
 	log.Println("Successfully connected to PostgreSQL server")
-
-	// Return a pointer to the database
 	return db, nil
+}
+
+// prepareAndExecute is a helper function that prepares and executes a SQL query
+// preparing before querying prevents SQL injections
+func PrepareAndExecute(db *sql.DB, query string, args ...interface{}) (*sql.Rows, error) {
+    stmt, err := db.Prepare(query)
+    if err != nil {
+        return nil, err
+    }
+    res, err := stmt.Query(args...)
+    if err != nil {
+        return nil, err
+    }
+    return res, nil
 }
