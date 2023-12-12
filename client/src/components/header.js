@@ -4,7 +4,7 @@ import logo_img from '../assets/logo.png';
 import dropdown_img from '../assets/dropdown.png';
 import { useAuth } from '../AuthContext.js';
 import { useNavigate } from 'react-router-dom';
-import { getUserInfo } from './UserInfo.js';
+import { getUserInfo } from '../helpers/userinfo.js';
 
 const buttonStyles = "block mr-2 py-3 px-4 text-gray-900 rounded-xl hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out";
 

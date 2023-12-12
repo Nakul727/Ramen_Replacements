@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Header } from "../components/header.js";
 import { Footer } from "../components/footer.js";
 import home_img from "../assets/whitebg.svg";
-import { TopHomeRecipe } from "../components/TopHomeRecipe.js";
+import { TopHomeRecipe } from "../helpers/api.js";
 
 function Home() {
   console.log('Micah was here.')

@@ -2,7 +2,7 @@ import '../styles/Home.css';
 import { Footer } from "../components/footer.js";
 import { useParams } from 'react-router-dom';
 import { Header } from '../components/header.js';
-import { displayMessage } from "../components/helper.js";
+import { displayMessage } from "../components/message.js";
 import { useEffect, useState } from 'react'
 import { useAuth } from '../AuthContext.js';
 

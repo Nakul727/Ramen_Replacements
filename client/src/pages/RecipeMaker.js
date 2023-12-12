@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Header } from "../components/header.js";
 import { Footer } from "../components/footer.js";
 import { useAuth } from "../AuthContext.js";
-import { getUserInfo } from "../components/UserInfo.js";
+import { getUserInfo } from "../helpers/userinfo.js";
 import { useNavigate } from "react-router-dom";
 
 function RecipeMaker() {
@@ -342,15 +342,6 @@ function RecipeMaker() {
                 onChange={(e) => setImage(e.target.value)}
                 className="block rounded-xl w-96 p-2 focus:outline-none focus-border-indigo-500 text-gray-700"
               />
-            </div>
-
-            <div className="flex items-center justify-center my-8">
-              <button
-                className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4"
-                onClick={handleAutoFill}
-              >
-                Auto Fill Demo
-              </button>
             </div>
 
             <hr className="mx-32 w-auto my-6 border-black"></hr>

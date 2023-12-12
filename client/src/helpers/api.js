@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { displayMessage } from "../components/helper.js";
+import { displayMessage } from "../components/message.js";
 import { useAuth } from "../AuthContext.js";
 import Modal from "react-modal";
 

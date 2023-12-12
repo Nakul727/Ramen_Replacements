@@ -1,10 +1,12 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
-import { displayMessage } from "../components/helper.js";
+
+import { displayMessage } from '../components/message.js';
 import { Header } from '../components/header.js';
 import { Footer } from '../components/footer.js';
+import { getUserInfo } from '../helpers/userinfo.js';
+
 import { useAuth } from '../AuthContext.js';
-import { getUserInfo } from '../components/UserInfo.js';
 import { Link } from "react-router-dom";
 
 
@@ -12,6 +14,7 @@ function Dashboard() {
 
   const { isLoggedIn } = useAuth();
   const userInfo = getUserInfo();
+  
   const [recipes, setRecipes] = useState([]);
 
   const handleDashboardRecipes = async () => {
