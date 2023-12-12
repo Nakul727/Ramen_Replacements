@@ -1,42 +1,30 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
+import { Link } from "react-router-dom";
+import { useAuth } from '../AuthContext.js';
 
 import { displayMessage } from '../components/message.js';
 import { Header } from '../components/header.js';
 import { Footer } from '../components/footer.js';
-import { getUserInfo } from '../helpers/userinfo.js';
 
-import { useAuth } from '../AuthContext.js';
-import { Link } from "react-router-dom";
+import { getUserInfo } from '../helpers/userinfo.js';
+import { fetchDashboardRecipes } from '../helpers/api.js';
 
 
 function Dashboard() {
 
-  const { isLoggedIn } = useAuth();
   const userInfo = getUserInfo();
-  
+  const { isLoggedIn } = useAuth();
+
   const [recipes, setRecipes] = useState([]);
 
+  // Getting the dashboard recipes from the backend
   const handleDashboardRecipes = async () => {
     try {
-      const backendApi = process.env.REACT_APP_BACKEND;
-      const response = await fetch(`${backendApi}/recipe/${userInfo.userID}/dashboard`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        displayMessage('Error', `Failed to fetch recipes: ${errorResponse.error}`);
-        return;
-      } else {
-        const data = await response.json();
-        setRecipes(data);
-      }
+      const data = await fetchDashboardRecipes(userInfo.userID);
+      setRecipes(data);
     } catch (error) {
-      displayMessage('Error', `An error occurred while fetching recipes: ${error}`);
+      displayMessage('Error', `An error occurred while fetching recipes: ${error.message}`);
     }
   };
 

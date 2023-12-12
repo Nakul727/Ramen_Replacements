@@ -4,40 +4,22 @@ import { Header } from "../components/header.js";
 import { displayMessage } from "../components/message.js";
 import { Footer } from "../components/footer.js";
 import { useAuth } from "../AuthContext.js";
+import { fetchExploreRecipes } from "../helpers/api.js";
 import Modal from "react-modal";
 
 function Explore() {
 
-  //---------------------------------------------------------------------------
-
-  const [recipes, setRecipes] = useState([]);
   const { isLoggedIn } = useAuth();
+  
+  const [recipes, setRecipes] = useState([]);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-
-  //---------------------------------------------------------------------------
-
-  // async function to get all the recipes from the backend and db
 
   const handleExploreRecipes = async () => {
     try {
-      const backendApi = process.env.REACT_APP_BACKEND;
-      const response = await fetch(`${backendApi}/recipe/explore`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        displayMessage('Error', `Failed to fetch recipes: ${errorResponse.error}`);
-        return;
-      } else {
-        const data = await response.json();
-        setRecipes(data);
-      }
+      const data = await fetchExploreRecipes();
+      setRecipes(data);
     } catch (error) {
-      displayMessage('Error', `An error occurred while fetching recipes: ${error}`);
+      displayMessage('Error', `An error occurred while fetching recipes: ${error.message}`);
     }
   };
 

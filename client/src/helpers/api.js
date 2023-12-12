@@ -4,6 +4,46 @@ import { displayMessage } from "../components/message.js";
 import { useAuth } from "../AuthContext.js";
 import Modal from "react-modal";
 
+async function fetchDashboardRecipes(userId) {
+  const backendApi = process.env.REACT_APP_BACKEND;
+  const response = await fetch(`${backendApi}/recipe/${userId}/dashboard`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(`Failed to fetch recipes: ${errorResponse.error}`);
+  }
+
+  const data = await response.json();
+  return data;
+}
+
+async function fetchExploreRecipes() {
+  const backendApi = process.env.REACT_APP_BACKEND;
+  const response = await fetch(`${backendApi}/recipe/explore`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(`Failed to fetch recipes: ${errorResponse.error}`);
+  }
+
+  const data = await response.json();
+  return data;
+}
+
+
+
+
+
 function TopHomeRecipe() {
   const [topRecipe, setTopRecipe] = useState({});
   const { isLoggedIn } = useAuth();
@@ -84,18 +124,18 @@ function TopHomeRecipe() {
           </p>
 
           <div className="flex items-center justify-center">
-          <Link to="/login">
-            <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
-              Go to Login Page
-            </button>
-          </Link>
+            <Link to="/login">
+              <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
+                Go to Login Page
+              </button>
+            </Link>
 
-          <button
-            className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
-            onClick={hideLoginPopupHandler}
-          >
-            Close
-          </button>
+            <button
+              className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
+              onClick={hideLoginPopupHandler}
+            >
+              Close
+            </button>
           </div>
         </div>
       </Modal>
@@ -103,4 +143,4 @@ function TopHomeRecipe() {
   );
 }
 
-export { TopHomeRecipe };
+export { TopHomeRecipe, fetchDashboardRecipes, fetchExploreRecipes };
