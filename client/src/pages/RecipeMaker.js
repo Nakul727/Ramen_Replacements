@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Header } from "../components/header.js";
-import { Footer } from "../components/footer.js";
 import { useAuth } from "../AuthContext.js";
-import { getUserInfo } from "../helpers/userinfo.js";
 import { useNavigate } from "react-router-dom";
+
+import { Header, Footer } from "../layouts/index.js";
+import { getUserInfo } from "../utils/UserInfo.js";
+
 
 function RecipeMaker() {
   //---------------------------------------------------------------------------

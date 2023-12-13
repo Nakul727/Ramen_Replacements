@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { displayMessage } from "../components/message.js";
 import { useAuth } from "../AuthContext.js";
 import Modal from "react-modal";
+
+import { displayMessage } from "./Message.js";
 
 async function fetchDashboardRecipes(userId) {
   const backendApi = process.env.REACT_APP_BACKEND;
@@ -39,8 +40,6 @@ async function fetchExploreRecipes() {
   const data = await response.json();
   return data;
 }
-
-
 
 
 
