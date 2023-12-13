@@ -49,7 +49,7 @@ const Header = () => {
                 </Button>
 
                 <div className="relative">
-                  <Button onClick={toggleDropdown}>
+                  <Button onClick={toggleDropdown} className={"flex items-center justify-center"}>
                     <img
                       src={userInfo.pfp}
                       alt="User Profile Picture"

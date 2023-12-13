@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 const buttonStyles = "block mr-2 py-3 px-4 text-gray-900 rounded-xl hover:bg-gray-100 md-hover-bg-transparent transition-all duration-200 ease-in-out";
 
+// button component
 const Button = ({ onClick, children, className, disabled }) => {
     return (
         <button
@@ -15,6 +16,7 @@ const Button = ({ onClick, children, className, disabled }) => {
     );
 };
 
+// check prop types
 Button.propTypes = {
     onClick: PropTypes.func,
     children: PropTypes.node.isRequired,
@@ -22,6 +24,7 @@ Button.propTypes = {
     disabled: PropTypes.bool,
 };
 
+// set default props
 Button.defaultProps = {
     onClick: () => {},
     className: '',

@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useAuth } from '../AuthContext.js';
 
@@ -10,12 +9,11 @@ import { Header, Footer } from '../layouts/index.js';
 
 function Dashboard() {
 
-  const userInfo = getUserInfo();
   const { isLoggedIn } = useAuth();
+  const userInfo = getUserInfo();
 
   const [recipes, setRecipes] = useState([]);
 
-  // Getting the dashboard recipes from the backend
   const handleDashboardRecipes = async () => {
     try {
       const data = await fetchDashboardRecipes(userInfo.userID);
