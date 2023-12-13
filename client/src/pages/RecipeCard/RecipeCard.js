@@ -1,10 +1,10 @@
 import '../styles/Home.css';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react'
-import { useAuth } from '../AuthContext.js';
+import { useAuth } from '../../AuthContext.js';
 
-import { Header } from "../layouts/index.js";
-import { displayMessage } from "../utils/Message.js";
+import { Header } from "../../layouts/index.js";
+import { displayMessage } from "../../utils/Message.js";
 
 function Recipe() {
 

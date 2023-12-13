@@ -5,6 +5,9 @@ import Modal from "react-modal";
 
 import { displayMessage } from "./Message.js";
 
+//-----------------------------------------------------------------------------
+
+// Dashboard.js
 async function fetchDashboardRecipes(userId) {
   const backendApi = process.env.REACT_APP_BACKEND;
   const response = await fetch(`${backendApi}/recipe/${userId}/dashboard`, {
@@ -23,6 +26,9 @@ async function fetchDashboardRecipes(userId) {
   return data;
 }
 
+//-----------------------------------------------------------------------------
+
+// Explore.js
 async function fetchExploreRecipes() {
   const backendApi = process.env.REACT_APP_BACKEND;
   const response = await fetch(`${backendApi}/recipe/explore`, {
@@ -41,8 +47,9 @@ async function fetchExploreRecipes() {
   return data;
 }
 
+//-----------------------------------------------------------------------------
 
-
+// Home.js
 function TopHomeRecipe() {
   const [topRecipe, setTopRecipe] = useState({});
   const { isLoggedIn } = useAuth();
@@ -141,5 +148,31 @@ function TopHomeRecipe() {
     </div>
   );
 }
+
+//-----------------------------------------------------------------------------
+
+
+
+
+
+
+//-----------------------------------------------------------------------------
+
+
+
+
+
+
+
+//-----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+//-----------------------------------------------------------------------------
 
 export { TopHomeRecipe, fetchDashboardRecipes, fetchExploreRecipes };

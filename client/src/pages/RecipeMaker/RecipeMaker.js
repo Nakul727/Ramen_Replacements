@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useAuth } from "../AuthContext.js";
+import { useAuth } from "../../AuthContext.js";
 import { useNavigate } from "react-router-dom";
 
-import { Header, Footer } from "../layouts/index.js";
-import { getUserInfo } from "../utils/UserInfo.js";
+import { Header, Footer, useTags } from "../../containers/index.js";
+import { getUserInfo } from "../../utils/UserInfo.js";
+
 
 
 function RecipeMaker() {
@@ -101,7 +102,6 @@ function RecipeMaker() {
     if (!checkEmptyFields()) {
       return;
     }
-
     try {
       const ingredientList = enteredIngredients;
       const servings = 1;

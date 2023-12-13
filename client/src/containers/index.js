@@ -2,3 +2,4 @@ export { default as Header } from './Header.js';
 export { default as Footer } from './Footer.js';
 export { default as Form } from './Form.js';
 export { default as Popup } from './Popup.js';
+export { default as useTags } from './Tags.js';

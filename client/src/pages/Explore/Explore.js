@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Modal from "react-modal";
 
-import { useAuth } from "../AuthContext.js";
-import { Header, Footer } from "../layouts/index.js";
-import { fetchExploreRecipes } from "../utils/Api.js";
+import { useAuth } from "../../AuthContext.js";
+import { Header, Footer } from "../../layouts/index.js";
+import { fetchExploreRecipes } from "../../utils/Api.js";
 
 function Explore() {
 

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
-import { useAuth } from '../AuthContext.js';
+import { useAuth } from '../../AuthContext.js';
 
-import { fetchDashboardRecipes } from '../utils/Api.js';
-import { getUserInfo } from '../utils/UserInfo.js';
-import { Header, Footer } from '../layouts/index.js';
+import { fetchDashboardRecipes } from '../../utils/Api.js';
+import { getUserInfo } from '../../utils/UserInfo.js';
+import { Header, Footer } from '../../layouts/index.js';
 
 
 function Dashboard() {

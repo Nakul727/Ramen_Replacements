@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext.js";
+import { useAuth } from "../../AuthContext.js";
 
-import { Header, Footer } from "../layouts/index.js";
-import { displayMessage } from "../utils/Message.js";
+import { Header, Footer } from "../../layouts/index.js";
+import { displayMessage } from "../../utils/Message.js";
 
 function Login() {
 
