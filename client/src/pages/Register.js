@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Header } from "../components/header.js";
-import { displayMessage } from "../components/message.js";
-import { Footer } from "../components/footer.js";
 import { useAuth } from "../AuthContext.js";
+
+import { Header, Footer } from "../layouts/index.js";
+import { displayMessage } from "../utils/Message.js";
 
 function Register() {
 

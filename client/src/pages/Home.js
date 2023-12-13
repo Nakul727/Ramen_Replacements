@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Header } from "../components/header.js";
-import { Footer } from "../components/footer.js";
+
 import home_img from "../assets/whitebg.svg";
-import { TopHomeRecipe } from "../helpers/api.js";
+import { Header, Footer } from "../layouts/index.js";
+import { TopHomeRecipe } from "../utils/Api.js";
 
 function Home() {
   console.log('Micah was here.')

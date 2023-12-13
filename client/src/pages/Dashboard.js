@@ -3,12 +3,9 @@ import { useEffect, useState } from 'react'
 import { Link } from "react-router-dom";
 import { useAuth } from '../AuthContext.js';
 
-import { displayMessage } from '../components/message.js';
-import { Header } from '../components/header.js';
-import { Footer } from '../components/footer.js';
-
-import { getUserInfo } from '../helpers/userinfo.js';
-import { fetchDashboardRecipes } from '../helpers/api.js';
+import { fetchDashboardRecipes } from '../utils/Api.js';
+import { getUserInfo } from '../utils/UserInfo.js';
+import { Header, Footer } from '../layouts/index.js';
 
 
 function Dashboard() {
