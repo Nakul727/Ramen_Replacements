@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Header } from "../components/header.js";
-import { displayMessage } from "../components/helper.js";
-import { Footer } from "../components/footer.js";
-import { useAuth } from "../AuthContext.js";
-import Modal from "react-modal";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Header } from '../components/header.js';
+import { displayMessage } from '../components/helper.js';
+import { Footer } from '../components/footer.js';
+import { useAuth } from '../AuthContext.js';
+import Modal from 'react-modal';
 
 function Explore() {
-
   //---------------------------------------------------------------------------
 
   const [recipes, setRecipes] = useState([]);
@@ -22,9 +21,9 @@ function Explore() {
     try {
       const backendApi = process.env.REACT_APP_BACKEND;
       const response = await fetch(`${backendApi}/recipe/explore`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -62,48 +61,46 @@ function Explore() {
 
   return (
     <div>
-
       <header>
         <Header />
       </header>
 
       <div className="body_sections overflow-hidden">
-
         {/* Section 1 - Welcome to the Explore page */}
         {/* Section 2 - Search bar */}
         {/* Section 3 - Filtering bar */}
 
         {/* Section 4 - Recipes Grid */}
-        <div className="p-16" style={{ backgroundColor: "lightgrey" }}>
-
+        <div className="p-16" style={{ backgroundColor: 'lightgrey' }}>
           <h1 className="text-center font-arvo text-3xl mb-12">Explore Recipes</h1>
 
           {/* If the api response is null, there are no recipes */
-           /* Otherwise Display the recipes in a grid */}
+          /* Otherwise Display the recipes in a grid */}
 
           {recipes === null ? (
             <p>No recipe found.</p>
           ) : (
             <div className="grid grid-cols-3 gap-4 place-items-center">
-                {/* For each recipe in the grid col */}
-                {recipes.map((recipe) => (
-                  <div key={recipe.ID} className="border p-4 rounded-md text-center">
-                    <Link
-                      to={isLoggedIn ? `/recipe/${recipe.ID}` : "#"}
-                      onClick={isLoggedIn ? null : showLoginPopupHandler}
-                    >
-                      <img
-                        src={recipe.image}
-                        alt={recipe.title}
-                        className="w-96 h-96 object-cover rounded-md mx-auto"
-                      />
-                      <h3 className="text-lg w-96 p-4 font-arvo bg-zinc-200 font-semibold">{recipe.title}</h3>
-                    </Link>
-                  </div>
+              {/* For each recipe in the grid col */}
+              {recipes.map((recipe) => (
+                <div key={recipe.ID} className="border p-4 rounded-md text-center">
+                  <Link
+                    to={isLoggedIn ? `/recipe/${recipe.ID}` : '#'}
+                    onClick={isLoggedIn ? null : showLoginPopupHandler}
+                  >
+                    <img
+                      src={recipe.image}
+                      alt={recipe.title}
+                      className="w-96 h-96 object-cover rounded-md mx-auto"
+                    />
+                    <h3 className="text-lg w-96 p-4 font-arvo bg-zinc-200 font-semibold">
+                      {recipe.title}
+                    </h3>
+                  </Link>
+                </div>
               ))}
             </div>
           )}
-
         </div>
       </div>
 

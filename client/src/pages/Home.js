@@ -1,12 +1,12 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Header } from "../components/header.js";
-import { Footer } from "../components/footer.js";
-import home_img from "../assets/whitebg.svg";
-import { TopHomeRecipe } from "../components/TopHomeRecipe.js";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Header } from '../components/header.js';
+import { Footer } from '../components/footer.js';
+import home_img from '../assets/whitebg.svg';
+import { TopHomeRecipe } from '../components/TopHomeRecipe.js';
 
 function Home() {
-  console.log('Micah was here.')
+  console.log('Micah was here.');
 
   return (
     <div className="homepage">
@@ -17,11 +17,7 @@ function Home() {
       <div className="body_sections">
         <div className="section1 mt-32 md:mt-20 flex flex-col items-center justify-center bg-orange-200">
           <div className="flex-1 mx-4 px-4 w-full">
-            <img
-              src={home_img}
-              alt="Platform Image"
-              className="h-full w-1/2 m-auto"
-            />
+            <img src={home_img} alt="Platform Image" className="h-full w-1/2 m-auto" />
           </div>
 
           <div className="flex-1 mx-4 px-4 w-full">
@@ -43,17 +39,16 @@ function Home() {
           {/* Left Section */}
           <div className="flex-1 ml-20 p-4">
             <p className="text-lg lg:text-xl font-arvo mb-8">
-              Ramen_Replacements is a platform built for college students to
-              find cheap, fast, and simple recipes!
+              Ramen_Replacements is a platform built for college students to find cheap, fast, and
+              simple recipes!
             </p>
 
-            <p className="text-lg lg:text-xl font-arvo font-arvo_bold mb-8">
-              Here you can:
-            </p>
+            <p className="text-lg lg:text-xl font-arvo font-arvo_bold mb-8">Here you can:</p>
 
             <p className="text-md lg:text-lg font-arvo mx-10 mb-8">
               - Create your own custom recipes! <br />
-              - Get automatic cost and nutrition estimates.<br />
+              - Get automatic cost and nutrition estimates.
+              <br />
               - Share your recipes with the world! <br />
               - Explore recipes made by others. <br />
             </p>
@@ -67,9 +62,7 @@ function Home() {
 
           {/* Right Section */}
           <div className="flex-1 p-4">
-            <p className="ml-20 mb-1 font-arvo font-arvo_bold mt-20">
-              Top Recipe this week:
-            </p>
+            <p className="ml-20 mb-1 font-arvo font-arvo_bold mt-20">Top Recipe this week:</p>
             <hr className="ml-20 w-48 mb-4 border border-black"></hr>
             <TopHomeRecipe />
           </div>

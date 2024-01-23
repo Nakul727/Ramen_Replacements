@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Header } from "../components/header.js";
-import { Footer } from "../components/footer.js";
-import { useAuth } from "../AuthContext.js";
-import { getUserInfo } from "../components/UserInfo.js";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Header } from '../components/header.js';
+import { Footer } from '../components/footer.js';
+import { useAuth } from '../AuthContext.js';
+import { getUserInfo } from '../components/UserInfo.js';
+import { useNavigate } from 'react-router-dom';
 
 function RecipeMaker() {
   //---------------------------------------------------------------------------
@@ -13,23 +13,23 @@ function RecipeMaker() {
   const userInfo = getUserInfo();
 
   const navigate = useNavigate();
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [displayInformation, setDisplayInformation] = useState(false);
   const [errorMessages, setErrorMessages] = useState([]);
 
   //---------------------------------------------------------------------------
 
   // react hooks for recipe information
-  const [title, setTitle] = useState("");
-  const [image, setImage] = useState("");
-  const [description, setDesc] = useState("");
-  const [enteredIngredients, setEnteredIngredients] = useState("");
-  const [enteredInstructions, setEnteredInstructions] = useState("");
+  const [title, setTitle] = useState('');
+  const [image, setImage] = useState('');
+  const [description, setDesc] = useState('');
+  const [enteredIngredients, setEnteredIngredients] = useState('');
+  const [enteredInstructions, setEnteredInstructions] = useState('');
 
   const [tags, setTags] = useState([]);
-  const [enteredTag, setEnteredTag] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
-  const predefinedTags = ["Dairy", "Vegan", "Gluten-free", "Vegetarian"];
+  const [enteredTag, setEnteredTag] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
+  const predefinedTags = ['Dairy', 'Vegan', 'Gluten-free', 'Vegetarian'];
 
   const [isPublic, setIsPublic] = useState(false);
 
@@ -39,13 +39,13 @@ function RecipeMaker() {
     Microwave: false,
     Toaster: false,
     Blender: false,
-    "Air Fryer": false,
-    "Grill/Barbecue": false,
-    "Toaster Oven": false,
-    "Waffle Iron": false,
-    "Stand Mixer": false,
-    "Electric Mixer": false,
-    "Slow Cooker": false,
+    'Air Fryer': false,
+    'Grill/Barbecue': false,
+    'Toaster Oven': false,
+    'Waffle Iron': false,
+    'Stand Mixer': false,
+    'Electric Mixer': false,
+    'Slow Cooker': false,
   });
 
   // Fields obtained from/needed by external API
@@ -72,57 +72,22 @@ function RecipeMaker() {
   const checkEmptyFields = () => {
     const errors = [];
     if (!title.trim()) {
-      errors.push("Title is empty");
+      errors.push('Title is empty');
     }
     if (!image.trim()) {
-      errors.push("Image URL is empty");
+      errors.push('Image URL is empty');
     }
     if (!description.trim()) {
-      errors.push("Description is empty");
+      errors.push('Description is empty');
     }
     if (!enteredIngredients.trim()) {
-      errors.push("Ingredients are empty");
+      errors.push('Ingredients are empty');
     }
     if (!enteredInstructions.trim()) {
-      errors.push("Instructions are empty");
+      errors.push('Instructions are empty');
     }
     setErrorMessages(errors);
     return errors.length === 0;
-  };
-
-  //---------------------------------------------------------------------------
-
-  const handleAutoFill = () => {
-
-    // demo data as a object
-    const demoData = {
-      title: "The Legendary 276 Sandwich",
-      image: "https://images.nightcafe.studio/jobs/DjXaUmDc5oRjE1d7uRqR/DjXaUmDc5oRjE1d7uRqR--1--76ikb.jpg?tr=w-1600,c-at_max",
-      description: "This is the most prestigious sandwich ever created. This recipe is not just for a demo, but for the world to remember as 'The legendary sandwich of Steve's 276 class'",
-      enteredInstructions: "Use the ingredients to make the sandwich\nEat it",
-    };
-
-    // Set the state with demo data
-    setTitle(demoData.title);
-    setImage(demoData.image);
-    setDesc(demoData.description);
-    setEnteredInstructions(demoData.enteredInstructions);
-    setTags(["DemoTag1", "Vegan"]);
-
-    setSelectedAppliances({
-      Oven: false,
-      Microwave: false,
-      Blender: false,
-      Stove: true,
-      Toaster: true,
-      "Air Fryer": false,
-      "Grill/Barbecue": false,
-      "Toaster Oven": false,
-      "Waffle Iron": false,
-      "Stand Mixer": false,
-      "Electric Mixer": false,
-      "Slow Cooker": false,
-    });
   };
 
   //---------------------------------------------------------------------------
@@ -140,15 +105,15 @@ function RecipeMaker() {
       const ingredientList = enteredIngredients;
       const servings = 1;
       const includeNutrition = true;
-      const language = "en";
+      const language = 'en';
 
       const apiKey = process.env.REACT_APP_SPOONACULAR_API_KEY;
       const apiUrl = `https://api.spoonacular.com/recipes/parseIngredients?apiKey=${apiKey}&servings=${servings}&includeNutrition=${includeNutrition}&language=${language}`;
 
       const response = await fetch(apiUrl, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: `ingredientList=${encodeURIComponent(ingredientList)}`,
       });
@@ -157,20 +122,20 @@ function RecipeMaker() {
       } else {
         // update the required hooks accordingly
         const jsonResponse = await response.json();
-        console.log("Parsed Ingredients:", jsonResponse);
+        console.log('Parsed Ingredients:', jsonResponse);
 
         // Check if any ingredients were not found
         const notFoundIngredients = jsonResponse.filter(
-          (ingredient) => !ingredient.estimatedCost || !ingredient.estimatedCost.value
+          (ingredient) => !ingredient.estimatedCost || !ingredient.estimatedCost.value,
         );
 
         if (notFoundIngredients.length > 0) {
           // Display an error message for not found ingredients
           const notFoundIngredientNames = notFoundIngredients.map(
-            (ingredient) => ingredient.original
+            (ingredient) => ingredient.original,
           );
           const errorMessage = `Some ingredients not found: ${notFoundIngredientNames.join(
-            ", "
+            ', ',
           )}. Please adjust your ingredient wording.`;
 
           setErrorMessages([errorMessage]);
@@ -179,10 +144,7 @@ function RecipeMaker() {
         }
 
         // Calculate total cost and update the state
-        const newTotalCost = jsonResponse.reduce(
-          (sum, item) => sum + item.estimatedCost.value,
-          0
-        );
+        const newTotalCost = jsonResponse.reduce((sum, item) => sum + item.estimatedCost.value, 0);
         const totalCostInCAD = (newTotalCost / 100) * conversionRate;
         setTotalCost(totalCostInCAD);
 
@@ -190,10 +152,7 @@ function RecipeMaker() {
         const costBreakdownData = jsonResponse.map((ingredient) => ({
           name: ingredient.original,
           costUSD: (ingredient.estimatedCost.value / 100).toFixed(2),
-          costCAD: (
-            (ingredient.estimatedCost.value / 100) *
-            conversionRate
-          ).toFixed(2),
+          costCAD: ((ingredient.estimatedCost.value / 100) * conversionRate).toFixed(2),
         }));
         setCostBreakdown(costBreakdownData);
 
@@ -201,21 +160,21 @@ function RecipeMaker() {
         const nutrientInfo = jsonResponse.reduce(
           (acc, item) => {
             item.nutrition.nutrients.forEach((nutrient) => {
-              if (nutrient.name === "Carbohydrates") {
+              if (nutrient.name === 'Carbohydrates') {
                 acc.carbohydrates += nutrient.amount;
-              } else if (nutrient.name === "Fat") {
+              } else if (nutrient.name === 'Fat') {
                 acc.fat += nutrient.amount;
-              } else if (nutrient.name === "Saturated Fat") {
+              } else if (nutrient.name === 'Saturated Fat') {
                 acc.saturated_fat += nutrient.amount;
-              } else if (nutrient.name === "Protein") {
+              } else if (nutrient.name === 'Protein') {
                 acc.protein += nutrient.amount;
-              } else if (nutrient.name === "Calories") {
+              } else if (nutrient.name === 'Calories') {
                 acc.calories += nutrient.amount;
-              } else if (nutrient.name === "Sugar") {
+              } else if (nutrient.name === 'Sugar') {
                 acc.sugar += nutrient.amount;
-              } else if (nutrient.name === "Cholesterol") {
+              } else if (nutrient.name === 'Cholesterol') {
                 acc.cholestrol += nutrient.amount;
-              } else if (nutrient.name === "Sodium") {
+              } else if (nutrient.name === 'Sodium') {
                 acc.sodium += nutrient.amount;
               }
             });
@@ -226,7 +185,7 @@ function RecipeMaker() {
             fat: 0,
             protein: 0,
             calories: 0,
-          }
+          },
         );
         setNutrients(nutrientInfo);
 
@@ -234,7 +193,7 @@ function RecipeMaker() {
         setDisplayInformation(true);
       }
     } catch (error) {
-      console.error("Error:", error.message);
+      console.error('Error:', error.message);
       setDisplayInformation(false);
     }
   };
@@ -244,10 +203,10 @@ function RecipeMaker() {
   // Function to add a tag
   const addTag = () => {
     const tagToAdd = enteredTag.trim() || selectedTag.trim();
-    if (tagToAdd !== "" && tags.indexOf(tagToAdd) === -1) {
+    if (tagToAdd !== '' && tags.indexOf(tagToAdd) === -1) {
       setTags([...tags, tagToAdd]);
-      setEnteredTag("");
-      setSelectedTag("");
+      setEnteredTag('');
+      setSelectedTag('');
     }
   };
 
@@ -273,12 +232,12 @@ function RecipeMaker() {
 
       // Check userInfo before sending
       if (!userInfo || !userInfo.userID) {
-        console.error("User information is missing or incomplete.");
+        console.error('User information is missing or incomplete.');
         return;
       }
 
       setDisplayInformation(false);
-      setLoadingMessage("Posting Recipe...");
+      setLoadingMessage('Posting Recipe...');
       setDisplayInformation(true);
 
       const postData = {
@@ -305,31 +264,30 @@ function RecipeMaker() {
       };
 
       const response = await fetch(`${backendApi}/recipe/post`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(postData),
       });
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        console.error("Server error:", errorResponse);
-        setLoadingMessage("Failed to post recipe. Please try again.");
+        console.error('Server error:', errorResponse);
+        setLoadingMessage('Failed to post recipe. Please try again.');
         setDisplayInformation(false);
       } else {
-        console.log("Recipe successfully posted");
-        setLoadingMessage("Recipe Posted");
+        console.log('Recipe successfully posted');
+        setLoadingMessage('Recipe Posted');
         setDisplayInformation(true);
 
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate('/dashboard');
         }, 3000);
-
       }
     } catch (error) {
-      console.error("Error:", error);
-      setLoadingMessage("An error occurred. Please try again.");
+      console.error('Error:', error);
+      setLoadingMessage('An error occurred. Please try again.');
       setDisplayInformation(false);
     }
   };
@@ -350,9 +308,7 @@ function RecipeMaker() {
             <div>
               <p className="font-arvo text-3xl text-center">Recipe Maker</p>
               <hr className="mx-auto w-80 mt-2 border border-black"></hr>
-              <p className="font-arvo mt-2 text-sm text-center">
-                Create Custom Recipe
-              </p>
+              <p className="font-arvo mt-2 text-sm text-center">Create Custom Recipe</p>
             </div>
 
             <div className="flex items-center mt-24 mb-8">
@@ -377,15 +333,6 @@ function RecipeMaker() {
                 onChange={(e) => setImage(e.target.value)}
                 className="block rounded-xl w-96 p-2 focus:outline-none focus-border-indigo-500 text-gray-700"
               />
-            </div>
-
-            <div className="flex items-center justify-center my-8">
-              <button
-                className="font-arvo bg-white hover:bg-slate-200 rounded-xl px-12 py-4"
-                onClick={handleAutoFill}
-              >
-                Auto Fill Demo
-              </button>
             </div>
 
             <hr className="mx-32 w-auto my-6 border-black"></hr>
@@ -461,10 +408,7 @@ function RecipeMaker() {
                         }));
                       }}
                     />
-                    <label
-                      htmlFor={appliance}
-                      className="font-arvo text-gray-800 ml-2"
-                    >
+                    <label htmlFor={appliance} className="font-arvo text-gray-800 ml-2">
                       {appliance}
                     </label>
                   </div>
@@ -474,9 +418,7 @@ function RecipeMaker() {
 
             {/* Tags */}
             <div className="flex items-center px-32 mt-4">
-              <label className="font-arvo font-arvo_bold text-gray-800 mb-2 mr-4">
-                Tags
-              </label>
+              <label className="font-arvo font-arvo_bold text-gray-800 mb-2 mr-4">Tags</label>
               <div className="tags-container flex flex-wrap items-center">
                 {/* Display selected tags as buttons with remove option on hover */}
                 {tags.map((tag, index) => (
@@ -487,10 +429,7 @@ function RecipeMaker() {
                     >
                       {tag}
                     </button>
-                    <button
-                      className="tag-remove"
-                      onClick={() => removeTag(tag)}
-                    >
+                    <button className="tag-remove" onClick={() => removeTag(tag)}>
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
@@ -528,8 +467,6 @@ function RecipeMaker() {
 
             <hr className="mx-32 w-auto my-6 border-black"></hr>
 
-
-
             {/*---------------------------------------------------------------------------*/}
             {/* External API Call*/}
             <div className="flex items-center justify-center my-8">
@@ -563,27 +500,19 @@ function RecipeMaker() {
                     <table className="table-auto border-collapse border border-black w-full">
                       <thead>
                         <tr>
-                          <th className="border border-black px-4 py-2">
-                            Nutrient
-                          </th>
-                          <th className="border border-black px-4 py-2">
-                            Amount
-                          </th>
+                          <th className="border border-black px-4 py-2">Nutrient</th>
+                          <th className="border border-black px-4 py-2">Amount</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td className="border border-black px-4 py-2">
-                            Calories
-                          </td>
+                          <td className="border border-black px-4 py-2">Calories</td>
                           <td className="border border-black px-4 py-2">
                             {nutrients.calories.toFixed(2)} kcal
                           </td>
                         </tr>
                         <tr>
-                          <td className="border border-black px-4 py-2">
-                            Carbohydrates
-                          </td>
+                          <td className="border border-black px-4 py-2">Carbohydrates</td>
                           <td className="border border-black px-4 py-2">
                             {nutrients.carbohydrates.toFixed(2)} g
                           </td>
@@ -595,9 +524,7 @@ function RecipeMaker() {
                           </td>
                         </tr>
                         <tr>
-                          <td className="border border-black px-4 py-2">
-                            Protein
-                          </td>
+                          <td className="border border-black px-4 py-2">Protein</td>
                           <td className="border border-black px-4 py-2">
                             {nutrients.protein.toFixed(2)} g
                           </td>
@@ -609,9 +536,7 @@ function RecipeMaker() {
                   {/* Right Column - Cost Information */}
                   <div>
                     <div className="flex items-center justify-center">
-                      <p className="font-arvo">
-                        Total Cost: {totalCost.toFixed(2)} CAD
-                      </p>
+                      <p className="font-arvo">Total Cost: {totalCost.toFixed(2)} CAD</p>
                     </div>
 
                     <div className="mt-8">
@@ -619,20 +544,14 @@ function RecipeMaker() {
                       <table className="table-auto border-collapse border border-black w-full">
                         <thead>
                           <tr>
-                            <th className="border border-black px-4 py-2">
-                              Ingredient
-                            </th>
-                            <th className="border border-black px-4 py-2">
-                              Cost (CAD)
-                            </th>
+                            <th className="border border-black px-4 py-2">Ingredient</th>
+                            <th className="border border-black px-4 py-2">Cost (CAD)</th>
                           </tr>
                         </thead>
                         <tbody>
                           {costBreakdown.map((ingredient, index) => (
                             <tr key={index}>
-                              <td className="border border-black px-4 py-2">
-                                {ingredient.name}
-                              </td>
+                              <td className="border border-black px-4 py-2">{ingredient.name}</td>
                               <td className="border border-black px-4 py-2">
                                 {ingredient.costCAD}
                               </td>
@@ -646,9 +565,7 @@ function RecipeMaker() {
 
                 {/* Public/Private Checkbox */}
                 <div className="flex mt-12">
-                  <label className="font-arvo font-arvo_bold text-gray-800">
-                    Visibility:
-                  </label>
+                  <label className="font-arvo font-arvo_bold text-gray-800">Visibility:</label>
 
                   <div className="ml-8 flex items-center">
                     <label className="flex items-center">

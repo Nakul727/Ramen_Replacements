@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { displayMessage } from "../components/helper.js";
-import { useAuth } from "../AuthContext.js";
-import Modal from "react-modal";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { displayMessage } from '../components/helper.js';
+import { useAuth } from '../AuthContext.js';
+import Modal from 'react-modal';
 
 function TopHomeRecipe() {
   const [topRecipe, setTopRecipe] = useState({});
@@ -13,27 +13,21 @@ function TopHomeRecipe() {
     try {
       const backendApi = process.env.REACT_APP_BACKEND;
       const response = await fetch(`${backendApi}/recipe/most_liked`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        displayMessage(
-          "Error",
-          `Failed to fetch recipes: ${errorResponse.error}`
-        );
+        displayMessage('Error', `Failed to fetch recipes: ${errorResponse.error}`);
       } else {
         const data = await response.json();
         setTopRecipe(data);
       }
     } catch (error) {
-      displayMessage(
-        "Error",
-        `An error occurred while fetching recipes: ${error}`
-      );
+      displayMessage('Error', `An error occurred while fetching recipes: ${error}`);
     }
   };
 
@@ -54,7 +48,7 @@ function TopHomeRecipe() {
       {topRecipe.ID ? (
         <div key={topRecipe.ID} className="ml-20 mr-32 rounded-md">
           <Link
-            to={isLoggedIn ? `/recipe/${topRecipe.ID}` : "#"}
+            to={isLoggedIn ? `/recipe/${topRecipe.ID}` : '#'}
             onClick={isLoggedIn ? null : showLoginPopupHandler}
           >
             <img
@@ -84,18 +78,18 @@ function TopHomeRecipe() {
           </p>
 
           <div className="flex items-center justify-center">
-          <Link to="/login">
-            <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
-              Go to Login Page
-            </button>
-          </Link>
+            <Link to="/login">
+              <button className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400">
+                Go to Login Page
+              </button>
+            </Link>
 
-          <button
-            className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
-            onClick={hideLoginPopupHandler}
-          >
-            Close
-          </button>
+            <button
+              className="bg-zinc-200 text-black font-arvo px-4 py-2 rounded-md mr-2 hover:bg-zinc-400"
+              onClick={hideLoginPopupHandler}
+            >
+              Close
+            </button>
           </div>
         </div>
       </Modal>
