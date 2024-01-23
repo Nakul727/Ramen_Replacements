@@ -197,18 +197,54 @@ func GetRecipeByID(c *gin.Context) {
     recipeIDStr := c.Param("id")
     recipeID, err := strconv.Atoi(recipeIDStr)
     if err != nil {
-        utils.RespondWithError(c, http.StatusBadRequest, "Invalid recipe ID")
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipe ID"})
         return
     }
 
-    recipe, err := GetRecipesFromDB(`
+    row := db.QueryRow(`
         SELECT id, user_id, username, title, image, description, ingredients, instructions,
             is_public, post_time, likes, total_cost, tags, appliances, nutrients, cost_breakdown
         FROM recipes
         WHERE id = $1
     `, recipeID)
+
+    var recipe Recipe
+    var tagsJSON, nutrientsJSON, costBreakdownJSON, appliancesJSON []byte
+
+    err = row.Scan(
+        &recipe.ID, &recipe.UserID, &recipe.Username,
+        &recipe.Title, &recipe.Image, &recipe.Description,
+        &recipe.Ingredients, &recipe.Instructions, &recipe.IsPublic, &recipe.PostTime,
+        &recipe.Likes, &recipe.TotalCost, &tagsJSON, &appliancesJSON,
+        &nutrientsJSON, &costBreakdownJSON,
+    )
     if err != nil {
-        utils.RespondWithError(c, http.StatusInternalServerError, "Failed to retrieve recipe from the database")
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipe from the database"})
+        return
+    }
+
+    err = json.Unmarshal(tagsJSON, &recipe.Tags)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal tags"})
+        return
+    }
+    err = json.Unmarshal(nutrientsJSON, &recipe.Nutrients)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal nutrients"})
+        return
+    }
+
+    var recipeAppliances map[string]bool
+    err = json.Unmarshal(appliancesJSON, &recipeAppliances)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal appliances"})
+        return
+    }
+    recipe.Appliances = recipeAppliances
+
+    err = json.Unmarshal(costBreakdownJSON, &recipe.CostBreakdown)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal cost breakdown"})
         return
     }
 
