@@ -2,9 +2,7 @@ package api
 
 import (
 	"database/sql"
-
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var db *sql.DB
@@ -30,7 +28,7 @@ func RunAccounts(r *gin.Engine) {
 func RunRecipes(r *gin.Engine) {
 	r.POST("/recipe/post", PostRecipe)
 	r.GET("/recipe/explore", ExploreRecipes)
-	r.GET("/recipe/:id/dashboard", DashboardRecipes)
+	r.GET("/recipe/:id/dashboard", GetRecipeByUser)
 	r.GET("/recipe/:id", GetRecipeByID)
 	r.PUT("/recipe/:id/likes", UpdateLikes)
 	r.GET("/recipe/most_liked", MostLikedRecipe)
