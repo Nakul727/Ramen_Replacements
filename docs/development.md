@@ -46,10 +46,10 @@ Then paste the following to create the required tables:
 ```sql
 CREATE TABLE Users (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(25) NOT NULL,
-    email       VARCHAR(50) NOT NULL,
-    pass        VARCHAR(8) NOT NULL,
-    pfp         VARCHAR(150)
+    name        VARCHAR(60) NOT NULL,
+    email       VARCHAR(60) NOT NULL,
+    pass        VARCHAR(60) NOT NULL,
+    pfp         VARCHAR(300)
 );
 ```
 
